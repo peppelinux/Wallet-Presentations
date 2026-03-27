@@ -15,6 +15,11 @@
 }
 
 section {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
   background: var(--surface);
   background-image: linear-gradient(180deg, var(--surface) 0%, var(--surface-tint) 100%);
   color: var(--text);
@@ -23,10 +28,26 @@ section {
   font-weight: 400;
   line-height: 1.38;
   border-bottom: 6px solid var(--teal);
-  padding: 48px 56px 56px 56px;
+  padding: 48px 56px calc(56px + 2.75em) 56px;
 }
 
-h1 {
+/* Content above the pinned footer */
+section > *:not(footer) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Light plate behind body blocks so type stays readable over the footer strip (not title slide: .lead-blue) */
+section:not(.lead-blue) > *:not(footer):not(:is(h1, marp-h1)) {
+  background: rgba(255, 255, 255, 0.98);
+  padding: 0.2em 0.45em;
+  border-radius: 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+h1,
+marp-h1 {
   color: var(--teal);
   font-size: 1.55em;
   font-weight: 700;
@@ -110,7 +131,30 @@ code {
 
 footer {
   color: var(--text-muted);
-  font-size: 0.72em;
+  font-size: 0.55em;
+  line-height: 1.25;
+}
+
+section > footer {
+  position: absolute;
+  left: 56px;
+  right: 56px;
+  bottom: 56px;
+  margin: 0;
+  z-index: 0;
+}
+
+/* Responsibilities matrix slide — pull table closer to heading / intro */
+section.responsibilities-matrix :is(h2, marp-h2) {
+  margin-top: 0;
+  margin-bottom: 0.15em;
+}
+section.responsibilities-matrix > p {
+  margin: 0 0 0.12em 0;
+}
+section.responsibilities-matrix table {
+  margin-top: 0;
+  margin-bottom: 0.35em;
 }
 
 section.lead {
@@ -121,7 +165,7 @@ section.lead {
   background-image: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(114, 159, 207, 0.18), transparent 55%), linear-gradient(180deg, var(--surface) 0%, var(--surface-tint) 100%);
 }
 
-section.lead h1 {
+section.lead :is(h1, marp-h1) {
   background: var(--teal);
   color: #ffffff;
   border: none;
@@ -132,6 +176,7 @@ section.lead h1 {
   font-size: 1.75em;
   font-weight: 700;
   box-shadow: 4px 4px 0 rgba(255, 204, 153, 0.85);
+  text-align: center;
 }
 
 section.lead p,
@@ -145,6 +190,58 @@ section.lead strong {
   font-weight: 600;
 }
 
+/* Title slide: full-bleed blue, centered copy, same boxed title treatment as .lead */
+section.lead.lead-blue {
+  background: #0056ab;
+  background-image: none;
+  color: #fff;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  border-bottom-width: 0;
+}
+section.lead.lead-blue :is(h1, marp-h1) {
+  background: none;
+  color: #ffffff;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0.85em auto 0.4em auto;
+  max-width: 95%;
+  font-size: 1.75em;
+  font-weight: 700;
+  text-align: center;
+}
+section.lead.lead-blue p,
+section.lead.lead-blue strong {
+  color: rgba(255, 255, 255, 0.95);
+}
+section.lead.lead-blue strong {
+  color: #fff;
+  font-weight: 600;
+}
+section.lead.lead-blue footer {
+  color: rgba(255, 255, 255, 0.78);
+}
+section.lead.lead-blue::after {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* “Why it matters” (d01): heading + diagram — cap size to stay in 16:9 */
+section.why-matters h2 {
+  margin: 0 0 0.3em 0;
+}
+section.why-matters img[alt="diagram"] {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: min(340px, 46vh);
+  height: auto;
+  margin: 0.15em auto 0;
+  object-fit: contain;
+  object-position: center top;
+}
+
 /* eIDAS distributed trust (d14): two columns — checklist left, diagram right */
 section.eidas-distributed-slide h2 {
   margin: 0 0 0.35em 0;
@@ -153,7 +250,7 @@ section.eidas-distributed-slide h2 {
 }
 section.eidas-distributed-slide .eidas-split {
   display: grid;
-  grid-template-columns: minmax(0, 0.58fr) minmax(0, 1.42fr);
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
   gap: 1rem 1.1rem;
   align-items: center;
   width: 100%;

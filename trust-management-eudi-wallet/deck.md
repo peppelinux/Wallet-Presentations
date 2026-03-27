@@ -22,7 +22,7 @@ footer: 'Session 3: ITU Workshop on &quot;Trustable and Interoperable Digital I
 5. **Runtime**: digital signature, timestamps, issuance, presentation, user-visible assurance  
 6. **Assurance & lifecycle**: certification, Trust Mark, revocation  
 
-<p class="agenda-tagline"><i>Trust is about <strong>risk</strong> and <strong>cost reduction</strong>, common infrastructure works when it <strong>scales</strong>.</i></p>
+<p class="agenda-tagline"><i>Trust is about <strong>risk</strong> and <strong>cost reduction</strong>, a common infrastructure works when it <strong>scales</strong>.</i></p>
 
 ---
 
@@ -33,13 +33,18 @@ footer: 'Session 3: ITU Workshop on &quot;Trustable and Interoperable Digital I
 
 <div class="eidas-split-left">
 
-Does this _Five-part breakdown_ explain the stack?
+Many independent **actors**. 
+No EU-wide single “login authority”.  
+Shared rule and semantics inside the same interoperability patterns.
 
-1. **Particpants Enrolling / Onboarding / Registration**
+1. **Participants Enrolling / Onboarding / Registration**
 2. **Notification** to the Root of Trust, the EU Commission
 3. **Publication** and Participants **lifecycle**
 4. **Usage**, mutual trust evaluation
 5. **Dispute resolution** and regulated administrative security framework
+
+Trust is the product of framework establishing registration, crypto,
+published anchors and supervision.
 
 </div>
 
@@ -53,25 +58,24 @@ Does this _Five-part breakdown_ explain the stack?
 
 ---
 
+<!-- _class: responsibilities-matrix -->
 ## eIDAS Trust Infrastructure Responsibilities matrix
 
-Who **registers** vs who **publishes** Trusted Lists (TL) — wallet consumption depends on both.
+Trust evaluation depends on both who registers and who publishes.
 
 | Entity type | Registration | TL compilation (EC / MS TLP) | MS TLP role |
 |-------------|----------------|------------------------------|-------------|
 | **PID Provider** | MS **Registrar** | **European Commission** (EU PID TL) | None |
 | **Attestation Provider** | MS **Registrar** | **MS TLP**: QTSP TL (QEAA); national TL (non-qualified EAA); **PuB-EAA** → **EC** TL | Compiles / signs / publishes national TLs; notifies EC |
-| **Wallet-Relying Party** | MS **Registrar** | **N/A** (WRPAC + **Registry**) | None |
-| **Wallet Provider** | *Notification only* (MS → EC) | **European Commission** | N/A (pilot) |
-| **WRPAC Provider** | *Notification only* (MS → EC) | **European Commission** | N/A (pilot) |
-| **WRPRC Provider** | *Notification only* (MS → EC) | **European Commission** | N/A (pilot) |
+| **Wallet-Relying Party** | MS **Registrar** | **N/A** (WRPAC; **not** EC/MS TL) | **MS** runs national registry + **TS5** machine-readable format & API |
+| **Wallet Provider** | *Notification only* (MS → EC) | **European Commission** | N/A |
+| **WRPAC Provider** | *Notification only* (MS → EC) | **European Commission** | N/A |
+| **WRPRC Provider** | *Notification only* (MS → EC) | **European Commission** | N/A |
 
 ---
 
 <!-- _class: why-matters -->
-## Why it matters
-
-- Many **independent actors**, no EU-wide single “login authority”; trust is **registration + crypto + published anchors + supervision**. Cross-border programmes agree **shared rulebooks and semantics** inside the same patterns. 
+## Does everything fit within it?
 
 ![diagram](diagrams/d01-why-it-matters.svg)
 
