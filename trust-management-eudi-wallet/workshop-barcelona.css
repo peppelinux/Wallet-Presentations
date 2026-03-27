@@ -144,3 +144,43 @@ section.lead strong {
   color: var(--accent-blue);
   font-weight: 600;
 }
+
+/* eIDAS distributed trust (d14): two columns — checklist left, diagram right */
+section.eidas-distributed-slide h2 {
+  margin: 0 0 0.35em 0;
+  font-size: 1.05em;
+  line-height: 1.18;
+}
+section.eidas-distributed-slide .eidas-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.58fr) minmax(0, 1.42fr);
+  gap: 1rem 1.1rem;
+  align-items: center;
+  width: 100%;
+}
+section.eidas-distributed-slide .eidas-split-left {
+  font-size: 0.82em;
+  line-height: 1.38;
+  min-width: 0;
+}
+section.eidas-distributed-slide .eidas-split-left ol {
+  margin: 0.4em 0 0;
+  padding-left: 1.2em;
+}
+section.eidas-distributed-slide .eidas-split-left li {
+  margin: 0.18em 0;
+}
+section.eidas-distributed-slide .eidas-split-right {
+  min-width: 0;
+  text-align: center;
+}
+section.eidas-distributed-slide .eidas-split-right img[alt="diagram"] {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: min(540px, 66vh);
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+  object-position: center center;
+}

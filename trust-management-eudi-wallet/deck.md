@@ -3,142 +3,6 @@ marp: true
 theme: workshop-barcelona
 paginate: true
 footer: 'Session 3: ITU Workshop on &quot;Trustable and Interoperable Digital Identities for Human and Agentic AI&quot;, (Geneva, Switzerland, 30–31 March 2026)'
-style: |
-  /* Overrides on top of ./workshop-barcelona.css (Barcelona IT Workshop ODP palette) */
-  /* Pin deck footer to bottom of every slide (extra bottom padding so content clears it) */
-  section {
-    position: relative;
-    box-sizing: border-box;
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding-bottom: calc(56px + 2.75em);
-  }
-  section > footer {
-    position: absolute;
-    left: 56px;
-    right: 56px;
-    bottom: 56px;
-    margin: 0;
-    font-size: 0.55em;
-    line-height: 1.25;
-    z-index: 0;
-  }
-  /* Content paints above footer; white patch keeps type readable over footer line */
-  section > *:not(footer) {
-    position: relative;
-    z-index: 1;
-  }
-  section:not(.lead-blue) > *:not(footer) {
-    background: rgba(255, 255, 255, 0.98);
-    padding: 0.2em 0.45em;
-    border-radius: 3px;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
-  }
-  /* Title slide only (Thank-you slide stays default .lead) */
-  section.lead.lead-blue {
-    background: #0056ab;
-    background-image: none;
-    color: #fff;
-    text-align: left;
-    justify-content: flex-start;
-    align-items: stretch;
-  }
-  section.lead.lead-blue :is(h1, marp-h1) {
-    background: none;
-    color: #fff;
-    border: none;
-    padding: 0;
-    margin: 0.85em 0 0.4em 0;
-    box-shadow: none;
-    text-align: left;
-  }
-  section.lead.lead-blue p,
-  section.lead.lead-blue strong { color: rgba(255, 255, 255, 0.95); }
-  section.lead.lead-blue strong { color: #fff; font-weight: 600; }
-  section.lead.lead-blue footer { color: rgba(255, 255, 255, 0.78); }
-  section.lead.lead-blue::after { color: rgba(255, 255, 255, 0.75); }
-  section.lead.lead-blue p.lead-meta { font-size: 0.78em; line-height: 1.35; margin: 0.85em 0 0; max-width: 100%; opacity: 0.95; text-align: left; }
-  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-  .small { font-size: 0.85em; }
-  section img[alt="diagram"] { max-height: 380px; width: auto; max-width: 100%; margin: 0.25em auto; display: block; }
-  section.compact-takeaways { font-size: 20px; }
-  section.compact-takeaways li { margin: 0.1em 0; }
-  section.compact-takeaways table { font-size: 0.78em; }
-  section.tl-split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr;
-    gap: 1.25rem;
-    align-items: start;
-  }
-  section.tl-split > h2 { grid-column: 1 / -1; grid-row: 1; margin-bottom: 0.2em; }
-  section.tl-split > table { grid-column: 1; grid-row: 2; margin: 0; align-self: start; }
-  section.tl-split > p { grid-column: 2; grid-row: 2; margin: 0; align-self: center; }
-  section.tl-split img[alt="diagram"] { max-height: 340px; margin: 0 auto; }
-  section.compact-graph h2 { margin: 0 0 0.2em 0; font-size: 1.35em; line-height: 1.2; }
-  section.compact-graph ul { margin: 0.15em 0; padding-left: 1.1em; font-size: 0.88em; line-height: 1.28; }
-  section.compact-graph li { margin: 0.06em 0; }
-  section.compact-graph li::marker { font-size: 0.95em; }
-  section.compact-graph img[alt="diagram"] { max-height: 240px; margin: 0.2em auto 0; }
-  /* Trust topology: two columns — generic patterns (left) · eIDAS distributed (right) */
-  section.topology-slide h2 { margin: 0 0 0.35em 0; font-size: 1.15em; line-height: 1.15; }
-  section.topology-slide .topology-cols {
-    display: grid;
-    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
-    gap: 0.55rem 0.9rem;
-    align-items: start;
-    width: 100%;
-  }
-  section.topology-slide .topology-cols > div { min-width: 0; text-align: center; }
-  section.topology-slide .topology-col-eidas {
-    align-self: start;
-    padding-top: 0;
-    box-sizing: border-box;
-  }
-  section.topology-slide .topology-col-eidas > p {
-    margin: 0;
-  }
-  section.topology-slide .topology-cols img[alt="diagram"] {
-    max-height: clamp(370px, 76vh, 560px);
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    object-fit: contain;
-    object-position: top center;
-    margin: 0 auto;
-    display: block;
-  }
-  section.topology-slide .topology-col-eidas img[alt="diagram"] {
-    margin-top: 0 !important;
-    margin-bottom: 0;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  section.wscd-split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr;
-    gap: 1.2rem;
-    align-items: start;
-  }
-  section.wscd-split > h2 { grid-column: 1 / -1; grid-row: 1; margin: 0 0 0.2em 0; font-size: 1.35em; line-height: 1.2; text-align: left; }
-  section.wscd-split > ul { grid-column: 1; grid-row: 2; margin: 0; padding-left: 1.1em; font-size: 0.88em; line-height: 1.28; align-self: start; }
-  section.wscd-split > ul li { margin: 0.06em 0; }
-  section.wscd-split > ul li::marker { font-size: 0.95em; }
-  section.wscd-split > p { grid-column: 2; grid-row: 2; margin: 0; align-self: center; }
-  section.wscd-split img[alt="diagram"] { max-height: 360px; margin: 0 auto; }
-  section.why-matters > ul { margin: 0.1em 0 0; }
-  section.why-matters > p { margin: 0; }
-  section.why-matters img[alt="diagram"] { margin: 0.05em auto 0; max-height: 450px; width: auto; }
-  section.agenda p.agenda-tagline {
-    text-align: center;
-    margin: 0.7em 0 0 0;
-    font-size: 0.98em;
-    line-height: 1.35;
-    font-weight: 600;
-  }
 ---
 
 <!-- _class: lead lead-blue -->
@@ -151,30 +15,40 @@ style: |
 <!-- _class: agenda -->
 ## eIDAS Trust Infrastructure Topics
 
-1. **Why** trust management is a cross-cutting concern  
-2. **Governance**: Member States, Commission, trusted lists, sector schemes — **plus eIDAS / PKI continuity**  
-3. **Enrollment**: registrars, certificates, transparency  
-4. **Runtime**: issuance, presentation, user-visible assurance  
-5. **Assurance & lifecycle**: certification, Trust Mark, revocation  
+1. **Awareness**... Trust management is a cross-cutting concern  
+2. **Governance**: Member States, European Commission, sector schemes
+3. **Framework**: eIDAS uses an _Authoritative Listing_ with PKI continuity and specific purpose extensions  
+4. **Enrollment**: registrars, accreditation, certification, notification mechanisms, activation of participants through publication within the Authoritative Lists (Trusted Lists)
+5. **Runtime**: digital signature, timestamps, issuance, presentation, user-visible assurance  
+6. **Assurance & lifecycle**: certification, Trust Mark, revocation  
 
 <p class="agenda-tagline"><i>Trust is about <strong>risk</strong> and <strong>cost reduction</strong>, common infrastructure works when it <strong>scales</strong>.</i></p>
 
 ---
 
-<!-- _class: topology-slide -->
-## Trust infrastructure topologies
+<!-- _class: eidas-distributed-slide -->
+## eIDAS: national registration → EU lists → runtime verifiers
 
-<div class="topology-cols">
-<div>
+<div class="eidas-split">
 
-![diagram](diagrams/d13-trust-topologies-patterns.svg)
+<div class="eidas-split-left">
+
+Does this _Five-part breakdown_ explain the stack?
+
+1. **Particpants Enrolling / Onboarding / Registration**
+2. **Notification** to the Root of Trust, the EU Commission
+3. **Publication** and Participants **lifecycle**
+4. **Usage**, mutual trust evaluation
+5. **Dispute resolution** and regulated administrative security framework
 
 </div>
-<div class="topology-col-eidas">
+
+<div class="eidas-split-right">
 
 ![diagram](diagrams/d14-eidas-distributed-trust.svg)
 
 </div>
+
 </div>
 
 ---
