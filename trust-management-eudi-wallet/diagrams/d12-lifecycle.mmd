@@ -1,0 +1,7 @@
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '19px'}}}%%
+flowchart LR
+  MS2[MS / Commission action] -->|suspend / cancel| ENT[Provider or RP]
+  ENT --> REV[Revoke access / reg. certs]
+  ENT --> TLU[Update Trusted Lists]
+  WPX[Wallet Provider cancel] --> WUAR[Revoke WUAs]
+  PIDP[PID Provider] -->|only trusted requesters| WURev[Wallet unit revocation]

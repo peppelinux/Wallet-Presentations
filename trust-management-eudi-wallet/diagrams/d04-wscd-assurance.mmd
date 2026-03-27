@@ -1,0 +1,10 @@
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '17px'}}}%%
+flowchart TB
+  TLWP[Wallet Provider Trusted List / LoTE]
+  TLWP -->|public keys for Wallet Provider| PID2[PID or Attestation Provider]
+  WP2[Wallet Provider] -->|signs WUA| WUA2["WUA: WSCA-WSCD claims, keys, certification…"]
+  WUA2 -->|OpenID4VCI| PID2
+  PID2 --> Vsig[Verify WUA signature]
+  PID2 --> Vwsc[Assess WSCD claims / LoA if needed]
+  PID2 --> Vbind[Nonce or proof keys live in that WSCD]
+  CAB2[CAB / national wallet certification] -.->|underpins solution| WP2

@@ -1,0 +1,3 @@
+# Register local theme (see workshop-barcelona.css — IT Workshop Barcelona ODP palette)
+themeSet:
+  - ./workshop-barcelona.css

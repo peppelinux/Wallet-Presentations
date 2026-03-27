@@ -1,0 +1,41 @@
+%%{init: {
+  'theme': 'neutral',
+  'themeVariables': {
+    'fontSize': '20px',
+    'clusterPadding': 12,
+    'clusterBkg': '#fbfbfb',
+    'clusterBorder': '#cccccc'
+  },
+  'flowchart': {
+    'padding': 22,
+    'nodeSpacing': 52,
+    'rankSpacing': 68,
+    'subGraphTitleMargin': { 'top': 6, 'bottom': 28 }
+  }
+}}%%
+flowchart TB
+  subgraph row1[" "]
+    direction LR
+    subgraph topo_star["Star / hub–spoke<br/>Central registry, CA, or IdP — all spokes depend on one hub.<br/>Simple operations; single point of trust, failure, or capture."]
+      direction TB
+      s_hub((Hub))
+      s_hub --- s_p1[Party]
+      s_hub --- s_p2[Party]
+      s_hub --- s_p3[Party]
+    end
+    subgraph topo_tree["Hierarchical · classic PKI tree<br/>Root delegates to intermediates; path validation walks the chain.<br/>Fits organisations and scoped delegation."]
+      direction TB
+      t_root((Root CA))
+      t_root --- t_mid[Intermediate CA]
+      t_mid --- t_ee[End entity]
+    end
+    subgraph topo_mesh["Mesh / peer-to-peer<br/>Many roots or peers; trust is local or pairwise.<br/>Flexible — scaling needs shared directories or strict out-of-band discipline."]
+      direction TB
+      m_a((Peer))
+      m_b((Peer))
+      m_c((Peer))
+      m_a --- m_b
+      m_b --- m_c
+      m_a --- m_c
+    end
+  end

@@ -1,0 +1,11 @@
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '19px'}}}%%
+flowchart TB
+  subgraph Notify["Notified to Commission → Trusted Lists"]
+    ACA[Access CA]
+    PRC[Provider of reg. certificates]
+  end
+  ACA -->|access certificate| E[Registered entities]
+  PRC -.->|registration certificate| E
+  ACA -->|logged| CT[Certificate Transparency logs]
+  CT -->|SCT inside cert| E
+  W[Wallet / RP / Issuer] -->|verify chain + SCT + list anchors| E

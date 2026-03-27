@@ -1,0 +1,15 @@
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '17px'}}}%%
+flowchart TB
+  subgraph Existing["Already familiar infra & law"]
+    EIDAS["eIDAS legal base (910/2014) + amending EUDI Reg."]
+    TSP["EU TSL / QTSP practice for qualified services"]
+    NCA["National PKI, MS eID, existing CAs & registries"]
+  end
+  subgraph EUDIW["EUDIW adds harmonised operational layer"]
+    WTL["Wallet ecosystem Trusted Lists + LoTL"]
+    WUA["WUA / WIA, wallet certification, RP registration…"]
+  end
+  EIDAS --> EUDIW
+  TSP -.->|qualified sigs / certs where law requires| EUDIW
+  NCA -->|may back Access CAs; reuse roles §6.1| WTL
+  WTL --> V2[Wallets, issuers, RPs]

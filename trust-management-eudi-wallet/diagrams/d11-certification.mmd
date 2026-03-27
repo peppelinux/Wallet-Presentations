@@ -1,0 +1,8 @@
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '19px'}}}%%
+flowchart TB
+  NAB[National Accreditation Body] -->|accredits| CAB[Conformity Assessment Body]
+  CAB -->|certifies| WS[Wallet Solution]
+  CAB -->|audits| QTSP[Qualified TSPs]
+  SB[Supervisory Body] -->|oversight| WP[Wallet Provider & actors]
+  WS --> WU[Wallet Unit]
+  TM[Trust Mark UI] -.->|TS1 links| EC2[Commission certification pages]

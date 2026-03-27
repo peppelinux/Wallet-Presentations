@@ -1,0 +1,8 @@
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '19px'}}}%%
+flowchart LR
+  MS[Member State] -->|vetting & confidence level| REG[Registrar]
+  REG --> PID[PID Provider]
+  REG --> AP[QEAA / PuB-EAA / EAA providers]
+  REG --> RP[Relying Parties & intermediaries]
+  REG -.->|may use| PRC[Provider of registration certificates]
+  PRC -.->|registration cert| PID & AP & RP

@@ -1,0 +1,35 @@
+%%{init: {
+  'theme': 'neutral',
+  'themeVariables': {
+    'fontSize': '24px',
+    'clusterPadding': 8,
+    'clusterBkg': '#fbfbfb',
+    'clusterBorder': '#cccccc'
+  },
+  'flowchart': {
+    'padding': 4,
+    'nodeSpacing': 52,
+    'rankSpacing': 56,
+    'subGraphTitleMargin': { 'top': 0, 'bottom': 28 }
+  }
+}}%%
+flowchart TB
+  subgraph eid_ms["Member States · national competence"]
+    direction LR
+    e_R1[Registrar MS-1]
+    e_R2[Registrar MS-2]
+    e_R3[Registrar MS-n]
+  end
+  subgraph eid_ec["European Commission"]
+    e_EU[EU Trusted Lists]
+    e_LoTL[LoTL-style publication]
+  end
+  subgraph eid_run["Runtime verifiers"]
+    direction LR
+    e_W[Wallets]
+    e_RP[Relying parties]
+    e_IP[Issuers]
+  end
+  e_R1 & e_R2 & e_R3 -->|notify · national TL where applicable| e_EU
+  e_EU --> e_LoTL
+  e_LoTL -.->|signed anchors · TS 119 612| e_W & e_RP & e_IP

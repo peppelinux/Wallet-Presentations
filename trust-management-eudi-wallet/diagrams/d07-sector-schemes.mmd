@@ -1,0 +1,13 @@
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '17px'}}}%%
+flowchart TB
+  subgraph Sector["Sector / cross-border governance (examples)"]
+    SA[Public admin / sector org]
+    AS[Authentic Source]
+    SA --> RB[Rulebook + scheme artefacts]
+    AS --> PUB[PuB-EAA Provider]
+  end
+  EC3[European Commission]
+  EC3 --> CAT[Catalogue: attributes & attestation schemes]
+  RB -.->|register / publish| CAT
+  AP2[QEAA / EAA / PuB-EAA Providers] & RP3[Relying Parties] -->|discover types & attributes| CAT
+  MSREG[MS registries + Trusted Lists] -.->|who may issue| AP2

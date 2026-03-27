@@ -1,0 +1,20 @@
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '34px'}}}%%
+flowchart LR
+  subgraph E["Ecosystem actors"]
+    WP[Wallet Provider]
+    WU[Wallet Unit]
+    PID[PID Provider]
+    ATT[Attestation Providers]
+    RP[Relying Party]
+  end
+  WP --> WU
+  PID & ATT -->|issue PID / EAAs| WU
+  WU <-->|present / verify| RP
+  MS[(Member States + registries)]
+  TL_EAA[(National TL — EAA Providers)]
+  TL_QEAA[(QTSP TL — QEAA Providers)]
+  EC[(Commission + Trusted Lists)]
+  MS --> TL_EAA & TL_QEAA
+  MS --> EC
+  TL_EAA & TL_QEAA -.->|Attestation Provider lists| WU & RP
+  EC -.->|trust anchors| WU & RP & PID & ATT
