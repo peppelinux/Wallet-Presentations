@@ -215,11 +215,5 @@ Is there a General Policy Framework definition? Subtractive/Additive-ZeroTrust a
 
 **Questions?**
 
-Giuseppe De Marco
-
-**Technical Project Manager** — _Dipartimento per la trasformazione digitale_, Presidency of the Council of Ministers of Italy
-
-_ITU Workshop — Trustable and Interoperable Digital Identities for Human and Agentic AI — Geneva, 30–31 March 2026_
-
 ---
 
