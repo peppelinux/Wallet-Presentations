@@ -210,10 +210,18 @@ Is there a General Policy Framework definition? Subtractive/Additive-ZeroTrust a
 
 ---
 
-<!-- _class: lead lead-blue -->
+<!-- _class: lead lead-blue thank-you-slide -->
 # Thank you
 
 **Questions?**
+
+<div class="thank-you-qr">
+
+<img src="images/deck-pages-qr.png" alt="QR code — open this deck online at peppelinux.github.io/Wallet-Presentations" width="220" height="220" />
+
+<p class="thank-you-qr-url"><a href="https://peppelinux.github.io/Wallet-Presentations/">peppelinux.github.io/Wallet-Presentations</a></p>
+
+</div>
 
 ---
 

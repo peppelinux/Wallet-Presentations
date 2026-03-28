@@ -227,6 +227,37 @@ section.lead.lead-blue::after {
   color: rgba(255, 255, 255, 0.75);
 }
 
+/* Thank you: QR on white pad for quiet zone + scannability on blue slide */
+section.thank-you-slide .thank-you-qr {
+  margin: 0.35em auto 0;
+  padding: 0.75em 1em 0.65em;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45em;
+  max-width: min(92%, 360px);
+}
+section.thank-you-slide .thank-you-qr img {
+  display: block;
+  width: 220px;
+  height: 220px;
+  margin: 0;
+}
+section.thank-you-slide .thank-you-qr-url {
+  margin: 0;
+  padding: 0;
+  line-height: 1.25;
+  font-size: 0.72em;
+  font-weight: 600;
+}
+section.thank-you-slide .thank-you-qr-url a {
+  color: var(--accent-blue);
+  word-break: break-all;
+}
+
 /* “Why it matters” (d01): heading + diagram — cap size to stay in 16:9 */
 section.why-matters h2 {
   margin: 0 0 0.3em 0;
