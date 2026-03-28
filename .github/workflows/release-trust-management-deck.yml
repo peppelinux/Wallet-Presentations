@@ -1,7 +1,8 @@
-# - Publish a GitHub Release → attach PDF + zipped HTML to the release assets.
-# - Deploy the same HTML site to GitHub Pages (source: GitHub Actions).
+# Release → PDF + HTML zip on the release; HTML site → gh-pages branch.
 #
-# One-off repo setup: Settings → Pages → Build and deployment → Source: GitHub Actions.
+# Requirements:
+# - This file must be on your DEFAULT branch (e.g. master) on GitHub — push it before releases run.
+# - Settings → Pages → Source: Deploy from a branch → gh-pages → / (root)
 
 name: Trust management deck — release assets & GitHub Pages
 
@@ -13,18 +14,17 @@ on:
     paths:
       - "trust-management-eudi-wallet/**"
       - ".github/workflows/release-trust-management-deck.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: trust-management-deck-pages
   cancel-in-progress: false
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,11 +33,22 @@ jobs:
         with:
           node-version: "20"
 
+      # Marp PDF uses headless Chromium; Ubuntu runners sometimes missing libs
+      - name: Install Chromium dependencies (Marp PDF)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
+            libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1
+          sudo apt-get install -y --no-install-recommends libasound2t64 2>/dev/null || \
+            sudo apt-get install -y --no-install-recommends libasound2
+
       - name: Build deck (diagrams, HTML, PDF)
         working-directory: trust-management-eudi-wallet
         run: make all
 
-      - name: Prepare static site (GitHub Pages needs index.html)
+      - name: Prepare static site (index.html + assets)
         working-directory: trust-management-eudi-wallet
         run: |
           set -euo pipefail
@@ -45,37 +56,37 @@ jobs:
           cp deck.html "$GITHUB_WORKSPACE/site/index.html"
           cp workshop-barcelona.css "$GITHUB_WORKSPACE/site/"
           cp diagrams/*.svg "$GITHUB_WORKSPACE/site/diagrams/"
+          ls -la "$GITHUB_WORKSPACE/site" "$GITHUB_WORKSPACE/site/diagrams" | head -50
 
       - name: Attach PDF and HTML zip to release
         if: github.event_name == 'release'
-        working-directory: trust-management-eudi-wallet
         env:
           TAG: ${{ github.event.release.tag_name }}
         run: |
           set -euo pipefail
-          cp deck.pdf "${GITHUB_WORKSPACE}/trust-management-eudi-wallet-${TAG}.pdf"
-          (cd "$GITHUB_WORKSPACE/site" && zip -r "${GITHUB_WORKSPACE}/trust-management-eudi-wallet-${TAG}-html.zip" .)
+          test -f trust-management-eudi-wallet/deck.pdf
+          cp trust-management-eudi-wallet/deck.pdf "$GITHUB_WORKSPACE/trust-management-eudi-wallet-${TAG}.pdf"
+          (cd "$GITHUB_WORKSPACE/site" && zip -r "$GITHUB_WORKSPACE/trust-management-eudi-wallet-${TAG}-html.zip" .)
+          ls -la "$GITHUB_WORKSPACE"/trust-management-eudi-wallet-*.*
 
       - name: Upload release assets
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event.release.tag_name }}
           files: |
             trust-management-eudi-wallet-${{ github.event.release.tag_name }}.pdf
             trust-management-eudi-wallet-${{ github.event.release.tag_name }}-html.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event_name == 'release' || github.event_name == 'workflow_dispatch'
         with:
-          path: site
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/deploy-pages@v4
-        id: deployment
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: site
+          publish_branch: gh-pages
+          force_orphan: false
+          user_name: github-actions[bot]
+          user_email: github-actions[bot]@users.noreply.github.com
