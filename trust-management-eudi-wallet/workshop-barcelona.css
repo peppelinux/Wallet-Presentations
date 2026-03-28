@@ -400,3 +400,64 @@ section.registration-graph img[alt='diagram'] {
   object-fit: contain;
   object-position: center top;
 }
+
+/* Latency slide: full-bleed *frame*, image scaled with contain (no left/right crop vs slide) */
+section.latency-fullbleed {
+  padding: 0 !important;
+  margin: 0;
+  border-bottom: none;
+  justify-content: stretch;
+  overflow: hidden;
+}
+
+section.latency-fullbleed footer {
+  display: none !important;
+}
+
+section.latency-fullbleed [data-marpit-advanced-background-container='true'] {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Fit image inside 1280×720; contain avoids cover’s horizontal crop when aspect ≠ 16:9 */
+section.latency-fullbleed [data-marpit-advanced-background-container='true'] figure {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+  background-size: contain !important;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+/* Trust-proxy figure: fit slide width, preserve aspect ratio — no horizontal crop */
+section.trust-proxy-slide :is(h2, marp-h2) {
+  margin-top: 0;
+  margin-bottom: 0.2em;
+}
+
+section.trust-proxy-slide > p {
+  margin: 0;
+  line-height: 0;
+}
+
+section.trust-proxy-slide img {
+  display: block;
+  box-sizing: border-box;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  max-height: min(58vh, 620px);
+  margin: 0.1em auto 0;
+  object-fit: contain;
+  object-position: center top;
+}

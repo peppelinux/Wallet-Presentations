@@ -4,9 +4,9 @@ sequenceDiagram
   participant W as Wallet Unit
   participant U as User
   participant TL as Trusted Lists
-  RPI->>W: presentation request + access cert optional reg cert
+  RPI->>W: presentation request + access cert + optional reg cert
   W->>TL: verify RPI cert chain & anchors
   W->>U: consent + optional Registrar / reg.-cert checks
   U->>W: approve
   W->>RPI: presentation response
-  RPI->>TL: verify PID / attestations
+  RPI->>TL: verify PID/(Q/Pub)EAA / attestations (anchors, entitlements, rulebooks)

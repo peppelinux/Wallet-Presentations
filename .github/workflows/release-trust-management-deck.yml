@@ -52,11 +52,16 @@ jobs:
         working-directory: trust-management-eudi-wallet
         run: |
           set -euo pipefail
-          mkdir -p "$GITHUB_WORKSPACE/site/diagrams"
+          mkdir -p "$GITHUB_WORKSPACE/site/diagrams" "$GITHUB_WORKSPACE/site/images"
           cp deck.html "$GITHUB_WORKSPACE/site/index.html"
           cp workshop-barcelona.css "$GITHUB_WORKSPACE/site/"
           cp diagrams/*.svg "$GITHUB_WORKSPACE/site/diagrams/"
-          ls -la "$GITHUB_WORKSPACE/site" "$GITHUB_WORKSPACE/site/diagrams" | head -50
+          shopt -s nullglob
+          for f in images/*; do
+            [[ "$(basename "$f")" == .gitkeep ]] && continue
+            cp -r "$f" "$GITHUB_WORKSPACE/site/images/"
+          done
+          ls -la "$GITHUB_WORKSPACE/site" "$GITHUB_WORKSPACE/site/diagrams" "$GITHUB_WORKSPACE/site/images" | head -80
 
       - name: Attach PDF and HTML zip to release
         if: github.event_name == 'release'

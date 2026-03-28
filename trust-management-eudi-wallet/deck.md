@@ -20,7 +20,7 @@ footer: 'Session 3: ITU Workshop on &quot;Trustable and Interoperable Digital I
 3. **Framework**: eIDAS uses an _Authoritative Listing_ with PKI continuity and specific purpose extensions  
 4. **Enrollment**: registrars, accreditation, certification, notification mechanisms, activation of participants through publication within the Authoritative Lists (Trusted Lists)
 5. **Runtime**: digital signature, timestamps, issuance, presentation, user-visible assurance  
-6. **Assurance & lifecycle**: certification, Trust Mark, revocation  
+6. **Assurance & lifecycle**: **certification schemes** (**issuance**, **lifecycle**, **interoperability**), Trust Mark, revocation  
 
 <p class="agenda-tagline"><i>Both Trust and Scalability are about <strong>risk</strong> and <strong>cost reduction</strong>, a Trust that scales compounds its value!</i></p>
 
@@ -29,12 +29,12 @@ footer: 'Session 3: ITU Workshop on &quot;Trustable and Interoperable Digital I
 <!-- _class: compact-takeaways -->
 ## 3. Trust in eIDAS Wallet: requirements and specifications
 
-| What we count | Kind | Count |
+| Sources | Kind | Count |
 | --- | --- | ---: |
 | **ARF Annex II** — high-level requirements whose specification directly affects **trust evaluation** (trusted lists / LoTE, registration, access & registration certificates, revocation, verifier behaviour); WP4 Task 2 *Trusted Lists, Registration & Trust Evaluation* matrix (ARF v2.8.0) | Requirements | **133** unique ids |
 | **ARF main document** — each **own row** in the ARF *References* table for a standard or protocol (ISO, ETSI, RFC, W3C, OIDF, …) | Specifications | **44** |
 | **ARF Wallet TS1–TS11** in ARF v.8.0 `docs/technical-specifications/` | Specifications | **11** |
-| **Public roadmap** — *Standards and Technical Specifications* (**STS**); GitHub tracker (see `docs/technical-specifications/README.md`) | Specifications | **~200** tracked; **~34** **essential** for the Wallet |
+| **Public roadmap** — *Standards and Technical Specifications* (**STS**); GitHub tracker (see `docs/technical-specifications/README.md`) covering several SDOs (ISO, IETF, ITU, OpenID, W3C, ETSI, CEN/CELEC)| Specifications | **~200** tracked; **~34** **essential** for the Wallet |
 
 _* EU acts and CIRs are not counted in this slide for technical purpose._
 
@@ -112,7 +112,7 @@ Trust evaluation depends on both who registers and who publishes.
 ---
 
 <!-- _class: wallet-spotlight -->
-## 7. Wallets under the spotlight
+## 7. Wallet Architectures under the spotlight
 
 **Wallet Providers** **provide** one/more **Wallet Solution(s)**. Each **Holder** (Wallet User) use a **Wallet Instance**, this includes **Wallet Unit** along with **WSCA/WSCD**, and **keystores** for non-critical crypto. **Wallet Unit Attestation (WUA)** and **Wallet Instance Attestation (WIA)** are presented to **PID / Attestation Providers** when requesting a PID or attestations.
 
@@ -131,17 +131,19 @@ Trust evaluation depends on both who registers and who publishes.
 ---
 
 <!-- _class: compact-graph -->
-## 9. A Fragmented Policy Framework
+## 9. Policy Framework — Fragmentation and Overlaps
 
 - **Registration Certificates**: **MS Registrar** may issue **registration certs** (**TS 119 475**) **or** **Embedded Policies** (**TS 119 472-3** Metadata members **`entitlement`** / **`providesAttestations`** not defined in OpenID). **RP** presentation may hint, only **Registrar RP API** is authoritative.
 - **PID / Attestation Providers**: **TL** + **LoTE** — notified **who** may issue and **trust anchors**.
 - **Registrar policy is national**: each **Member State** runs **its own** Registrar **rules**—**no** EU **central authority** that issues or harmonises those **registration policies**.
 - **No shared “domestic” compliance across MS**: policies and safeguards anchored in **one** Registrar **do not** make an actor **automatically compliant** with **another** MS’s Registrar regime; beyond **common specs** (ARF, TS, legal acts), there is **no** single **ecosystem-wide** **protection** or procedural baseline.
 
+Is there a General Policy Framework definition? Subtractive/Additive-ZeroTrust approaches? _“everything allowed until filtered”_, always overridable by User.
+
 ---
 
 <!-- _class: registration-graph -->
-## 10. A Fragmented Policy Framework
+## 10. A Picture of eIDAS Policy Issuance, Discovery, and Evaluation
 
 ![diagram](diagrams/d06-registration.svg)
 
@@ -149,7 +151,7 @@ Trust evaluation depends on both who registers and who publishes.
 
 ## 11. Multiple Trust Sources for one Relying Party
 
-**RPs** force wallets to juggle on the **presentation** path along with **five distinct trust sources**.
+**RPs** make wallets to juggle on the **presentation** path along with **five distinct trust sources**.
 
 | # | Surface | Example |
 |---|---------|--------|
@@ -185,36 +187,26 @@ Trust evaluation depends on both who registers and who publishes.
 
 ---
 
-## 15. Wallet discovery — cost, complexity & timing
+<!-- _class: latency-fullbleed -->
 
-**Wallet Instance** view (*policy discovery & trust evaluation*, WP4 `eudi-wallet-trust-and-entitlement-discovery.md`):
+![bg contain](images/latency-spikes.png)
 
-| Topic | Baseline / What you must do | Gets harder when… |
-|--------|----------------------------|-------------------|
-| **Network** | **LoTL**→**TSL**; **OCSP/CRL** (WRPAC); **Registry** if **no WRPRC** in request; **WRPRC** status-list; issuance repeats issuer **WRPAC/WRPRC** + TL | **Cold** cache; **foreign TSL** + Registry; **+1 RT** if WRPRC **pulled** from Registry; **multi-register** / sector RPs |
-| **Cache / offline** | Cached TSL to `NextUpdate` (**TS 119 612** §5.3.15) | First run, expired cache, **pivot LoTL**/OJEU; **offline** → cached-only or **reject** (doc §7.2) |
-| **Build & policy** | X.509+**SCT**; **JWT/CWT WRPRC** vs **WRPRC Provider** LoTE; **RPRC_21**; multi-register §2.4; UX §4.3 | **CRL-only**; **uncovered** attrs **RPA_10a**; **two** flows issuance vs presentation (§2.1 vs §2.2) |
-| **Consent window** | All trust steps **before/during** **RPA_07** | Slow Registry/TLP → **§4.3.2** degradation |
+---
 
-**Planning (non-normative):** expect **several** sequential deps on the happy path—**parallelize** independent work (e.g. OCSP while parsing TSL); model a **state machine** (**WRPRC** in-band / **Registry** / **multi-WRPRC**) with **explicit degradation**; cost scales with **register count** and **entitlement strictness**, not crypto alone.
+<!-- _class: trust-proxy-slide -->
+## 15. Trust proxy — any privacy concerns?
+
+![Trust evaluation proxy (diagram)](images/trust-proxy.png)
 
 ---
 
 <!-- _class: compact-takeaways -->
-## 16. Takeaways
+## 16. Not discussed today (for time)
 
-- **Trust is layered**: **TL/LoTE** for who is notified; **Registrar + TS5** for RP entitlements; **WUA** (not a chip-per-row list) for wallet crypto assurance.
-- **Policy is fragmented**: **national Registrar** rules; **no** EU registrar-policy monoculture; **metadata + certs** (ETSI/OpenID stack) carry issuer scopes beside publication.
-- **Wallet discovery has real cost**: **LoTL/TSL**, revocation, Registry, **WRPRC** branches—design for **cache**, **parallel fetch**, and **graceful degradation**.
-- **Sectors & attestation schemes**: **Attestation Scheme Providers** publish **rulebooks** and **machine-readable schemes**; ARF §5.4.2 also allows **public administration, sectoral or cross-border** bodies to shape **semantics** and **type-specific** trust/presentation rules. The **Commission** runs **catalogues** (attributes + schemes, **TS11**); **Trusted Lists** still anchor **who** may issue—**being catalogued does not mean automatic acceptance** or **cross-border recognition** (§5.5.3). **PuB-EAA** is tied to an **Authentic Source** and **responsible public-sector** roles (**Regulation** / ARF §3.7).
-- **Certification, Trust Mark, supervision**: **NAB → CAB** accreditation; **CABs** certify **wallet solutions** and audit **QTSPs**; **supervisory bodies** oversee ecosystem actors; the **Trust Mark** connects wallet **UI** to **Commission** certification **status** information.
-
-**Not discussed today (for time):**
-
+- **Certification schemes — issuance, lifecycle, interoperability**: how **NAB/CAB** and **national** schemes **issue** and **maintain** approvals for wallet solutions and QTSPs; **lifecycle** (surveillance, renewal, withdrawal); **cross-scheme** / **cross-border** recognition of conformity evidence and practical **interop** between schemes—only hinted on slide 8 (WUA schemes), not unpacked here.
 - **Lifecycle & revocation operations**: how **LoTE/TL updates**, **access-certificate** revocation, **credential/attestation** revocation, and **WUA** revocation (**ARF Topic 38**) line up; **WURevocation_12** (PID Provider verifies who may request wallet revocation); **suspension** and **cancellation** in registers and lists.
 - **Operational conformity & supervision**: **audit** programmes, ongoing **supervisory** practice, and **scheme** conformity—only named above, not walked through.
-- **End-to-end sector paths**: **rulebook** governance, sector **topology** figures, and concrete **Peppol / OOTS / iSHARE**-class integrations (slide 12 only flags the risk).
-- **Implementation & testing**: product **profiles**, **interop** events, and **security** evaluation of wallet stacks.
+- **End-to-end sector paths**: **rulebook** governance, sector **topology** figures, and concrete **Peppol / OOTS / iSHARE**-class integrations (slide 12 only flags the need).
 
 ---
 
