@@ -1,9 +1,11 @@
 %%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '17px'}}}%%
 sequenceDiagram
-  participant W as Wallet Unit
+  participant W as Wallet Instance
+  participant T as Credential catalogue + LoTE / TL
   participant I as PID / Attestation Provider
-  participant TL as Trusted Lists / Rulebook
-  W->>TL: resolve Access CA & issuer anchors
-  W->>I: OpenID4VCI after issuer trust OK
-  I->>W: credential response
-  W->>TL: verify PID / QEAA / PuB-EAA / EAA per rules
+  W->>T: Credential Discovery: LoTE + catalogue + rulebook
+  W->>T: Access CA + issuer anchors
+  W->>I: OpenID4VCI
+  I->>W: credential
+  W->>W: Credential Verification<br>signature + data schema + revocation
+

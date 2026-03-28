@@ -1,0 +1,81 @@
+# - Publish a GitHub Release → attach PDF + zipped HTML to the release assets.
+# - Deploy the same HTML site to GitHub Pages (source: GitHub Actions).
+#
+# One-off repo setup: Settings → Pages → Build and deployment → Source: GitHub Actions.
+
+name: Trust management deck — release assets & GitHub Pages
+
+on:
+  release:
+    types: [published]
+  push:
+    branches: [main, master]
+    paths:
+      - "trust-management-eudi-wallet/**"
+      - ".github/workflows/release-trust-management-deck.yml"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: trust-management-deck-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build deck (diagrams, HTML, PDF)
+        working-directory: trust-management-eudi-wallet
+        run: make all
+
+      - name: Prepare static site (GitHub Pages needs index.html)
+        working-directory: trust-management-eudi-wallet
+        run: |
+          set -euo pipefail
+          mkdir -p "$GITHUB_WORKSPACE/site/diagrams"
+          cp deck.html "$GITHUB_WORKSPACE/site/index.html"
+          cp workshop-barcelona.css "$GITHUB_WORKSPACE/site/"
+          cp diagrams/*.svg "$GITHUB_WORKSPACE/site/diagrams/"
+
+      - name: Attach PDF and HTML zip to release
+        if: github.event_name == 'release'
+        working-directory: trust-management-eudi-wallet
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          cp deck.pdf "${GITHUB_WORKSPACE}/trust-management-eudi-wallet-${TAG}.pdf"
+          (cd "$GITHUB_WORKSPACE/site" && zip -r "${GITHUB_WORKSPACE}/trust-management-eudi-wallet-${TAG}-html.zip" .)
+
+      - name: Upload release assets
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            trust-management-eudi-wallet-${{ github.event.release.tag_name }}.pdf
+            trust-management-eudi-wallet-${{ github.event.release.tag_name }}-html.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

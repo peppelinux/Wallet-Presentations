@@ -6,7 +6,7 @@ footer: 'Session 3: ITU Workshop on &quot;Trustable and Interoperable Digital I
 ---
 
 <!-- _class: lead lead-blue -->
-# 1. Trust management in the EUDI Wallet ecosystem
+# Trust management in the EUDI Wallet ecosystem
 
 **~12 minute overview with Giuseppe De Marco**, _Technical Project Manager - Dipartimento per la trasformazione digitale, Presidency of the Council of Ministers of Italy_
 
@@ -27,13 +27,16 @@ footer: 'Session 3: ITU Workshop on &quot;Trustable and Interoperable Digital I
 ---
 
 <!-- _class: compact-takeaways -->
-## 3. Specification counts vs trust requirements (order of magnitude)
+## 3. Trust in eIDAS Wallet: requirements and specifications
 
-| What we count | Specifications |
-| --- | ---: |
-| **ARF main document** — each **own row** in the *References* table for a standard or protocol (ISO, ETSI, RFC, W3C, OIDF, …); **excludes** EU acts/CIRs and Topic links | **44** |
-| **`docs/technical-specifications/`** — EC Wallet TS1–TS11 | **11** |
-| **Public STS roadmap** (GitHub tracker; see `docs/technical-specifications/README.md`) | **~200** items under watch; a smaller **essential** subset for the Wallet |
+| What we count | Kind | Count |
+| --- | --- | ---: |
+| **ARF Annex II** — high-level requirements whose specification directly affects **trust evaluation** (trusted lists / LoTE, registration, access & registration certificates, revocation, verifier behaviour); WP4 Task 2 *Trusted Lists, Registration & Trust Evaluation* matrix (ARF v2.8.0) | Requirements | **133** unique ids |
+| **ARF main document** — each **own row** in the ARF *References* table for a standard or protocol (ISO, ETSI, RFC, W3C, OIDF, …) | Specifications | **44** |
+| **ARF Wallet TS1–TS11** in ARF v.8.0 `docs/technical-specifications/` | Specifications | **11** |
+| **Public roadmap** — *Standards and Technical Specifications* (**STS**); GitHub tracker (see `docs/technical-specifications/README.md`) | Specifications | **~200** tracked; **~34** **essential** for the Wallet |
+
+_* EU acts and CIRs are not counted in this slide for technical purpose._
 
 ---
 
@@ -144,7 +147,7 @@ Trust evaluation depends on both who registers and who publishes.
 
 ---
 
-## 11. Overengineering: many trust sources for one relying party
+## 11. Multiple Trust Sources for one Relying Party
 
 **RPs** force wallets to juggle on the **presentation** path along with **five distinct trust sources**.
 
@@ -159,67 +162,30 @@ Trust evaluation depends on both who registers and who publishes.
 ---
 
 <!-- _class: compact-graph -->
-## 12. Pre-existing trust frameworks & sector-specific stacks
-
-**Already familiar (eIDAS / ARF continuity)**
+## 12. Pre-existing/parallel trust frameworks & sector-specific stacks
 
 - **Legal**: **EUDI** amends **eIDAS**; **qualified artefact paths** still use **QTSPs**, **qualified certs**, **EU trusted lists / TSP**.
 - **Technical** (**§6.1**): **X.509** for PID, QEAA, PuB-EAA, access/registration certs; wallet lists follow **TS 119 612 / LoTL** (same family as trust-service lists).
 - **Deployment**: Member States may use **several CAs** or **reuse** national PKI / practice as **Access CA** / **Registrar**.
 - **Non-qualified EAA** can follow **other trust models** (not only EU-wide PKI lists).
 
-![diagram](diagrams/d05-eidas-continuity.svg)
-
-**What’s still thin:** the **core** picture is **eIDAS TLs / LoTL + ARF rulebooks + registers** — yet **many wallet-relevant sectors** already run **parallel trust infrastructures** (e.g. **banking**, **eProcurement / eInvoicing**, **G2G evidence reuse**, **data spaces**) with **their own** CAs, registers, status services, and APIs.
-
-- **WE BUILD / WP4** is spelling out how those worlds **map** into the Trust Infrastructure (TL / trust-anchor patterns, rulebooks, registry or API bridges) — see **Peppol PKI**, **OOTS**, **iSHARE**: [wp4-trust-group#73](https://github.com/webuild-consortium/wp4-trust-group/issues/73).  
-- **Gap:** without **explicit** per-sector integration, implementations risk **duplicated validation**, **extra round-trips**, and **opaque** “which list wins?” behaviour.
+**Many wallet-relevant sectors** already run **parallel trust infrastructures** (e.g. **banking**, **eProcurement / eInvoicing**, **G2G evidence reuse**, **data spaces**) with **their own** CAs, registers, status services, and APIs (Peppol PKI, OOTS, iSHARE). Without **explicit** per-sector integration, implementations risk **duplicated validation**, **extra round-trips**, and **opaque** “which list wins?” behaviour.
 
 ---
 
-## 13. Sector bodies & attestation schemes
-
-- **Attestation Scheme Providers** publish **Rulebooks** (+ **machine-readable schemes** in the catalogue). Besides the **Commission** (e.g. PID, mDL), ARF §5.4.2 allows **public administration, sectoral or cross-border organisations**—so e.g. education/health/mobility communities define **shared semantics** and **type-specific trust/presentation rules** without duplicating formats.
-- The **Commission** still **operates the catalogues** (attributes + schemes, **TS11**); **Trusted Lists** remain the anchor for **who** may issue—**catalogue listing does not force acceptance** or automatic **cross-border recognition** (§5.5.3).
-- **PuB-EAA** ties issuance to an **Authentic Source** (national/sector **data root**); the **responsible public-sector body** and **conformity** rules apply as in the Regulation / ARF §3.7.
-
-![diagram](diagrams/d07-sector-schemes.svg)
-
----
-
-## 14. Certification, Trust Mark, supervision
-
-- **NAB → CAB** accreditation; **CAB** certifies **wallet solutions** and audits **QTSPs**. **Supervisory bodies** oversee ecosystem actors. **Trust Mark** links UI to **Commission** certification info.
-
-![diagram](diagrams/d11-certification.svg)
-
----
-
-## 15. Trust when **issuing** credentials
-
-- **Before request**: issuer **access cert**, **registration** / **Registrar**, **entitlement** to credential type. **After receipt**: verify **signature** (lists + law for qualified; **Rulebook** for non-qualified EAA).
+## 13. Trust when **issuing** credentials
 
 ![diagram](diagrams/d09-issuing.svg)
 
 ---
 
-## 16. Trust when **presenting** to relying parties
-
-- **RPI** proves itself with **access cert**; wallet trusts **RP Access CA** lists. **RP** verifies presented credentials like the wallet. User can compare **request vs Registrar** (**Topics 44, 6**).
+## 14. Trust when **presenting** to relying parties
 
 ![diagram](diagrams/d10-presenting.svg)
 
 ---
 
-## 17. Lifecycle: suspension, cancellation, revocation
-
-- **List updates**, **cert revocation**, **WUA revocation** (**Topic 38**). PID provider checks **who may request** wallet revocation (**WURevocation_12**).
-
-![diagram](diagrams/d12-lifecycle.svg)
-
----
-
-## 18. Wallet discovery — cost, complexity & timing
+## 15. Wallet discovery — cost, complexity & timing
 
 **Wallet Instance** view (*policy discovery & trust evaluation*, WP4 `eudi-wallet-trust-and-entitlement-discovery.md`):
 
@@ -235,24 +201,33 @@ Trust evaluation depends on both who registers and who publishes.
 ---
 
 <!-- _class: compact-takeaways -->
-## 19. Takeaways
+## 16. Takeaways
 
 - **Trust is layered**: **TL/LoTE** for who is notified; **Registrar + TS5** for RP entitlements; **WUA** (not a chip-per-row list) for wallet crypto assurance.
 - **Policy is fragmented**: **national Registrar** rules; **no** EU registrar-policy monoculture; **metadata + certs** (ETSI/OpenID stack) carry issuer scopes beside publication.
 - **Wallet discovery has real cost**: **LoTL/TSL**, revocation, Registry, **WRPRC** branches—design for **cache**, **parallel fetch**, and **graceful degradation**.
+- **Sectors & attestation schemes**: **Attestation Scheme Providers** publish **rulebooks** and **machine-readable schemes**; ARF §5.4.2 also allows **public administration, sectoral or cross-border** bodies to shape **semantics** and **type-specific** trust/presentation rules. The **Commission** runs **catalogues** (attributes + schemes, **TS11**); **Trusted Lists** still anchor **who** may issue—**being catalogued does not mean automatic acceptance** or **cross-border recognition** (§5.5.3). **PuB-EAA** is tied to an **Authentic Source** and **responsible public-sector** roles (**Regulation** / ARF §3.7).
+- **Certification, Trust Mark, supervision**: **NAB → CAB** accreditation; **CABs** certify **wallet solutions** and audit **QTSPs**; **supervisory bodies** oversee ecosystem actors; the **Trust Mark** connects wallet **UI** to **Commission** certification **status** information.
+
+**Not discussed today (for time):**
+
+- **Lifecycle & revocation operations**: how **LoTE/TL updates**, **access-certificate** revocation, **credential/attestation** revocation, and **WUA** revocation (**ARF Topic 38**) line up; **WURevocation_12** (PID Provider verifies who may request wallet revocation); **suspension** and **cancellation** in registers and lists.
+- **Operational conformity & supervision**: **audit** programmes, ongoing **supervisory** practice, and **scheme** conformity—only named above, not walked through.
+- **End-to-end sector paths**: **rulebook** governance, sector **topology** figures, and concrete **Peppol / OOTS / iSHARE**-class integrations (slide 12 only flags the risk).
+- **Implementation & testing**: product **profiles**, **interop** events, and **security** evaluation of wallet stacks.
 
 ---
 
 <!-- _class: lead lead-blue -->
-# 20. Thank you
+# Thank you
 
 **Questions?**
 
----
-
-<!-- _class: lead lead-blue -->
-# 21. Giuseppe De Marco
+Giuseppe De Marco
 
 **Technical Project Manager** — _Dipartimento per la trasformazione digitale_, Presidency of the Council of Ministers of Italy
 
 _ITU Workshop — Trustable and Interoperable Digital Identities for Human and Agentic AI — Geneva, 30–31 March 2026_
+
+---
+
