@@ -1,13 +1,16 @@
 %%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '20px'}}}%%
 flowchart TB
+  RPI["Relying Party (RP)"]
+
   subgraph WS["Wallet Solution / Wallet Unit"]
+    direction LR
     WI[Wallet Instance]
     WSC[WSCA / WSCD]
     WUA[WUA / WIA]
-    WI --- WSC
-    WI --- WUA
+    WI --- WSC --- WUA
   end
+
+  RPI <-->|ISO 18013-5 / OpenID4VP| WS
   WProv[Wallet Provider] -->|activate & manage| WS
   PID[PID Provider] -->|OpenID4VCI; checks WUA| WS
-  ATT[Attestation Providers] -->|OpenID4VCI; checks WUA| WS
-  WS <-->|ISO 18013-5 / OpenID4VP| RPI[Relying Party Instance]
+  ATT[Attestation Providers] -->|OpenID4VCI; MAY/SHOULD check WUA| WS

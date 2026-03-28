@@ -307,3 +307,96 @@ section.eidas-distributed-slide .eidas-split-right img[alt="diagram"] {
   object-fit: contain;
   object-position: center center;
 }
+
+/* §7 “Wallets under the spotlight”: readable spacing (title → body → diagram) */
+section.wallet-spotlight {
+  padding: 48px 56px calc(56px + 2.75em) 56px;
+}
+section.wallet-spotlight > *:not(footer):not(:is(h1, marp-h1)) {
+  padding: 0.2em 0.45em;
+}
+section.wallet-spotlight :is(h2, marp-h2) {
+  margin: 0 0 0.38em 0;
+  padding: 0.12em 0 0.12em 0.35em;
+}
+section.wallet-spotlight > p {
+  margin: 0 0 0.42em 0;
+  font-size: 1em;
+  line-height: 1.38;
+}
+section.wallet-spotlight img[alt='diagram'],
+section.wallet-spotlight :is(pre, div).mermaid {
+  margin: 0.35em auto 0;
+}
+section.wallet-spotlight img[alt='diagram'] {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: min(620px, 84vh);
+  height: auto;
+  object-fit: contain;
+  object-position: center top;
+}
+section.wallet-spotlight :is(pre, div).mermaid {
+  max-height: min(620px, 84vh);
+  overflow: hidden;
+  margin-bottom: 0;
+  padding: 0;
+  line-height: 1.2;
+}
+section.wallet-spotlight :is(pre, div).mermaid svg {
+  display: block;
+  max-width: 100% !important;
+  max-height: min(620px, 84vh) !important;
+  height: auto !important;
+  margin: 0 auto;
+}
+
+/* §8 WSCD: horizontal flowchart — scale to slide width, low vertical footprint */
+section.wscd-split :is(h2, marp-h2) {
+  margin: 0 0 0.28em 0;
+}
+section.wscd-split > ul {
+  margin: 0 0 0.28em 0;
+  font-size: 0.88em;
+  line-height: 1.32;
+}
+section.wscd-split > ul > li {
+  margin: 0.08em 0;
+}
+section.wscd-split img[alt='diagram'] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: min(300px, 48vh);
+  margin: 0.2em auto 0;
+  object-fit: contain;
+  object-position: center center;
+}
+
+/* §10 Registration mermaid: minimal gap under title, diagram scales to viewport */
+section.registration-graph {
+  padding: 32px 52px calc(52px + 2.65em) 52px;
+}
+section.registration-graph :is(h2, marp-h2) {
+  margin: 0 0 0.06em 0;
+  padding: 0.06em 0 0.06em 0.35em;
+}
+section.registration-graph > *:not(footer):not(:is(h1, marp-h1)) {
+  padding: 0.06em 0.35em;
+}
+section.registration-graph > p {
+  margin: 0;
+  line-height: 0;
+}
+section.registration-graph img[alt='diagram'] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: min(520px, 58vh);
+  margin: 0.02em auto 0;
+  object-fit: contain;
+  object-position: center top;
+}
