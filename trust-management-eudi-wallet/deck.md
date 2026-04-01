@@ -95,8 +95,8 @@ Trust evaluation depends on both who registers and who publishes.
 
 <div class="why-split-left">
 
-- **Duplication**: one **entity** playing multiple roles (QEAA+PubEAA Provider+RP) requires **separate trusted-list appearances**, **revocations** must stay consistent everywhere.
-- **Verifier burden:** the Wallets/RPs must **resolve identity across different lists**. Possible **trust drift**.
+- **Duplication**: one **entity** playing multiple roles requires **separate trusted-list appearances**. Trusted Lists are **provided in both XML and JSON format**.
+- **Verifier burden:** Wallets/RPs must **resolve identity across different lists**. Possible **trust drift**.
 - **Domestic Gaps:** PID/PubEaa/Wallet Solutions Trusted Lists are only hosted by EC, MS may implement other approaches. 
 
 </div>

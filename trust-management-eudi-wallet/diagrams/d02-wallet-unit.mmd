@@ -11,6 +11,6 @@ flowchart TB
   end
 
   RPI <-->|ISO 18013-5 / OpenID4VP| WS
-  WProv[Wallet Provider] -->|activate & manage| WS
+  WProv[Wallet Provider] -->|provides & attests| WS
   PID[PID Provider] -->|OpenID4VCI; checks WUA| WS
   ATT[Attestation Providers] -->|OpenID4VCI; MAY/SHOULD check WUA| WS
