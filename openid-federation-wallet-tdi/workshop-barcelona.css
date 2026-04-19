@@ -157,6 +157,103 @@ section.responsibilities-matrix table {
   margin-bottom: 0.35em;
 }
 
+/* Part 2 — design pressure / singularities: 3-column matrix */
+section.design-pressure-matrix {
+  font-size: 28px;
+  line-height: 1.26;
+  padding: 32px 44px calc(46px + 2.5em) 44px;
+}
+section.design-pressure-matrix :is(h2, marp-h2) {
+  margin: 0 0 0.14em 0;
+  font-size: 1.05em;
+  line-height: 1.14;
+}
+section.design-pressure-matrix > *:not(footer):not(:is(h1, marp-h1)) {
+  padding: 0.08em 0.32em;
+}
+section.design-pressure-matrix table {
+  font-size: calc(0.7em + 2px);
+  width: 100%;
+  table-layout: fixed;
+  margin: 0.06em 0 0;
+}
+section.design-pressure-matrix th,
+section.design-pressure-matrix td {
+  padding: 0.14em 0.32em;
+  line-height: 1.26;
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+section.design-pressure-matrix th:nth-child(1),
+section.design-pressure-matrix td:nth-child(1) {
+  width: 17%;
+}
+section.design-pressure-matrix th:nth-child(2),
+section.design-pressure-matrix td:nth-child(2) {
+  width: 40%;
+}
+section.design-pressure-matrix th:nth-child(3),
+section.design-pressure-matrix td:nth-child(3) {
+  width: 43%;
+}
+
+/* Responsibility matrix recap: wide matrix (left) + d03 flowchart (right, narrower) */
+section.responsibility-recap-slide {
+  padding: 34px 48px calc(48px + 2.55em) 48px;
+}
+section.responsibility-recap-slide :is(h2, marp-h2) {
+  margin: 0 0 0.14em 0;
+  font-size: 1.05em;
+  line-height: 1.2;
+  text-align: left;
+}
+section.responsibility-recap-slide > *:not(footer):not(:is(h1, marp-h1)) {
+  padding: 0.08em 0.34em;
+}
+section.responsibility-recap-slide .recap-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 0.3fr);
+  gap: 0.75rem 1rem;
+  align-items: start;
+  width: 100%;
+  margin-top: 0.02em;
+}
+section.responsibility-recap-slide .recap-split-left {
+  min-width: 0;
+}
+section.responsibility-recap-slide .recap-split-left > p {
+  margin: 0;
+}
+section.responsibility-recap-slide .recap-split-left table {
+  font-size: 0.68em;
+  width: 100%;
+  margin: 1em 0 0 0;
+  table-layout: fixed;
+}
+section.responsibility-recap-slide .recap-split-left th,
+section.responsibility-recap-slide .recap-split-left td {
+  padding: 0.12em 0.26em;
+  line-height: 1.22;
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+section.responsibility-recap-slide .recap-split-right {
+  min-width: 0;
+  text-align: center;
+}
+section.responsibility-recap-slide .recap-split-right img {
+  display: block;
+  max-width: 100%;
+  width: auto;
+  max-height: min(420px, 72vh);
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+  object-position: center top;
+}
+
 /* Federation API matrix — slightly denser than default, still readable */
 section.federation-api-compact {
   font-size: 26px;
@@ -196,6 +293,130 @@ section.federation-api-compact > p {
   margin: 0.1em 0 0 0;
   font-size: 0.88em;
   line-height: 1.28;
+}
+
+/* Wallet selection slide: compact bullets + screenshot fits 16:9 */
+section.wallet-selection-screenshot {
+  padding: 40px 48px calc(48px + 2.55em) 48px;
+}
+section.wallet-selection-screenshot :is(h2, marp-h2) {
+  margin: 0 0 0.12em 0;
+  font-size: 1.08em;
+  line-height: 1.14;
+}
+section.wallet-selection-screenshot > ul {
+  margin: 0 0 0.2em 0;
+  font-size: 0.78em;
+  line-height: 1.32;
+}
+section.wallet-selection-screenshot > ul > li {
+  margin: 0.06em 0;
+}
+section.wallet-selection-screenshot img {
+  display: block;
+  max-width: 100%;
+  max-height: min(340px, 46vh);
+  height: auto;
+  margin: 0.15em auto 0;
+  object-fit: contain;
+  object-position: center top;
+  border: 1px solid #d4e4e0;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+}
+
+/* Metadata delta matrix — many rows; balanced type size + wrap */
+section.metadata-delta-matrix {
+  font-size: 26px;
+  line-height: 1.26;
+  padding: 30px 44px calc(46px + 2.5em) 44px;
+}
+
+section.metadata-delta-matrix :is(h2, marp-h2) {
+  margin-top: 0;
+  margin-bottom: 0.12em;
+  font-size: 1.14em;
+  padding-top: 0;
+  padding-bottom: 0.06em;
+}
+
+section.metadata-delta-matrix > *:not(footer):not(:is(h1, marp-h1)) {
+  padding: 0.08em 0.3em;
+}
+
+section.metadata-delta-matrix > p {
+  margin: 0 0 0.12em 0;
+  font-size: 0.88em;
+  line-height: 1.28;
+}
+
+section.metadata-delta-matrix table {
+  font-size: calc(0.64em + 3px);
+  margin: 0.08em 0 0.1em 0;
+  width: 100%;
+  table-layout: fixed;
+}
+
+section.metadata-delta-matrix th,
+section.metadata-delta-matrix td {
+  padding: 0.18em 0.34em;
+  line-height: 1.26;
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+section.metadata-delta-matrix th:nth-child(1),
+section.metadata-delta-matrix td:nth-child(1) {
+  width: 19%;
+}
+
+section.metadata-delta-matrix th:nth-child(2),
+section.metadata-delta-matrix td:nth-child(2) {
+  width: 34%;
+}
+
+section.metadata-delta-matrix th:nth-child(3),
+section.metadata-delta-matrix td:nth-child(3) {
+  width: 47%;
+}
+
+/* 4-column variant (e.g. OID-FED-WALLET coverage column) */
+section.metadata-delta-matrix:has(th:nth-child(4)) th:nth-child(1),
+section.metadata-delta-matrix:has(th:nth-child(4)) td:nth-child(1) {
+  width: 16%;
+}
+
+section.metadata-delta-matrix:has(th:nth-child(4)) th:nth-child(2),
+section.metadata-delta-matrix:has(th:nth-child(4)) td:nth-child(2) {
+  width: 26%;
+}
+
+section.metadata-delta-matrix:has(th:nth-child(4)) th:nth-child(3),
+section.metadata-delta-matrix:has(th:nth-child(4)) td:nth-child(3) {
+  width: 36%;
+}
+
+section.metadata-delta-matrix:has(th:nth-child(4)) th:nth-child(4),
+section.metadata-delta-matrix:has(th:nth-child(4)) td:nth-child(4) {
+  width: 22%;
+}
+
+section.metadata-delta-matrix code {
+  font-size: 0.94em;
+}
+
+section.metadata-delta-matrix blockquote {
+  margin: 0.22em 0 0 0;
+  padding: 0.32em 0.5em 0.36em 0.6em;
+  font-size: 0.64em;
+  line-height: 1.26;
+  border-left-width: 4px;
+}
+
+section.metadata-delta-matrix blockquote p {
+  margin: 0;
+  font-size: inherit;
 }
 
 section.lead {
@@ -253,6 +474,14 @@ section.lead.lead-blue :is(h1, marp-h1) {
   font-weight: 700;
   text-align: center;
 }
+
+/* Title slide only: long H1 — slightly smaller type + tighter line so one line fits in 16:9 */
+section.lead.lead-blue.lead-title-tight :is(h1, marp-h1) {
+  font-size: 1.42em;
+  line-height: 1.12;
+  max-width: 98%;
+  letter-spacing: -0.02em;
+}
 section.lead.lead-blue p,
 section.lead.lead-blue strong {
   color: rgba(255, 255, 255, 0.95);
@@ -299,45 +528,62 @@ section.thank-you-slide .thank-you-qr-url a {
   word-break: break-all;
 }
 
-/* “Why it matters” (d01): heading + diagram — cap size to stay in 16:9 */
-section.why-matters h2 {
-  margin: 0 0 0.3em 0;
+/* Part 2 LoTE / TSL overview: narrow text column + wide diagram (SVG / Mermaid-style figure) */
+section.lote-trust-overview {
+  padding: 44px 52px calc(52px + 2.65em) 52px;
 }
-section.why-matters .why-split {
+section.lote-trust-overview :is(h2, marp-h2) {
+  margin: 0 0 0.1em 0;
+  font-size: 1.14em;
+  line-height: 1.16;
+  padding-top: 0.06em;
+}
+section.lote-trust-overview .lote-split {
   display: grid;
-  grid-template-columns: minmax(0, 0.42fr) minmax(0, 1.58fr);
-  gap: 1rem 1.15rem;
+  grid-template-columns: minmax(0, 0.32fr) minmax(0, 1.68fr);
+  gap: 0.55rem 1.25rem;
   align-items: start;
   width: 100%;
+  margin-top: 0;
 }
-section.why-matters .why-split-left {
-  font-size: 0.78em;
-  line-height: 1.36;
+section.lote-trust-overview .lote-split-left {
+  font-size: calc(0.82em - 1px);
+  line-height: 1.34;
   min-width: 0;
 }
-section.why-matters .why-split-left p {
-  margin: 0 0 0.45em 0;
-}
-section.why-matters .why-split-left ul {
+section.lote-trust-overview .lote-split-left p {
   margin: 0;
-  padding-left: 1.05em;
 }
-section.why-matters .why-split-left li {
-  margin: 0.12em 0;
-}
-section.why-matters .why-split-right {
+section.lote-trust-overview .lote-split-right {
   min-width: 0;
   text-align: center;
+  margin-top: 0;
+  padding-top: 0;
 }
-section.why-matters .why-split-right img[alt="diagram"] {
+section.lote-trust-overview .lote-split-right > p {
+  margin: 0;
+  padding: 0;
+}
+section.lote-trust-overview .lote-split-right > p + p {
+  margin-top: 0.28em;
+}
+section.lote-trust-overview .lote-split-right img {
   display: block;
   width: auto;
   max-width: 100%;
-  max-height: min(560px, 74vh);
+  max-height: min(600px, 74vh);
   height: auto;
   margin: 0 auto;
+  margin-top: 0;
   object-fit: contain;
   object-position: center top;
+}
+section.lote-trust-overview .lote-split-right :is(pre, div).mermaid,
+section.lote-trust-overview .lote-split-right :is(pre, div).mermaid svg {
+  max-width: 100% !important;
+  max-height: min(600px, 74vh) !important;
+  height: auto !important;
+  margin: 0 auto;
 }
 
 /* eIDAS distributed trust (d14): two columns — checklist left, diagram right */

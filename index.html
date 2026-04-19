@@ -13,20 +13,27 @@ body { font-family: "Titillium Web", system-ui, sans-serif; margin:0; min-height
 header { border-bottom:6px solid var(--teal); padding:2rem 1.5rem 1.25rem; background:#fff; }
 h1 { margin:0 0 0.35rem; color:var(--teal); font-weight:700; letter-spacing:-0.02em; }
 p.lead { margin:0; max-width:48rem; color:#444; }
-main { max-width:40rem; margin:0 auto; padding:2rem 1.25rem 3rem; }
+main { max-width:44rem; margin:0 auto; padding:2rem 1.25rem 3rem; }
 ul.decks { list-style:none; padding:0; margin:0; }
-ul.decks li { margin:0 0 0.85rem; }
-ul.decks a { display:block; padding:0.85rem 1rem; border-radius:6px; border-left:6px solid var(--peach); text-decoration:none; color:var(--accent); font-weight:600; background:rgba(255,255,255,0.95); box-shadow:0 1px 3px rgba(0,0,0,0.06); }
-ul.decks a:hover { background:#fff; box-shadow:0 2px 8px rgba(52,101,164,0.12); }
-ul.decks span.path { display:block; font-size:0.88rem; font-weight:400; color:#666; margin-top:0.25rem; }
+li.deck-card { margin:0 0 1.1rem; padding:0.9rem 1rem 1rem; border-radius:6px; border-left:6px solid var(--peach); background:rgba(255,255,255,0.95); box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+li.deck-card a.deck-link { text-decoration:none; color:var(--accent); font-weight:600; display:block; }
+li.deck-card a.deck-link:hover { text-decoration:underline; }
+li.deck-card span.path { display:block; font-size:0.88rem; font-weight:400; color:#666; margin-top:0.25rem; }
+p.deck-footer { margin:0.55rem 0 0 0; font-size:0.86rem; font-weight:400; color:#444; line-height:1.4; border-top:1px solid rgba(0,128,128,0.15); padding-top:0.55rem; }
 footer { padding:1rem 1.5rem 2rem; font-size:0.9rem; color:#666; text-align:center; }
 </style>
 </head>
 <body>
-<header><h1>Wallet presentations</h1><p class="lead">Static slide decks built with Marp. Choose a presentation to open the HTML deck.</p></header>
+<header><h1>Wallet presentations</h1><p class="lead">Static slide decks built with Marp. Open a deck below; each line matches the slide footer of that presentation.</p></header>
 <main><ul class="decks">
-  <li><a href="./openid-federation-wallet-tdi/index.html">openid-federation-wallet-tdi<span class="path">/openid-federation-wallet-tdi/index.html</span></a></li>
-  <li><a href="./trust-management-eudi-wallet/index.html">trust-management-eudi-wallet<span class="path">/trust-management-eudi-wallet/index.html</span></a></li>
+  <li class="deck-card">
+    <a class="deck-link" href="./openid-federation-wallet-tdi/index.html"><strong>openid-federation-wallet-tdi</strong><span class="path">/openid-federation-wallet-tdi/index.html</span></a>
+    <p class="deck-footer">4th International Workshop on Trends in Digital Identity — Verona, 20 April 2026 · Giuseppe De Marco</p>
+  </li>
+  <li class="deck-card">
+    <a class="deck-link" href="./trust-management-eudi-wallet/index.html"><strong>trust-management-eudi-wallet</strong><span class="path">/trust-management-eudi-wallet/index.html</span></a>
+    <p class="deck-footer">Session 3: ITU Workshop on &quot;Trustable and Interoperable Digital Identities for Human and Agentic AI&quot;, (Geneva, Switzerland, 30–31 March 2026)</p>
+  </li>
 </ul></main>
-<footer>Repository: Wallet-Presentations · Built by GitHub Actions</footer>
+<footer>Repository: Wallet-Presentations · Built by GitHub Actions · Index: <a href="https://peppelinux.github.io/Wallet-Presentations/">https://peppelinux.github.io/Wallet-Presentations/</a></footer>
 </body></html>
