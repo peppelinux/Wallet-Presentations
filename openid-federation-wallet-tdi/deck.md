@@ -46,7 +46,7 @@ The **national IT-Wallet rules** align with **OpenID Federation 1.0** and the **
 ## Part 1 — Federation Profile delta in **OpenID4VCI** Metadata
 
 - **`jwks` by value:** **`openid_credential_issuer`** and **`oauth_authorization_server`** both require a **`jwks`** JSON object **carried by value** (with `OID-FED` §5.2.1 / `JWK` references) — national **credential issuer metadata** profile.
-- **Issuance flow:** PAR to obtain a one-time **`request_uri`**, then authorize with **`request_uri`** only (no PAR body replay); **`redirect_uri`** must match the signed Request Object — **IT-Wallet** low-level issuance and authorization-endpoint rules.
+- **Issuance flow:** **advertised on `oauth_authorization_server`** (`pushed_authorization_request_endpoint`, **`require_signed_request_object`** = true, **`authorization_endpoint`**); **IT-Wallet** mandates PAR → one-time **`request_uri`** → authorize with **`request_uri`** only (no PAR body replay); **`redirect_uri`** must match the signed Request Object — low-level issuance / authorization-endpoint rules.
 - **Further issuer metadata (national profile):** **REQUIRED** — **`trust_frameworks_supported`** (e.g. CIE, eIDAS, L2+document proof) in the authorization flow; per–credential-configuration **`schema_id`** and **`authentic_sources`** (national schema + authentic-source registries); **`status_list_aggregation_endpoint`** (Token Status List aggregation); **SVG**-first **display** rules for issuer and credential artwork where the profile mandates them. **OPTIONAL** — **`batch_credential_issuance`** (and its **`batch_size`** when present).
 
 <!--
@@ -61,6 +61,8 @@ The **national IT-Wallet rules** align with **OpenID Federation 1.0** and the **
 - **`redirect_uri` vs signed Request Object:** the request parameters (including **`redirect_uri`**) live inside a **signed** structure (e.g. JWT Request Object). The rule means: the **`redirect_uri`** the client will actually use **must be the same** as the one **inside that signature**. So an attacker cannot later swap in a different redirect and steal the response at a malicious endpoint — the signature would not match.
 
 - **IT-Wallet:** this is the **national OpenID4VCI issuance / authorization-endpoint** tightening on top of generic OAuth/OIDC patterns — say “Italian profile requires this binding for issuance,” not “OAuth always works this way everywhere.”
+
+- **How this “gets into metadata”:** there is usually **no** separate JSON flag meaning “use PAR” beyond what OAuth already defines. The wallet **discovers** the PAR URL as **`pushed_authorization_request_endpoint`** in **`oauth_authorization_server`** metadata (required in IT-Wallet; see national **Credential Issuer metadata** doc, *Metadata for oauth_authorization_server*). **`require_signed_request_object: true`** is what forces the **signed Request Object** where **`redirect_uri`** is bound. **`openid_credential_issuer`** points at that AS via **`authorization_servers`** (combined or split entity layout — see previous slide bullet), so issuance still sits under “OpenID4VCI metadata” even though PAR lives on the **AS** metadata object.
 -->
 
 ---
