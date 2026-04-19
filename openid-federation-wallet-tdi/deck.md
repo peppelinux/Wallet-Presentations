@@ -55,8 +55,8 @@ OIDC CIE/SPID should be updated with Federation 1.0 (and OIDC iGov too) assuring
 | TM status | `POST …/trust_mark_status` | TA,Int | **OIDF** SHOULD → **IT-W** MUST | JSON |
 | TM list | `GET …/trust_marked_list` | TA,Int | **OIDF** MAY → **IT-W** SHOULD | JWT |
 | Hist keys | `GET …/historical_keys` | TA,Int | **OIDF** MAY → **IT-W** MUST | JWT |
-| Sub events | `GET …/subordinate_events?sub=` | TA,Int | **OIDF** MAY (ext.) | `entity-events+jwt` |
-| Resolve | `federation_resolve_endpoint` | any | **OIDF** MAY (§8.3) | — |
+| Sub events | `GET …/subordinate_events?sub=` | TA,Int | **OIDF** MAY (ext.) → **IT-W** MUST | `entity-events+jwt` |
+| Resolve | `federation_resolve_endpoint` | any | **OIDF** MAY (§8.3) → **IT-W** OPTIONAL | — |
 
 
 - IT-Wallet uses the **Federation Subordinate Events Endpoint** as defined in **`OID-FED-SUBORDINATE-EVENTS`**: [openid-federation-subordinate-events-1_0](https://openid.net/specs/openid-federation-subordinate-events-1_0.html). Purpose: historical **registration / revocation / JWKS update** events for immediate subordinates — transparency for lifecycle and audits (**Federation Subordinate Events** in the **IT-Wallet** trust model).
