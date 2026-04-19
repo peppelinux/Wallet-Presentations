@@ -26,6 +26,8 @@ The workflow [`.github/workflows/release-trust-management-deck.yml`](.github/wor
 
 Configure **Settings → Pages → Deploy from a branch → `gh-pages` → /** (root).
 
+The site **index** lists each presentation with the same **`footer:`** text as in that deck’s Marp front matter (`deck.md`). To point the OpenID deck’s thank-you **QR** at another GitHub Pages base URL, set **`GITHUB_PAGES_BASE`** when running `./scripts/build-gh-pages-site.sh` locally, or define the repository variable **`WALLET_PRESENTATIONS_PAGES_URL`** (same value, no trailing slash) for GitHub Actions — empty means the default `https://peppelinux.github.io/Wallet-Presentations`. The script refreshes `openid-federation-wallet-tdi/images/gh-pages-index-qr.png` via **curl** (public QR API); ensure outbound HTTPS is allowed in CI, or rely on a committed PNG. Update the **thank-you link** in `openid-federation-wallet-tdi/deck.md` if your Pages URL differs.
+
 ## Build locally
 
 From a presentation directory:

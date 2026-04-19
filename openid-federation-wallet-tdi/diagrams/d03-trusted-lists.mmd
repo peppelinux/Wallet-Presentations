@@ -1,0 +1,6 @@
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '19px'}}}%%
+flowchart TB
+  MS[Member States] -->|notify PID / Wallet / Attestation providers, CAs, reg.-cert providers| EC[European Commission]
+  EC --> TL[Trusted Lists compiled & sealed]
+  TL --> LoTL[List of Trusted Lists]
+  LoTL & TL -.->|download / update| V[Verifiers: Wallet Units, RPs, Issuers]

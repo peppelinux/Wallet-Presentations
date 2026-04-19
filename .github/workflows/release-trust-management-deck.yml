@@ -15,6 +15,7 @@ on:
       - "**/workshop-barcelona.css"
       - "**/.marprc.yml"
       - "**/diagrams/**"
+      - "**/images/**"
       - "scripts/**"
       - ".github/workflows/release-trust-management-deck.yml"
   workflow_dispatch:
@@ -47,6 +48,9 @@ jobs:
             sudo apt-get install -y --no-install-recommends libasound2
 
       - name: Build all decks and static site
+        env:
+          # Optional repo variable: custom GitHub Pages root (no trailing slash). Default in script: peppelinux.github.io/Wallet-Presentations
+          GITHUB_PAGES_BASE: ${{ vars.WALLET_PRESENTATIONS_PAGES_URL }}
         run: |
           set -euo pipefail
           chmod +x ./scripts/build-gh-pages-site.sh

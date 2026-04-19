@@ -5,10 +5,10 @@ paginate: true
 footer: '4th International Workshop on Trends in Digital Identity — Verona, 20 April 2026 · Giuseppe De Marco'
 ---
 
-<!-- _class: lead lead-blue -->
-# OpenID Federation 1.0 and EUDIW trusted lists / X.509 PKIs in IT-Wallet
+<!-- _class: lead lead-blue lead-title-tight -->
+# OpenID Federation 1.0 and EUDIW TL / X.509 PKI in IT-Wallet
 
-The state of play of two different trust management systems in the Italian IT-Wallet.
+A **state of play** on **trust management** in the **Italian IT-Wallet** and how it reads **next to EUDIW**.
 
 **with Giuseppe De Marco**, _Technical Project Manager — Dipartimento per la trasformazione digitale, Presidency of the Council of Ministers of Italy_
 
@@ -16,78 +16,31 @@ The state of play of two different trust management systems in the Italian IT-Wa
 
 ## Today in 4 parts
 
-1. **OpenID Federation in IT-Wallet** — final alignment with **Federation 1.0**, federation **endpoints**, **national** rollout.  
+0. **OpenID Federation in Italy** — SPID/CIE OIDC vs. IT-Wallet.
+1. **OpenID Federation in IT-Wallet** — final alignment with **Federation 1.0**, federation **endpoints**, progresses with **Federation Wallet Architectures**.  
 2. **EUDIW trust management** — overview, responsibility matrix, design concerns, domestic gaps.
 3. **Costs** — many sources vs one federation chain; dual evaluation paths; participant obligations.  
-4. **Evolution** — onboarding APIs, ACME + Federation, OpenID Federation Wallet Architecture draft maturity, why not “federation trust proxies” over foreign lists.
+4. **Evolution** — onboarding APIs, ACME + Federation, OpenID Federation Wallet Architecture draft maturity.
+
+---
+
+## Two trust-evaluation approaches, one ecosystem
+
+- **History:** at IT-Wallet kick-off, **OpenID Federation** was the more **mature, implementable** horizontal trust layer for a **national** federation.  
+- **Today:** Federation **1.0** track is definitively **stable**; ARF / TS / LoTE still **move quickly** with evident overlapping devices — reasonable to **integrate European profile pieces where legally required**, without collapsing national federation design.  
+- **Strategy:** **incremental convergence** on outputs (what verifiers can prove) rather than forcing one protocol stack everywhere.
 
 ---
 
 ## Part 0 — Legacy SPID/CIE vs IT-Wallet based **Federation 1.0** (short intro)
 
+The **national IT-Wallet rules** align with **OpenID Federation 1.0** and the **OpenID Federation Wallet Architecture** draft. While pre-1.0 OpenID Federation drafts are used in the the legacy OIDC SPID/CIE profile. 
+
 Two different Federations, using two different Trust Anchors.
 
-pre-1.0 OpenID Federation drafts are used in the the legacy OIDC SPID/CIE profile. 
+OIDC CIE/SPID should be updated with Federation 1.0 (and OIDC iGov too) assuring retrocompatibility to previous implementations.
 
-Even if the overall approach is unchanged, OIDC CIE/SPID should be updated with Federation 1.0 (and OIDC iGov too) assuring retrocompatibility to previous implementations: [spid-cie-oidc-django](https://github.com/italia/spid-cie-oidc-django/pull/324) exemplifies how **retrocompatibility is achievable**.
-
----
-
-## Part 1 — Profile delta: **metadata** (IT-Wallet / Federation 1.0)
-
-The **national IT-Wallet rules** align with **OpenID Federation 1.0** and the **OpenID Federation Wallet Architecture** draft. 
-
-**Metadata beyond base Federation:** **`federation_entity`** (required); RP **`openid_credential_verifier`**; PID/(Q)EAA providers publish **`openid_credential_issuer`** and (where applicable) **`oauth_authorization_server`** metadata types — **combined** in one entity configuration or **split** across entities (Credential Issuer then carries **`authorization_servers`** pointing at the AS); leaf **`federation_entity`** details such as **`logo_uri` in SVG** and **PEC** in `contacts` where the profile tightens presentation.
-
-**Metadata beyond base Federation Wallet Arch:** **`wallet_solution`** describing a Wallet Provider and its "_sole_" Wallet Solution.
-
----
-
-## Part 1 — Federation Profile delta in **OpenID4VCI** Metadata
-
-- **`jwks` by value:** **`openid_credential_issuer`** and **`oauth_authorization_server`** both require a **`jwks`** JSON object **carried by value** (with `OID-FED` §5.2.1 / `JWK` references) — national **credential issuer metadata** profile.
-- **Issuance flow:** **advertised on `oauth_authorization_server`** (`pushed_authorization_request_endpoint`, **`require_signed_request_object`** = true, **`authorization_endpoint`**); **IT-Wallet** mandates PAR → one-time **`request_uri`** → authorize with **`request_uri`** only (no PAR body replay); **`redirect_uri`** must match the signed Request Object — low-level issuance / authorization-endpoint rules.
-- **Further issuer metadata (national profile):** **REQUIRED** — **`trust_frameworks_supported`** (e.g. CIE, eIDAS, L2+document proof) in the authorization flow; per–credential-configuration **`schema_id`** and **`authentic_sources`** (national schema + authentic-source registries); **`status_list_aggregation_endpoint`** (Token Status List aggregation); **SVG**-first **display** rules for issuer and credential artwork where the profile mandates them. **OPTIONAL** — **`batch_credential_issuance`** (and its **`batch_size`** when present).
-
-<!--
-**Speaker notes — “Issuance flow” (PAR + request_uri + redirect_uri)**
-
-- **What PAR is:** the wallet does not put the full authorization request on the `/authorize` URL. It **POSTs** that request to the **Pushed Authorization Request (PAR)** endpoint; the issuer answers with a short **`request_uri`** (a handle to the stored request).
-
-- **Why “then authorize with `request_uri` only”:** the next step is to open the authorization UI using **only** that handle (e.g. `GET /authorize?client_id=…&request_uri=…`). You are **not** supposed to **replay** the full PAR body again on the front channel. That way the live authorize step is **tied to exactly what the issuer accepted at PAR time**, and you avoid fat, tamper-friendly URLs.
-
-- **“One-time”:** treat the **`request_uri`** as **single-use / short-lived** in the profile sense — do not recycle it for multiple independent authorization attempts; issue a new PAR when you start a new issuance authorization.
-
-- **`redirect_uri` vs signed Request Object:** the request parameters (including **`redirect_uri`**) live inside a **signed** structure (e.g. JWT Request Object). The rule means: the **`redirect_uri`** the client will actually use **must be the same** as the one **inside that signature**. So an attacker cannot later swap in a different redirect and steal the response at a malicious endpoint — the signature would not match.
-
-- **IT-Wallet:** this is the **national OpenID4VCI issuance / authorization-endpoint** tightening on top of generic OAuth/OIDC patterns — say “Italian profile requires this binding for issuance,” not “OAuth always works this way everywhere.”
-
-- **How this “gets into metadata”:** there is usually **no** separate JSON flag meaning “use PAR” beyond what OAuth already defines. The wallet **discovers** the PAR URL as **`pushed_authorization_request_endpoint`** in **`oauth_authorization_server`** metadata (required in IT-Wallet; see national **Credential Issuer metadata** doc, *Metadata for oauth_authorization_server*). **`require_signed_request_object: true`** is what forces the **signed Request Object** where **`redirect_uri`** is bound. **`openid_credential_issuer`** points at that AS via **`authorization_servers`** (combined or split entity layout — see previous slide bullet), so issuance still sits under “OpenID4VCI metadata” even though PAR lives on the **AS** metadata object.
--->
-
----
-
-## Part 1 — Federation Profile delta in **OpenID4VP** Metadata
-
-- **Attested URIs:** **`openid_credential_verifier`** (when `client_id` = **`openid_federation`**) carries pre-registered **`request_uris`**, **`response_uris`**, and **`redirect_uris`** so the wallet rejects **endpoint mix-up** (`WP_081`, `WP_091a`, `WP_094a`; remote-presentation test matrix). The same URI lists are defined in **`OID-FED-WALLET`** (draft; checks align with OpenID4VP).
-
-_With **`x509_hash`**, equivalent **`client_metadata`** is carried **in the request** instead._
-
-- **Verifier presentation & privacy:** **`encrypted_response_enc_values_supported`** for **`direct_post.jwt`**, **`logo_uri`** as **SVG**; conditional **`erasure_endpoint`** when the RP requests strongly identifying claims. **`erasure_endpoint`** is **IT-Wallet–specific** (national **relying party / credential verifier** metadata).
-
----
-
-## Part 1 — The remark about Wallet Instances using OpenID Federation
-
-- **Wallet + federation:** Wallet Instance **must not** publish discoverable online metadata; federation endpoints are all **public without client credentials** that identify callers.
-
----
-
-## Part 1 — OpenID Federation *Wallet Architectures* (draft)
-
-- Reference: **[OpenID Federation Wallet Architectures 1.0](https://openid.net/specs/openid-federation-wallet-1_0.html)** (draft; cited as **`OID-FED-WALLET`** in the **IT-Wallet standards** list).
-- **Wallet Provider entity configuration** in IT-Wallet requires `metadata` to include **`wallet_solution`** and **`federation_entity`**.
-- **Issuance path nuance:** PID / (Q)EAA issuance to the wallet follows **OpenID4VCI** flows under the same **IT-Wallet** rules; the **Federation `wallet_solution` metadata** addresses *wallet-solution discovery and typing* in the federation layer, not a replacement for credential-issuer metadata.
+[spid-cie-oidc-django](https://github.com/italia/spid-cie-oidc-django/pull/324) exemplifies how **retrocompatibility is achievable**.
 
 ---
 
@@ -99,48 +52,91 @@ _With **`x509_hash`**, equivalent **`client_metadata`** is carried **in the requ
 | Entity config | `GET /.well-known/openid-federation` | TA,Int,WP,RP,CI | MUST | `entity-statement+jwt` |
 | List | `GET …/list` | TA,Int | MUST | JSON |
 | Fetch | `GET …/fetch?sub=` | TA,Int | MUST | JWT |
-| TM status | `POST …/trust_mark_status` | TA,Int | **OIDF** SHOULD | JSON |
+| TM status | `POST …/trust_mark_status` | TA,Int | **OIDF** SHOULD → **IT-W** MUST | JSON |
 | TM list | `GET …/trust_marked_list` | TA,Int | **OIDF** MAY → **IT-W** SHOULD | JWT |
 | Hist keys | `GET …/historical_keys` | TA,Int | **OIDF** MAY → **IT-W** MUST | JWT |
-| Sub events | `GET …/subordinate_events?sub=` | TA,Int | ext. | `entity-events+jwt` |
+| Sub events | `GET …/subordinate_events?sub=` | TA,Int | **OIDF** MAY (ext.) | `entity-events+jwt` |
 | Resolve | `federation_resolve_endpoint` | any | **OIDF** MAY (§8.3) | — |
 
 
-- IT-Wallet uses the **Federation Subordinate Events Endpoint** as defined in **`OID-FED-SUBORDINATE-EVENTS`**: [openid-federation-subordinate-events-1_0](https://openid.net/specs/openid-federation-subordinate-events-1_0.html).  
-- Purpose: historical **registration / revocation / JWKS update** events for immediate subordinates — transparency for lifecycle and audits (**Federation Subordinate Events** in the **IT-Wallet** trust model).
+- IT-Wallet uses the **Federation Subordinate Events Endpoint** as defined in **`OID-FED-SUBORDINATE-EVENTS`**: [openid-federation-subordinate-events-1_0](https://openid.net/specs/openid-federation-subordinate-events-1_0.html). Purpose: historical **registration / revocation / JWKS update** events for immediate subordinates — transparency for lifecycle and audits (**Federation Subordinate Events** in the **IT-Wallet** trust model).
 
 ---
 
+## Part 1 — The remark about Wallet Instances using OpenID Federation
+
+⚠️ **Reminder — Wallet + federation:** 
+
+
+Wallet Instance **must not** publish discoverable online metadata; federation endpoints are all **public without client credentials** that identify callers.
+
+---
+
+<!-- _class: metadata-delta-matrix -->
+## Part 1 — Protocol-specific **metadata**: IT-Wallet vs Federation 1.0
+
+| Role | Metadata (beyond base `OID-FED`) | IT-Wallet / draft note | **`OID-FED-WALLET`** (draft) |
+|:-----:|-----------------------------------|------------------------|-------------------------------|
+| **Any federation leaf** | **`federation_entity`** | **Required**; **`logo_uri`** = **SVG**; **`contacts`** (e.g. **PEC**) where the profile tightens presentation. Federation base. | **—** |
+| **Relying Party** | **`openid_credential_verifier`** | Verifier metadata for **OpenID4VP** / presentation (e.g. attested URIs when `client_id` = **`openid_federation`**) | **Covered** |
+| **PID / (Q)EAA provider** | **`openid_credential_issuer`** · **`oauth_authorization_server`** | **Combined** in one **EC** **or** **split**; if split, CI carries **`authorization_servers`** → AS | **Covered** |
+| **Wallet Provider** | **`wallet_solution`** + **`federation_entity`** | WP’s **single** Wallet Solution | **Not covered** |
+
+---
+<!-- _class: metadata-delta-matrix -->
+## Part 1 — Federation Profile delta in **OpenID4VCI** Metadata
+
+| Focus | IT-Wallet / OpenID4VCI rule | Highlights | OpenID alignment |
+|:-----:|-----------------------------|------------|------------------|
+| **`jwks` by value** | **`openid_credential_issuer`** and **`oauth_authorization_server`** MUST publish **`jwks`** **by value** (not reference-only) | National **credential issuer metadata** profile; **`OID-FED`** §5.2.1 / **`JWK`** | **Covered by `OID-FED-WALLET`** |
+| **`trust_frameworks_supported`** | **REQUIRED** (national issuer profile) | Declares frameworks used in the **authorization** flow (e.g. CIE, eIDAS, L2+) | **Covered by `OID-FED-WALLET`** |
+| **`schema_id` / `authentic_sources`** | **REQUIRED** per–credential configuration | National **schema** + **authentic-source** registries | **Covered by `OID-FED-WALLET`** |
+| **`status_list_aggregation_endpoint`** | **REQUIRED** where the profile mandates | **Token Status List** aggregation for credential / token status | **Covered by OpenID4VCI** |
+| **SVG-first issuer / credential display** | **REQUIRED** where the profile mandates | **Display** / artwork rules for issuer and credentials | **Covered by OpenID4VCI** |
+| **`batch_credential_issuance`** (+ **`batch_size`**) | **OPTIONAL** | Advertise **batch** issuance when supported | **Covered by OpenID4VCI** |
+
+---
+<!-- _class: metadata-delta-matrix -->
+## Part 1 — Federation Profile delta in **OpenID4VP** Metadata
+
+| Topic | Metadata / behaviour | IT-Wallet & alignment | OpenID specs coverage |
+|:-----:|------------------------|----------------------|----------------------------|
+| **Attested URIs** (`client_id` = **`openid_federation:`**) | **`openid_credential_verifier`** lists **`request_uris`**, **`response_uris`**, **`redirect_uris`** (pre-registered) → wallet rejects **endpoint mix-up** | Satisfied. **`WP_081`**, **`WP_091a`**, **`WP_094a`**; remote-presentation test matrix | **OpenID4VP** verifier metadata; **`OID-FED-WALLET`** (draft) attested URI model (aligned checks) |
+| **`x509_hash:` path** | Same semantics via **`client_metadata`** carried **in the request** (not federation verifier URI lists) | Satisfied | **OpenID4VP** `client_id` prefix **`x509_hash:`** + in-band **`client_metadata`**; national **`remote-flow`** narrows behaviour |
+| **Encrypted VP response** | **`encrypted_response_enc_values_supported`** for **`direct_post.jwt`** | Satisfied | **OpenID4VP/HAIP** (encrypted authorization response path) |
+| **Verifier `logo_uri`** | **`logo_uri`** as **SVG** | National **`openid_credential_verifier`** presentation rules | **OpenID4VP** verifier **display** metadata |
+| **`erasure_endpoint`** | **Conditional** verifier metadata when the RP requests **strongly identifying** claims | **IT-Wallet–specific** RP / credential-verifier extension | **Outside OpenID4VP core** as a **universal** field — **national** profile add-on |
+
+---
+
+<!-- _class: wallet-selection-screenshot -->
 ## Part 1 — Wallet solution selection & custom URI mitigation
 
-- **UX reference:** wallet solution selection page in the national proxy preview — [iam-proxy-italia IT-Wallet preview](https://italia.github.io/iam-proxy-italia/preview/sec-fix-3.2.1/it-wallet.html) (domestic pattern for presenting available wallet solutions to the user).  
-- **Security context:** custom URI / wallet-invocation schemes are a recurring EUDIW ecosystem concern (**phishing**, **handler ambiguity**, **scheme squatting**). A **hosted HTTPS selection step** on a known origin, using **universal links / app links** where possible, reduces some of that risk versus naked `scheme://` dispatch alone; **EUDIW custom-URI fallbacks** still inherit **first-handler / typosquatting** caveats unless the flow constrains when they fire.  
-- **Federation scale-out:** loading many federated wallet solutions may need a **bulk / paginated listing** beyond plain `federation_list_endpoint` — see **OpenID Federation Extended Subordinate Listing 1.0** draft: [openid-federation-extended-listing-1_0-01](https://openid.net/specs/openid-federation-extended-listing-1_0-01.html) (*next steps*).
+- **UX:** national proxy **wallet selection** preview — [iam-proxy-italia IT-Wallet](https://italia.github.io/iam-proxy-italia/preview/sec-fix-3.2.1/it-wallet.html).  
+- **Security:** custom **`scheme://`** invocation risks **phishing** / **handler clash**; prefer **HTTPS picker** on a **known origin** + **app/universal links** where possible — **custom-URI fallbacks** remain **typosquatting**-sensitive.  
+- **Scale-out:** many subordinates may need **bulk / paged listing** beyond `federation_list_endpoint` — draft [Extended Subordinate Listing 1.0](https://openid.net/specs/openid-federation-extended-listing-1_0-01.html).
+![IT-Wallet proxy — “Scegli l’app” (wallet selection UI)](images/wallet-selection-it-wallet-ui.png)
 
 ---
 
-## Part 2 — EUDIW trust management (overview)
+<!-- _class: lote-trust-overview -->
+## Part 2 — EUDIW uses an Hierarchical authoritative listing model
 
-- **Hierarchical authoritative listing model:** participants register nationally; **trusted lists / LoTE** and **ARF** matrices describe who publishes what (PID TL at EC, many wallet-provider / WRPAC lists, sector-specific registration artefacts, …).
+<div class="lote-split">
 
----
+<div class="lote-split-left">
 
-<!-- _class: why-matters -->
-## Does everything fit within it?
+Participants register nationally; **CIRs**/**IETF**/**ARF** describe who publishes what (PID TL at EC, many wallet-provider / WRPAC lists, sector-specific registration artefacts, …).
 
-<div class="why-split">
-
-<div class="why-split-left">
-
-- **Duplication:** one **entity** playing multiple roles requires **separate trusted-list appearances**. Trusted Lists are **provided in both XML and JSON format**.
-- **Verifier burden:** Wallets/RPs must **resolve identity across different lists**. Possible **trust drift**.
-- **Domestic gaps:** PID / PuB-EAA / Wallet Solutions trusted lists are **hosted at EC**; Member States may still implement **other national approaches**.
+**List of Trusted Lists**/**trusted lists**/**LoTE** represent this articulated division of responsibilities.
 
 </div>
 
-<div class="why-split-right">
+<div class="lote-split-right">
 
-![diagram](../trust-management-eudi-wallet/diagrams/d01-why-it-matters.svg)
+![LoTE, TSL, and EU LoTL pointer landscape](diagrams/lote-tsl-trust-landscape.svg)
+
+*Diagram: **dotted** arcs — LoTL **indexes** LoTE-family lists; **solid** path — MS **TSL** feeds LoTL. **Normative refs** (versions, CIR, ARF) are in the **figure legend** (Mermaid).*
 
 </div>
 
@@ -148,20 +144,12 @@ _With **`x509_hash`**, equivalent **`client_metadata`** is carried **in the requ
 
 ---
 
-## Part 2 — Design pressure, trusted-list singularities & tension
+<!-- _class: responsibility-recap-slide -->
+## Part 2 — Responsibility matrix<br>(recap)
 
-- **Design pressure (summary):** the same real-world actor can sit on **several trusted lists** and artefact formats (**duplication** of checks); **trust verifiers** must correlate **many list and status lookups** plus **registration artefacts**; **WSCD** assurance is bounded (hardware limits what non-repudiation can claim); **registration** is a **graph** (MS vs EC roles, notifications vs full registration), not one hop to a single TL.  
-- **Trusted-list singularity — one legal entity, multiple roles:** trusted lists are keyed to **operational roles** (PID provider, attestor, wallet provider, …), not to a single canonical “company” row. One **legal person** holding several roles therefore appears as **separate TL entries**—often different **subjects**, **policy scopes**, and **renewal/revocation lifecycles**. Verifiers must **validate each appearance on its own merits**; they cannot safely deduplicate by brand or corporate group, so **validation work and failure modes multiply** even when the user-facing operator is obviously the same org.  
-- **Key tension:** many **independent trust surfaces** at presentation and issuance time, not one hierarchical metadata graph.  
-- **Singularities — JSON + XML:** the same semantics in **two encodings** ⇒ parser / policy duplication risk.  
-- **Verifier burden:** one relying party may need **several lists, status services, and registration-backed certs** resolved together before policy is clear.  
-- **Trust drift:** different **publication cycles**, cache TTLs, and revocation channels.
+<div class="recap-split">
 
----
-
-## Part 2 — Responsibility matrix (condensed)
-
-Mirror of ARF / WP4-style view (who registers whom, who publishes which TL / LoTE):
+<div class="recap-split-left">
 
 | Role | Registration | TL / LoTE publication | Notes |
 |------|----------------|----------------------|--------|
@@ -170,22 +158,40 @@ Mirror of ARF / WP4-style view (who registers whom, who publishes which TL / LoT
 | Wallet Provider | notification MS→EC | **EC** wallet-provider TL | Operational evaluation at EC side |
 | WRP / WRPAC / WRPRC | registrar vs notification | mix of **MS** APIs + **EC** LoTE | RP registration API (ARF Tech Spec 5) |
 
+</div>
+
+<div class="recap-split-right">
+
+![MS → EC → TL → LoTL → verifiers (trusted lists flow)](diagrams/d03-trusted-lists.svg)
+
+</div>
+
+</div>
+
+---
+
+<!-- _class: design-pressure-matrix -->
+## Part 2 — Design pressure & trusted-list singularities (matrix)
+
+| Area | Mechanism | Impact |
+|:-----:|-----------|--------|
+| **Multi-role duplication** | One entity, **several operational roles** ⇒ **separate TL/LoTE appearances**; artefacts in **JSON and XML** (**602 / 612**) | **Duplicate checks**; **no safe dedupe** by corporate identity; **dual parser / policy** paths |
+| **Verifier load** | Trust evidence **across TL/LoTE**, **status** APIs, **registration**, **federation** metadata | **Wallets & RPs** must **resolve and correlate** many sources at issuance **and** presentation |
+| **Trust drift** | **Independent** publish / revoke cadences, caches, CDNs | Same subject can appear **trusted in one list view, stale or revoked in another** |
+| **WSCD** | Assurance stops at the **device / hardware** boundary | **Non-repudiation** claims are **bounded** |
+| **Registration graph** | **MS vs EC** roles; notification vs full registration | Not a **single TL hop**—orchestration is a **graph** of steps |
+| **Domestic vs EC lists** | **PID / PuB-EAA / Wallet** provider TLs **hosted at EC**; MS may still add **parallel national** lists or flows | Verifiers **branch** on **domestic** vs **cross-border** list sets; **no single uniform TL cloud** |
+
 ---
 
 ## Part 2 — Domestic gap & Italian choice
 
 - **EC-hosted lists** (PID, Pub-EAA, Wallet Provider, WRPAC, …) **do not** map 1:1 onto **national-only** trust needs: Member States remain free to operate **additional** national infrastructures.  
-- **Italian approach (this talk’s framing):** keep **OpenID Federation** as the **national, JWT-first trust plane** for wallet ecosystem participants, while **EUDIW ARF / TL obligations** are satisfied where mandated (X.509 access certs, EC lists, registrar APIs) — **avoid forcing one technology to emulate the other**.  
-- **Implication:** full “harmonisation” into a single mechanism is **not** pursued; **interworking** and **clear client signalling** matter more.
-
----
-
-## Part 2 — RP Registration API & dual client identifiers
-
-- **Registrar / RP registration:** EUDIW ARF expects machine-readable RP registration and status (national **Registrar** + **ARF TS5**-style APIs — see ARF documentation).  
-- **Presentation signalling** (national **remote presentation** flow): wallets support **`client_id_prefixes_supported`**: **`openid_federation`** vs **`x509_hash`**.  
-  - **`openid_federation:`** prefix ⇒ trust chain / entity configuration **`sub`** must match.  
-  - **`x509_hash:`** prefix ⇒ hash of the **RP access certificate** **`x5c`** (per national **access** rules and **LoTE of Access**) must match the embedded hash (bound by reference).
+- **Italian approach:** keep **OpenID Federation** as the **national, JWT-first trust plane** for wallet ecosystem participants, while **EUDIW ARF / TL obligations** are satisfied where mandated (X.509 access certs, EC lists, registrar APIs) — **avoid forcing one technology to emulate the other**.  
+- **Implication:** full “harmonisation” into a single mechanism is **not** pursued; **interworking** and **clear client signalling** matter more:
+  - **`client_id_prefixes_supported`**: **`openid_federation`** vs **`x509_hash`** — two ways the verifier knows which trust machinery applies.
+  - **`openid_federation:`** prefix ⇒ the **federation trust chain** and entity configuration **`sub`** must match the presented identifier.
+  - **`x509_hash:`** prefix ⇒ the hash of the **RP access certificate** **`x5c`** (per national **access** rules and **LoTE of Access**) must match the embedded hash (**bound by reference**).
 
 ---
 
@@ -198,17 +204,9 @@ Mirror of ARF / WP4-style view (who registers whom, who publishes which TL / LoT
 
 ---
 
-## Part 3 — Two trust-evaluation approaches, one ecosystem
+## Part 4 — X.509 Issuance
 
-- **History:** at IT-Wallet kick-off, **OpenID Federation** was the more **mature, implementable** horizontal trust layer for a **national** federation.  
-- **Today:** Federation **1.0** track is definitively **stable**; ARF / TS / LoTE still **move quickly** with evident overlapping devices — reasonable to **integrate European profile pieces where legally required**, without collapsing national federation design.  
-- **Strategy:** **incremental convergence** on outputs (what verifiers can prove) rather than forcing one protocol stack everywhere.
-
----
-
-## Part 4 — Evolution: onboarding & “federation-wide registration”
-
-- **Today:** parts of onboarding lean on **custom / national APIs** and registries (not a single OIDF profile). 
+- **Today:** parts of onboarding lean on **custom / national APIs** and registries (not a single OIDF profile) for automated X.509 issuance.
 - **Current state:** national **access / federation entity X.509** processes are not standardized yet, compared with commodity ACME automation.  
 - **IETF direction:** [draft-ietf-acme-openid-federation](https://datatracker.ietf.org/doc/draft-ietf-acme-openid-federation/) — bind ACME issuance to federation entity identifiers to **reuse ACME clients** instead of one-off custom enrollment APIs (cost reduction for participants, relying on already available ACME client implementation).
 
@@ -238,4 +236,12 @@ FBK, IPZS, Mike ... is there space for that?
 # Thank you
 
 **Questions?**
+
+<div class="thank-you-qr">
+
+<img src="images/gh-pages-index-qr.png" alt="QR code — open the Wallet presentations index on GitHub Pages" width="220" height="220" />
+
+<p class="thank-you-qr-url"><a href="https://peppelinux.github.io/Wallet-Presentations/">peppelinux.github.io/Wallet-Presentations/</a></p>
+
+</div>
 

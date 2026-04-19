@@ -1,0 +1,18 @@
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '14px'}}}%%
+flowchart LR
+  MS[Member State policy] --> REG[Registrar]
+  REG --> NR[Published registry<br/>TS5 machine + human · Reg_03/06]
+
+  REG --> PID[PID Provider]
+  REG --> AP[Attestation Provider]
+  REG --> RP[Relying Party]
+
+  PRC[WRPRC] -.->|optional · TS 119 475 cert| PID
+  PRC -.->|optional · TS 119 475 cert| AP
+  PRC -.->|optional · TS 119 475 cert| RP
+
+  CIM[Credential Issuer Metadata] -.->|OpenID4VCI · TS 119 472-3 · embedded policies| PID
+  CIM -.->|OpenID4VCI · TS 119 472-3 · embedded policies| AP
+
+  TL[Trusted Lists · LoTE] -.->|notified service · trust anchors| PID
+  TL -.->|notified service · trust anchors| AP

@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 # Build static site under ./site: root index listing every presentation folder that contains deck.md
+# Optional: GITHUB_PAGES_BASE — e.g. https://myorg.github.io/Wallet-Presentations (no trailing slash required)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SITE="${ROOT}/site"
+# GitHub Actions may set GITHUB_PAGES_BASE to empty when vars.* is unset — treat empty like missing.
+PAGES_BASE="${GITHUB_PAGES_BASE:-}"
+if [[ -z "${PAGES_BASE// }" ]]; then
+  PAGES_BASE="https://peppelinux.github.io/Wallet-Presentations"
+fi
+PAGES_BASE="${PAGES_BASE%/}"
 
 rm -rf "${SITE}"
 mkdir -p "${SITE}"
@@ -15,10 +22,26 @@ if [[ ${#DECK_PATHS[@]} -eq 0 ]]; then
   exit 1
 fi
 
+# QR on last slide (openid deck): site index URL
+OID_QR_DIR="${ROOT}/openid-federation-wallet-tdi/images"
+if [[ -d "${OID_QR_DIR}" ]]; then
+  mkdir -p "${OID_QR_DIR}"
+  ENC="$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "${PAGES_BASE}/")"
+  if ! curl -sfS "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${ENC}" -o "${OID_QR_DIR}/gh-pages-index-qr.png"; then
+    echo "WARN: could not download QR PNG (network); last slide may use stale image" >&2
+  fi
+fi
+
+META_TMP="$(mktemp)"
+trap 'rm -f "${META_TMP}"' EXIT
+
 NAMES=()
 for deck in "${DECK_PATHS[@]}"; do
   dir="$(dirname "${deck}")"
   name="$(basename "${dir}")"
+  foot_esc="$(python3 "${ROOT}/scripts/extract_marp_footer.py" "${deck}" | python3 -c "import html,sys; print(html.escape(sys.stdin.read()))")"
+  printf '%s\t%s\n' "${name}" "${foot_esc}" >> "${META_TMP}"
+
   echo "=== Building presentation: ${name} ==="
   (cd "${dir}" && make all)
 
@@ -58,23 +81,27 @@ done
   echo 'header { border-bottom:6px solid var(--teal); padding:2rem 1.5rem 1.25rem; background:#fff; }'
   echo 'h1 { margin:0 0 0.35rem; color:var(--teal); font-weight:700; letter-spacing:-0.02em; }'
   echo 'p.lead { margin:0; max-width:48rem; color:#444; }'
-  echo 'main { max-width:40rem; margin:0 auto; padding:2rem 1.25rem 3rem; }'
+  echo 'main { max-width:44rem; margin:0 auto; padding:2rem 1.25rem 3rem; }'
   echo 'ul.decks { list-style:none; padding:0; margin:0; }'
-  echo 'ul.decks li { margin:0 0 0.85rem; }'
-  echo 'ul.decks a { display:block; padding:0.85rem 1rem; border-radius:6px; border-left:6px solid var(--peach); text-decoration:none; color:var(--accent); font-weight:600; background:rgba(255,255,255,0.95); box-shadow:0 1px 3px rgba(0,0,0,0.06); }'
-  echo 'ul.decks a:hover { background:#fff; box-shadow:0 2px 8px rgba(52,101,164,0.12); }'
-  echo 'ul.decks span.path { display:block; font-size:0.88rem; font-weight:400; color:#666; margin-top:0.25rem; }'
+  echo 'li.deck-card { margin:0 0 1.1rem; padding:0.9rem 1rem 1rem; border-radius:6px; border-left:6px solid var(--peach); background:rgba(255,255,255,0.95); box-shadow:0 1px 3px rgba(0,0,0,0.06); }'
+  echo 'li.deck-card a.deck-link { text-decoration:none; color:var(--accent); font-weight:600; display:block; }'
+  echo 'li.deck-card a.deck-link:hover { text-decoration:underline; }'
+  echo 'li.deck-card span.path { display:block; font-size:0.88rem; font-weight:400; color:#666; margin-top:0.25rem; }'
+  echo 'p.deck-footer { margin:0.55rem 0 0 0; font-size:0.86rem; font-weight:400; color:#444; line-height:1.4; border-top:1px solid rgba(0,128,128,0.15); padding-top:0.55rem; }'
   echo 'footer { padding:1rem 1.5rem 2rem; font-size:0.9rem; color:#666; text-align:center; }'
   echo '</style>'
   echo '</head>'
   echo '<body>'
-  echo '<header><h1>Wallet presentations</h1><p class="lead">Static slide decks built with Marp. Choose a presentation to open the HTML deck.</p></header>'
+  echo '<header><h1>Wallet presentations</h1><p class="lead">Static slide decks built with Marp. Open a deck below; each line matches the slide footer of that presentation.</p></header>'
   echo '<main><ul class="decks">'
-  for n in "${NAMES[@]}"; do
-    echo "  <li><a href=\"./${n}/index.html\">${n}<span class=\"path\">/${n}/index.html</span></a></li>"
-  done
+  while IFS=$'\t' read -r name foot_esc; do
+    echo "  <li class=\"deck-card\">"
+    echo "    <a class=\"deck-link\" href=\"./${name}/index.html\"><strong>${name}</strong><span class=\"path\">/${name}/index.html</span></a>"
+    echo "    <p class=\"deck-footer\">${foot_esc}</p>"
+    echo "  </li>"
+  done < "${META_TMP}"
   echo '</ul></main>'
-  echo '<footer>Repository: Wallet-Presentations · Built by GitHub Actions</footer>'
+  echo '<footer>Repository: Wallet-Presentations · Built by GitHub Actions · Index: <a href="'"${PAGES_BASE}"'/">'"${PAGES_BASE}"'/</a></footer>'
   echo '</body></html>'
 } > "${SITE}/index.html"
 

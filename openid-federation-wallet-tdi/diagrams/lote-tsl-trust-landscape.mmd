@@ -1,0 +1,75 @@
+graph LR
+    subgraph Standards_and_Objects["Legenda · WP4 Trust Group README"]
+        direction TB
+        S["<b>Normative stack</b><br/>ETSI TS 119 602 <b>v01.01.01</b> · LoTE<br/>ETSI TS 119 612 <b>v2.4.1</b> · TSL + EU LoTL<br/>ETSI TS 119 615 <b>v01.03.01</b> · LoTL/TL use<br/>CID 2015/1505 · CIR 2025/2164 · ARF v2.8.0<br/>RFC 5280 X.509 · RFC 6960 OCSP · RFC 7515 JWS"]
+    end
+
+    %% Sezione TS 119 602 (LoTE JSON)
+    subgraph LoTE_JSON["ETSI TS 119 602 v01.01.01 — LoTE"]
+        L1[LoTE Wallet prov]
+        L2[LoTE PID prov]
+        L3[LoTE Pub EAA]
+        L4[LoTE RP AC CA]
+        L5[LoTE RP RC CA]
+        L6[LoTE Registrars]
+    end
+
+    %% Middle Tier
+    WP_CA[["WP CA"]]
+    PID_I[PID Issuer]
+    PUB_I[Pub EAA Issuer]
+    RP_AC[RP AC CA]
+    RP_RC[RP RC CA]
+    RP_REG[RP Registry]
+
+    %% Sezione Destra (Utilizzatori)
+    W(Wallet) -->|WIA/WUA| WP(Wallet Provider)
+    WP --> WP_CA
+    PID(PID) --> PID_I
+    PEAA(Pub EAA) --> PUB_I
+
+    RP{Relying Party} --> RP_AC
+    RP --> RP_RC
+    RP --> RP_REG
+
+    %% Collegamenti Trust LoTE
+    WP_CA -.-> L1
+    PID_I --> L2
+    PUB_I --> L3
+    RP_AC --> L4
+    RP_RC --> L5
+    RP_REG --> L6
+
+    %% Sezione TS 119 612 (TSL XML)
+    subgraph TSL_XML["ETSI TS 119 612 v2.4.1 — TSL + EU LoTL"]
+        EU_LoTL["EU LoTL<br/>(ListOfTrustedLists, 612)"]
+        MS_TSL[MS TSL]
+    end
+
+    EAA_I[EAA Issuer] --> MS_TSL
+    QEAA_I[QEAA Issuer] --> MS_TSL
+    MS_TSL --> EU_LoTL
+
+    EAA(EAA) --> EAA_I
+    QEAA(QEAA) --> QEAA_I
+
+    %% LoTL: TrustedListPointers to published TLs — many targets are TS 119 602 LoTE URLs (EC + MS); MS TSL remains 612 feed for QTSP-style chains
+    EU_LoTL -.->|TrustedListPointer| L1
+    EU_LoTL -.->|TrustedListPointer| L2
+    EU_LoTL -.->|TrustedListPointer| L3
+    EU_LoTL -.->|TrustedListPointer| L4
+    EU_LoTL -.->|TrustedListPointer| L5
+    EU_LoTL -.->|TrustedListPointer| L6
+
+    %% Keep legend subgraph in layout (otherwise Mermaid may omit isolated clusters)
+    L1 ~~~ S
+
+    %% Styling
+    style LoTE_JSON fill:#f9d5a7,stroke:#e67e22
+    style TSL_XML fill:#f9d5a7,stroke:#e67e22
+    style W fill:#95a5a6
+    style PID fill:#95a5a6
+    style PEAA fill:#95a5a6
+    style RP fill:#95a5a6
+    style EAA fill:#95a5a6
+    style QEAA fill:#95a5a6
