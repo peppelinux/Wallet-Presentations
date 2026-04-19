@@ -108,10 +108,32 @@ _With **`x509_hash`**, equivalent **`client_metadata`** is carried **in the requ
 
 ## Part 2 — EUDIW trust management (overview)
 
-- **Hierarchical authoritative listing model:** participants register nationally; **trusted lists / LoTE** and **ARF** matrices describe who publishes what (PID TL at EC, many wallet-provider / WRPAC lists, sector-specific registration artefacts, …).  
+- **Hierarchical authoritative listing model:** participants register nationally; **trusted lists / LoTE** and **ARF** matrices describe who publishes what (PID TL at EC, many wallet-provider / WRPAC lists, sector-specific registration artefacts, …).
 
+---
 
+<!-- _class: why-matters -->
+## Does everything fit within it?
 
+<div class="why-split">
+
+<div class="why-split-left">
+
+- **Duplication:** one **entity** playing multiple roles requires **separate trusted-list appearances**. Trusted Lists are **provided in both XML and JSON format**.
+- **Verifier burden:** Wallets/RPs must **resolve identity across different lists**. Possible **trust drift**.
+- **Domestic gaps:** PID / PuB-EAA / Wallet Solutions trusted lists are **hosted at EC**; Member States may still implement **other national approaches**.
+
+</div>
+
+<div class="why-split-right">
+
+![diagram](../trust-management-eudi-wallet/diagrams/d01-why-it-matters.svg)
+
+</div>
+
+</div>
+
+---
 
 - **Design pressure (summary):** the same actor can sit on **several trusted lists** and formats (**duplication** of checks); **verifiers** must correlate **many list and status lookups** plus **registration artefacts**; **WSCD** assurance is bounded (hardware limits what non-repudiation can claim); **registration** is a **graph** (MS vs EC roles, notifications vs full registration), not one hop to a single TL.  
 - **Key tension:** many **independent trust surfaces** at presentation and issuance time, not one hierarchical metadata graph.
