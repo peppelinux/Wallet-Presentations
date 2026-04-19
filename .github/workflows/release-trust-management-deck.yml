@@ -1,10 +1,8 @@
-# Release → PDF + HTML zip on the release; HTML site → gh-pages branch.
+# Build every presentation folder that contains deck.md, deploy listing + decks to gh-pages.
 #
-# Requirements:
-# - This file must be on your DEFAULT branch (e.g. master) on GitHub — push it before releases run.
-# - Settings → Pages → Source: Deploy from a branch → gh-pages → / (root)
+# Configure GitHub Pages: Deploy from branch → gh-pages → / (root)
 
-name: Trust management deck — release assets & GitHub Pages
+name: Wallet presentations — GitHub Pages
 
 on:
   release:
@@ -12,7 +10,12 @@ on:
   push:
     branches: [main, master]
     paths:
-      - "trust-management-eudi-wallet/**"
+      - "**/deck.md"
+      - "**/Makefile"
+      - "**/workshop-barcelona.css"
+      - "**/.marprc.yml"
+      - "**/diagrams/**"
+      - "scripts/**"
       - ".github/workflows/release-trust-management-deck.yml"
   workflow_dispatch:
 
@@ -20,7 +23,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: trust-management-deck-pages
+  group: wallet-presentations-gh-pages
   cancel-in-progress: false
 
 jobs:
@@ -33,7 +36,6 @@ jobs:
         with:
           node-version: "20"
 
-      # Marp PDF uses headless Chromium; Ubuntu runners sometimes missing libs
       - name: Install Chromium dependencies (Marp PDF)
         run: |
           sudo apt-get update
@@ -44,35 +46,25 @@ jobs:
           sudo apt-get install -y --no-install-recommends libasound2t64 2>/dev/null || \
             sudo apt-get install -y --no-install-recommends libasound2
 
-      - name: Build deck (diagrams, HTML, PDF)
-        working-directory: trust-management-eudi-wallet
-        run: make all
-
-      - name: Prepare static site (index.html + assets)
-        working-directory: trust-management-eudi-wallet
+      - name: Build all decks and static site
         run: |
           set -euo pipefail
-          mkdir -p "$GITHUB_WORKSPACE/site/diagrams" "$GITHUB_WORKSPACE/site/images"
-          cp deck.html "$GITHUB_WORKSPACE/site/index.html"
-          cp workshop-barcelona.css "$GITHUB_WORKSPACE/site/"
-          cp diagrams/*.svg "$GITHUB_WORKSPACE/site/diagrams/"
-          shopt -s nullglob
-          for f in images/*; do
-            [[ "$(basename "$f")" == .gitkeep ]] && continue
-            cp -r "$f" "$GITHUB_WORKSPACE/site/images/"
-          done
-          ls -la "$GITHUB_WORKSPACE/site" "$GITHUB_WORKSPACE/site/diagrams" "$GITHUB_WORKSPACE/site/images" | head -80
+          chmod +x ./scripts/build-gh-pages-site.sh
+          ./scripts/build-gh-pages-site.sh
+          ls -la site site/*/ 2>/dev/null | head -120
 
-      - name: Attach PDF and HTML zip to release
+      - name: Attach PDF and HTML zip per presentation (release only)
         if: github.event_name == 'release'
         env:
           TAG: ${{ github.event.release.tag_name }}
         run: |
           set -euo pipefail
-          test -f trust-management-eudi-wallet/deck.pdf
-          cp trust-management-eudi-wallet/deck.pdf "$GITHUB_WORKSPACE/trust-management-eudi-wallet-${TAG}.pdf"
-          (cd "$GITHUB_WORKSPACE/site" && zip -r "$GITHUB_WORKSPACE/trust-management-eudi-wallet-${TAG}-html.zip" .)
-          ls -la "$GITHUB_WORKSPACE"/trust-management-eudi-wallet-*.*
+          while IFS= read -r -d '' pdf; do
+            base="$(basename "$(dirname "$pdf")")"
+            cp "$pdf" "${GITHUB_WORKSPACE}/${base}-${TAG}.pdf"
+          done < <(find . -mindepth 2 -maxdepth 2 -type f -name deck.pdf -print0)
+          (cd site && zip -r "${GITHUB_WORKSPACE}/wallet-presentations-${TAG}-html-full-site.zip" .)
+          ls -la "${GITHUB_WORKSPACE}"/*.pdf "${GITHUB_WORKSPACE}"/*-html-full-site.zip 2>/dev/null || true
 
       - name: Upload release assets
         if: github.event_name == 'release'
@@ -80,8 +72,8 @@ jobs:
         with:
           tag_name: ${{ github.event.release.tag_name }}
           files: |
-            trust-management-eudi-wallet-${{ github.event.release.tag_name }}.pdf
-            trust-management-eudi-wallet-${{ github.event.release.tag_name }}-html.zip
+            *-${{ github.event.release.tag_name }}.pdf
+            wallet-presentations-${{ github.event.release.tag_name }}-html-full-site.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

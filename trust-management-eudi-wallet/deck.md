@@ -219,7 +219,7 @@ Is there a General Policy Framework definition? Subtractive/Additive-ZeroTrust a
 
 <img src="images/deck-pages-qr.png" alt="QR code — open this deck online at peppelinux.github.io/Wallet-Presentations" width="220" height="220" />
 
-<p class="thank-you-qr-url"><a href="https://peppelinux.github.io/Wallet-Presentations/">peppelinux.github.io/Wallet-Presentations</a></p>
+<p class="thank-you-qr-url"><a href="https://peppelinux.github.io/Wallet-Presentations/trust-management-eudi-wallet/">peppelinux.github.io/Wallet-Presentations/trust-management-eudi-wallet/</a></p>
 
 </div>
 

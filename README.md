@@ -1,37 +1,56 @@
 # Wallet presentations
 
-This repository holds slide decks and related assets for EUDI Wallet and trust-management topics.
+Slide decks (Marp) and assets for EUDI Wallet, IT-Wallet trust, and related topics.
 
-## Trust management in the EUDI Wallet ecosystem
+## Presentations in this repository
 
-Source: [`trust-management-eudi-wallet/`](trust-management-eudi-wallet/).
+Each **top-level directory** that contains a `deck.md` and `Makefile` is one presentation. After a successful build, the count matches the entries on GitHub Pages.
 
-| Item | Description |
-| --- | --- |
-| `deck.md` | [Marp](https://marp.app/) markdown for the deck |
-| `workshop-barcelona.css` | Marp theme |
-| `.marprc.yml` | Marp configuration |
-| `diagrams/*.mmd` | [Mermaid](https://mermaid.js.org/) sources; built to `*.svg` for the deck |
-| `pacing-notes.md` | Presenter notes (optional) |
+| Folder | Topic |
+|--------|--------|
+| [`trust-management-eudi-wallet/`](trust-management-eudi-wallet/) | Trust management in the EUDI Wallet ecosystem (overview, matrices, diagrams) |
+| [`openid-federation-wallet-tdi/`](openid-federation-wallet-tdi/) | OpenID Federation 1.0 vs EUDIW trusted lists in IT-Wallet — coexistence, costs, evolution (~20 min) |
 
-### Build locally
-
-From the deck directory:
+To list folders locally:
 
 ```bash
-cd trust-management-eudi-wallet
-make              # diagrams (if needed), then deck.html + deck.pdf
-make help         # targets and tips
-make rebuild      # clean outputs then full rebuild
+find . -mindepth 2 -maxdepth 2 -name deck.md -printf '%h\n' | sort
 ```
 
-Prerequisites: **Node.js** (the `Makefile` uses `npx` for `@mermaid-js/mermaid-cli` and `@marp-team/marp-cli`). For PDF export, Marp uses headless Chromium; on minimal Linux systems you may need the same Chromium dependencies as [GitHub Actions](.github/workflows/release-trust-management-deck.yml) (e.g. `libgbm1`, `libnss3`, …).
+## GitHub Pages
 
-### Continuous integration
+The workflow [`.github/workflows/release-trust-management-deck.yml`](.github/workflows/release-trust-management-deck.yml) builds **every** presentation, writes a **root `index.html`** that links to each deck, and deploys the `site/` output to the **`gh-pages`** branch.
 
-[`.github/workflows/release-trust-management-deck.yml`](.github/workflows/release-trust-management-deck.yml) builds the deck on push to `main`/`master` (when files under `trust-management-eudi-wallet/` change), publishes a static site to the **`gh-pages`** branch, and attaches **PDF** and **HTML zip** assets when a **GitHub Release** is published.
+- **Index (listing):** `https://<org>.github.io/<repo>/`  
+- **A single deck:** `https://<org>.github.io/<repo>/<folder-name>/index.html` (the site index links here so the browser opens the Marp HTML directly)
 
-Configure **Settings → Pages** with source **Deploy from a branch → `gh-pages` → /** (root).
+Configure **Settings → Pages → Deploy from a branch → `gh-pages` → /** (root).
+
+## Build locally
+
+From a presentation directory:
+
+```bash
+cd trust-management-eudi-wallet   # or openid-federation-wallet-tdi
+make              # diagrams (if any), deck.html + deck.pdf
+make help
+```
+
+Full site (same layout as CI):
+
+```bash
+./scripts/build-gh-pages-site.sh
+# output: ./site/index.html and ./site/<presentation>/index.html
+```
+
+Prerequisites: **Node.js** (`npx` for `@marp-team/marp-cli` and, where used, `@mermaid-js/mermaid-cli`). PDF export needs headless Chromium dependencies (see the workflow for an apt package list).
+
+## Releases
+
+Publishing a **GitHub Release** attaches:
+
+- one **PDF** per presentation (`<folder>-<tag>.pdf`);
+- **`wallet-presentations-<tag>-html-full-site.zip`** — entire static site (index + all decks).
 
 ## License
 
