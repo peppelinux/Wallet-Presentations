@@ -2,13 +2,14 @@
 flowchart LR
   subgraph E["Ecosystem actors"]
     WP[Wallet Provider]
-    WU[Wallet Unit]
+    WU[Wallet Instance]
     PID[PID Provider]
     ATT[Attestation Providers]
     RP[Relying Party]
   end
   WP --> WU
-  PID & ATT -->|issue PID / EAAs| WU
+  PID -->|issue PID| WU
+  ATT -->|issue EAAs| WU
   WU <-->|present / verify| RP
   MS[(Member States + registries)]
   TL_EAA[(National TL — EAA Providers)]
