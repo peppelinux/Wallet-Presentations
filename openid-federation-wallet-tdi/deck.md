@@ -101,7 +101,7 @@ _With **`x509_hash`**, equivalent **`client_metadata`** is carried **in the requ
 ## Part 1 — Wallet solution selection & custom URI mitigation
 
 - **UX reference:** wallet solution selection page in the national proxy preview — [iam-proxy-italia IT-Wallet preview](https://italia.github.io/iam-proxy-italia/preview/sec-fix-3.2.1/it-wallet.html) (domestic pattern for presenting available wallet solutions to the user).  
-- **Security context:** custom URI / wallet-invocation schemes are a recurring EUDIW ecosystem concern; a **hosted HTML selection step** mitigates some phishing / confused-deputy issues compared with naked custom URI handlers alone.  
+- **Security context:** custom URI / wallet-invocation schemes are a recurring EUDIW ecosystem concern (**phishing**, **handler ambiguity**, **scheme squatting**). A **hosted HTTPS selection step** on a known origin, using **universal links / app links** where possible, reduces some of that risk versus naked `scheme://` dispatch alone; **EUDIW custom-URI fallbacks** still inherit **first-handler / typosquatting** caveats unless the flow constrains when they fire.  
 - **Federation scale-out:** loading many federated wallet solutions may need a **bulk / paginated listing** beyond plain `federation_list_endpoint` — see **OpenID Federation Extended Subordinate Listing 1.0** draft: [openid-federation-extended-listing-1_0-01](https://openid.net/specs/openid-federation-extended-listing-1_0-01.html) (*next steps*).
 
 ---
@@ -134,6 +134,8 @@ _With **`x509_hash`**, equivalent **`client_metadata`** is carried **in the requ
 </div>
 
 ---
+
+## Part 2 — Design pressure & key tension
 
 - **Design pressure (summary):** the same actor can sit on **several trusted lists** and formats (**duplication** of checks); **verifiers** must correlate **many list and status lookups** plus **registration artefacts**; **WSCD** assurance is bounded (hardware limits what non-repudiation can claim); **registration** is a **graph** (MS vs EC roles, notifications vs full registration), not one hop to a single TL.  
 - **Key tension:** many **independent trust surfaces** at presentation and issuance time, not one hierarchical metadata graph.
