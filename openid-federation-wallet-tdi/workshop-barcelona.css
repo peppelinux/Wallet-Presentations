@@ -1,0 +1,535 @@
+/* @theme workshop-barcelona */
+/* Style cues: IT-Workshop_Interoperability_Barcelona.odp — Titillium Web, #008080, #ffcc99, #3465a4 / #729fcf */
+
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+
+:root {
+  --teal: #008080;
+  --peach: #ffcc99;
+  --accent-blue: #3465a4;
+  --soft-blue: #729fcf;
+  --text: #2d2d2d;
+  --text-muted: #585858;
+  --surface: #ffffff;
+  --surface-tint: #f7fcfb;
+}
+
+section {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  background-image: linear-gradient(180deg, var(--surface) 0%, var(--surface-tint) 100%);
+  color: var(--text);
+  font-family: 'Titillium Web', 'Liberation Sans', Arial, sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.38;
+  border-bottom: 6px solid var(--teal);
+  padding: 48px 56px calc(56px + 2.75em) 56px;
+}
+
+/* Content above the pinned footer */
+section > *:not(footer) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Light plate behind body blocks so type stays readable over the footer strip (not title slide: .lead-blue) */
+section:not(.lead-blue) > *:not(footer):not(:is(h1, marp-h1)) {
+  background: rgba(255, 255, 255, 0.98);
+  padding: 0.2em 0.45em;
+  border-radius: 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+h1,
+marp-h1 {
+  color: var(--teal);
+  font-size: 1.55em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.45em 0;
+  padding-bottom: 0.2em;
+  border-bottom: 4px solid var(--peach);
+}
+
+h2 {
+  color: var(--accent-blue);
+  font-size: 1.28em;
+  font-weight: 600;
+  margin-top: 0.15em;
+  margin-bottom: 0.4em;
+  padding: 0.12em 0 0.12em 0.35em;
+  border-left: 6px solid var(--peach);
+}
+
+h3 {
+  color: var(--teal);
+  font-size: 1.05em;
+  font-weight: 600;
+}
+
+strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+a {
+  color: var(--accent-blue);
+}
+
+ul,
+ol {
+  line-height: 1.35;
+}
+
+li::marker {
+  color: var(--teal);
+}
+
+table {
+  font-size: 0.82em;
+  border-collapse: collapse;
+  margin: 0.4em 0;
+}
+
+th {
+  background: #0056ab;
+  color: #fff;
+  font-weight: 600;
+  padding: 0.35em 0.5em;
+  text-align: left;
+}
+
+td {
+  border: 1px solid #d8e8e6;
+  padding: 0.3em 0.45em;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+tr:nth-child(even) td {
+  background: #f3faf9;
+}
+
+blockquote {
+  border-left: 5px solid var(--soft-blue);
+  color: var(--text-muted);
+}
+
+code {
+  background: #eef6f5;
+  color: var(--accent-blue);
+  padding: 0.08em 0.2em;
+  border-radius: 3px;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+footer {
+  color: var(--text-muted);
+  font-size: 0.55em;
+  line-height: 1.25;
+}
+
+section > footer {
+  position: absolute;
+  left: 56px;
+  right: 56px;
+  bottom: 56px;
+  margin: 0;
+  z-index: 0;
+}
+
+/* Responsibilities matrix slide — pull table closer to heading / intro */
+section.responsibilities-matrix :is(h2, marp-h2) {
+  margin-top: 0;
+  margin-bottom: 0.15em;
+}
+section.responsibilities-matrix > p {
+  margin: 0 0 0.12em 0;
+}
+section.responsibilities-matrix table {
+  margin-top: 0;
+  margin-bottom: 0.35em;
+}
+
+/* Federation API matrix — slightly denser than default, still readable */
+section.federation-api-compact {
+  font-size: 26px;
+  line-height: 1.28;
+  padding: 38px 52px calc(52px + 2.6em) 52px;
+}
+
+section.federation-api-compact :is(h2, marp-h2) {
+  margin-top: 0;
+  margin-bottom: 0.18em;
+  font-size: 1.22em;
+  padding-top: 0.08em;
+  padding-bottom: 0.08em;
+}
+
+section.federation-api-compact > *:not(footer):not(:is(h1, marp-h1)) {
+  padding: 0.12em 0.36em;
+}
+
+section.federation-api-compact table {
+  font-size: 0.78em;
+  margin: 0.12em 0 0.18em 0;
+  width: 100%;
+}
+
+section.federation-api-compact th,
+section.federation-api-compact td {
+  padding: 0.22em 0.38em;
+  line-height: 1.28;
+}
+
+section.federation-api-compact code {
+  font-size: 0.94em;
+}
+
+section.federation-api-compact > p {
+  margin: 0.1em 0 0 0;
+  font-size: 0.88em;
+  line-height: 1.28;
+}
+
+section.lead {
+  justify-content: center;
+  text-align: center;
+  border-bottom-width: 0;
+  background: var(--surface);
+  background-image: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(114, 159, 207, 0.18), transparent 55%), linear-gradient(180deg, var(--surface) 0%, var(--surface-tint) 100%);
+}
+
+section.lead :is(h1, marp-h1) {
+  background: var(--teal);
+  color: #ffffff;
+  border: none;
+  border-bottom: 5px solid var(--peach);
+  padding: 0.4em 0.55em;
+  margin: 0 auto 0.5em auto;
+  max-width: 95%;
+  font-size: 1.75em;
+  font-weight: 700;
+  box-shadow: 4px 4px 0 rgba(255, 204, 153, 0.85);
+  text-align: center;
+}
+
+section.lead p,
+section.lead strong {
+  color: var(--text);
+  font-weight: 400;
+}
+
+section.lead strong {
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+/* Title slide: full-bleed blue, centered copy, same boxed title treatment as .lead */
+section.lead.lead-blue {
+  background: #0056ab;
+  background-image: none;
+  color: #fff;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  border-bottom-width: 0;
+}
+section.lead.lead-blue :is(h1, marp-h1) {
+  background: none;
+  color: #ffffff;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0.85em auto 0.4em auto;
+  max-width: 95%;
+  font-size: 1.75em;
+  font-weight: 700;
+  text-align: center;
+}
+section.lead.lead-blue p,
+section.lead.lead-blue strong {
+  color: rgba(255, 255, 255, 0.95);
+}
+section.lead.lead-blue strong {
+  color: #fff;
+  font-weight: 600;
+}
+section.lead.lead-blue footer {
+  color: rgba(255, 255, 255, 0.78);
+}
+section.lead.lead-blue::after {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Thank you: QR on white pad for quiet zone + scannability on blue slide */
+section.thank-you-slide .thank-you-qr {
+  margin: 0.35em auto 0;
+  padding: 0.75em 1em 0.65em;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45em;
+  max-width: min(92%, 360px);
+}
+section.thank-you-slide .thank-you-qr img {
+  display: block;
+  width: 220px;
+  height: 220px;
+  margin: 0;
+}
+section.thank-you-slide .thank-you-qr-url {
+  margin: 0;
+  padding: 0;
+  line-height: 1.25;
+  font-size: 0.72em;
+  font-weight: 600;
+}
+section.thank-you-slide .thank-you-qr-url a {
+  color: var(--accent-blue);
+  word-break: break-all;
+}
+
+/* “Why it matters” (d01): heading + diagram — cap size to stay in 16:9 */
+section.why-matters h2 {
+  margin: 0 0 0.3em 0;
+}
+section.why-matters .why-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.42fr) minmax(0, 1.58fr);
+  gap: 1rem 1.15rem;
+  align-items: start;
+  width: 100%;
+}
+section.why-matters .why-split-left {
+  font-size: 0.78em;
+  line-height: 1.36;
+  min-width: 0;
+}
+section.why-matters .why-split-left p {
+  margin: 0 0 0.45em 0;
+}
+section.why-matters .why-split-left ul {
+  margin: 0;
+  padding-left: 1.05em;
+}
+section.why-matters .why-split-left li {
+  margin: 0.12em 0;
+}
+section.why-matters .why-split-right {
+  min-width: 0;
+  text-align: center;
+}
+section.why-matters .why-split-right img[alt="diagram"] {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: min(560px, 74vh);
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+  object-position: center top;
+}
+
+/* eIDAS distributed trust (d14): two columns — checklist left, diagram right */
+section.eidas-distributed-slide h2 {
+  margin: 0 0 0.35em 0;
+  font-size: 1.05em;
+  line-height: 1.18;
+}
+section.eidas-distributed-slide .eidas-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+  gap: 1rem 1.1rem;
+  align-items: center;
+  width: 100%;
+}
+section.eidas-distributed-slide .eidas-split-left {
+  font-size: 0.82em;
+  line-height: 1.38;
+  min-width: 0;
+}
+section.eidas-distributed-slide .eidas-split-left ol {
+  margin: 0.4em 0 0;
+  padding-left: 1.2em;
+}
+section.eidas-distributed-slide .eidas-split-left li {
+  margin: 0.18em 0;
+}
+section.eidas-distributed-slide .eidas-split-right {
+  min-width: 0;
+  text-align: center;
+}
+section.eidas-distributed-slide .eidas-split-right img[alt="diagram"] {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: min(540px, 66vh);
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+  object-position: center center;
+}
+
+/* §7 “Wallets under the spotlight”: readable spacing (title → body → diagram) */
+section.wallet-spotlight {
+  padding: 48px 56px calc(56px + 2.75em) 56px;
+}
+section.wallet-spotlight > *:not(footer):not(:is(h1, marp-h1)) {
+  padding: 0.2em 0.45em;
+}
+section.wallet-spotlight :is(h2, marp-h2) {
+  margin: 0 0 0.38em 0;
+  padding: 0.12em 0 0.12em 0.35em;
+}
+section.wallet-spotlight > p {
+  margin: 0 0 0.42em 0;
+  font-size: 1em;
+  line-height: 1.38;
+}
+section.wallet-spotlight img[alt='diagram'],
+section.wallet-spotlight :is(pre, div).mermaid {
+  margin: 0.35em auto 0;
+}
+section.wallet-spotlight img[alt='diagram'] {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: min(620px, 84vh);
+  height: auto;
+  object-fit: contain;
+  object-position: center top;
+}
+section.wallet-spotlight :is(pre, div).mermaid {
+  max-height: min(620px, 84vh);
+  overflow: hidden;
+  margin-bottom: 0;
+  padding: 0;
+  line-height: 1.2;
+}
+section.wallet-spotlight :is(pre, div).mermaid svg {
+  display: block;
+  max-width: 100% !important;
+  max-height: min(620px, 84vh) !important;
+  height: auto !important;
+  margin: 0 auto;
+}
+
+/* §8 WSCD: horizontal flowchart — scale to slide width, low vertical footprint */
+section.wscd-split :is(h2, marp-h2) {
+  margin: 0 0 0.28em 0;
+}
+section.wscd-split > ul {
+  margin: 0 0 0.28em 0;
+  font-size: 0.88em;
+  line-height: 1.32;
+}
+section.wscd-split > ul > li {
+  margin: 0.08em 0;
+}
+section.wscd-split img[alt='diagram'] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: min(300px, 48vh);
+  margin: 0.2em auto 0;
+  object-fit: contain;
+  object-position: center center;
+}
+
+/* §10 Registration mermaid: minimal gap under title, diagram scales to viewport */
+section.registration-graph {
+  padding: 32px 52px calc(52px + 2.65em) 52px;
+}
+section.registration-graph :is(h2, marp-h2) {
+  margin: 0 0 0.06em 0;
+  padding: 0.06em 0 0.06em 0.35em;
+}
+section.registration-graph > *:not(footer):not(:is(h1, marp-h1)) {
+  padding: 0.06em 0.35em;
+}
+section.registration-graph > p {
+  margin: 0;
+  line-height: 0;
+}
+section.registration-graph img[alt='diagram'] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: min(520px, 58vh);
+  margin: 0.02em auto 0;
+  object-fit: contain;
+  object-position: center top;
+}
+
+/* Latency slide: full-bleed *frame*, image scaled with contain (no left/right crop vs slide) */
+section.latency-fullbleed {
+  padding: 0 !important;
+  margin: 0;
+  border-bottom: none;
+  justify-content: stretch;
+  overflow: hidden;
+}
+
+section.latency-fullbleed footer {
+  display: none !important;
+}
+
+section.latency-fullbleed [data-marpit-advanced-background-container='true'] {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Fit image inside 1280×720; contain avoids cover’s horizontal crop when aspect ≠ 16:9 */
+section.latency-fullbleed [data-marpit-advanced-background-container='true'] figure {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+  background-size: contain !important;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+/* Trust-proxy figure: fit slide width, preserve aspect ratio — no horizontal crop */
+section.trust-proxy-slide :is(h2, marp-h2) {
+  margin-top: 0;
+  margin-bottom: 0.2em;
+}
+
+section.trust-proxy-slide > p {
+  margin: 0;
+  line-height: 0;
+}
+
+section.trust-proxy-slide img {
+  display: block;
+  box-sizing: border-box;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  max-height: min(58vh, 620px);
+  margin: 0.1em auto 0;
+  object-fit: contain;
+  object-position: center top;
+}
