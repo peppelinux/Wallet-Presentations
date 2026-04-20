@@ -1,11 +1,11 @@
 graph LR
     subgraph Standards_and_Objects["Legenda · WP4 Trust Group README"]
         direction TB
-        S["<b>Normative stack</b><br/>ETSI TS 119 602 <b>v01.01.01</b> · LoTE<br/>ETSI TS 119 612 <b>v2.4.1</b> · TSL + EU LoTL<br/>ETSI TS 119 615 <b>v01.03.01</b> · LoTL/TL use<br/>CID 2015/1505 · CIR 2025/2164 · ARF v2.8.0<br/>RFC 5280 X.509 · RFC 6960 OCSP · RFC 7515 JWS"]
+        S["<div style='line-height:1.5; text-align:left;'><b>Normative stack</b><br/><span>ETSI TS 119 602 · LoTE</span><br/><span>ETSI TS 119 612 · TSL + EU LoTL</span><br/><span>ETSI TS 119 615 · LoTL/TL use</span><br/><span>CID 2015/1505</span><br/><span>CIR 2025/2164</span><br/><span>ARF v2.8.0</span><br/><span>RFC 5280 X.509</span><br/><span>RFC 6960 OCSP</span><br/><span>RFC 7515 JWS</span></div>"]
     end
 
     %% Sezione TS 119 602 (LoTE JSON)
-    subgraph LoTE_JSON["ETSI TS 119 602 v01.01.01 — LoTE"]
+    subgraph LoTE_JSON["ETSI TS 119 602 — LoTE"]
         L1[LoTE Wallet prov]
         L2[LoTE PID prov]
         L3[LoTE Pub EAA]
@@ -41,7 +41,7 @@ graph LR
     RP_REG --> L6
 
     %% Sezione TS 119 612 (TSL XML)
-    subgraph TSL_XML["ETSI TS 119 612 v2.4.1 — TSL + EU LoTL"]
+    subgraph TSL_XML["ETSI TS 119 612 — TSL + EU LoTL"]
         EU_LoTL["EU LoTL<br/>(ListOfTrustedLists, 612)"]
         MS_TSL[MS TSL]
     end

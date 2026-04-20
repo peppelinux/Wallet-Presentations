@@ -19,7 +19,7 @@ A **state of play** on **trust management** in the **Italian IT-Wallet** and how
 0. **OpenID Federation in Italy** — SPID/CIE OIDC vs. IT-Wallet.
 1. **OpenID Federation in IT-Wallet** — final alignment with **Federation 1.0**, federation **endpoints**, progresses with **Federation Wallet Architectures**.  
 2. **EUDIW trust management** — overview, responsibility matrix, design concerns, domestic gaps.
-3. **Costs** — many sources vs one federation chain; dual evaluation paths; participant obligations.  
+3. **Costs** — many sources, huge trust surface; dual evaluation paths; participant obligations.  
 4. **Evolution** — onboarding APIs, ACME + Federation, OpenID Federation Wallet Architecture draft maturity.
 
 ---
@@ -27,8 +27,12 @@ A **state of play** on **trust management** in the **Italian IT-Wallet** and how
 ## Two trust-evaluation approaches, one ecosystem
 
 - **History:** at IT-Wallet kick-off, **OpenID Federation** was the more **mature, implementable** horizontal trust layer for a **national** federation.  
-- **Today:** Federation **1.0** track is definitively **stable**; ARF / TS / LoTE still **move quickly** with evident overlapping devices — reasonable to **integrate European profile pieces where legally required**, without collapsing national federation design.  
+- **Today:** Federation **1.0** track is definitively **stable**; ARF / TS / LoTE still **move quickly** with evident complexity and overlapping mechanisms — reasonable to **integrate European profile pieces where legally required, without collapsing national federation design**.  
 - **Strategy:** **incremental convergence** on outputs (what verifiers can prove) rather than forcing one protocol stack everywhere.
+
+<div style="text-align:center; margin-top: 0.4rem;">
+  <img src="images/federation-browser-graph.png" alt="OpenID Federation Browser graph" style="width: 78%; max-height: 38vh; object-fit: contain;" />
+</div>
 
 ---
 
@@ -119,6 +123,37 @@ Wallet Instance **must not** publish discoverable online metadata; federation en
 
 ---
 
+
+<!-- _class: responsibility-recap-slide -->
+## Part 2 — Responsibility matrix<br>(recap)
+
+<div class="recap-split">
+
+<div class="recap-split-left">
+
+| Role | Registration | TL / LoTE publication | Notes |
+|------|----------------|----------------------|--------|
+| PID Provider | MS registrar | **EC** PID Provider TL / LoTE | MS approves/registers; EC publishes notified trust anchors |
+| Pub-EAA Provider | MS registrar + MS notification to EC | **EC** PuB-EAA TL / LoTE | Public-sector attestation path; EC publication |
+| EAA Provider | MS registrar | MS registry / national trust sources | Non-qualified path; rulebook-driven trust model |
+| QEAA Provider | MS registrar (QTSP domain) | MS QTSP TSL (discoverable via EU LoTL) | Qualified-signature validation on QTSP trust services |
+| Wallet Provider | notification MS→EC (no registrar onboarding) | **EC** Wallet Provider TL / LoTE | Wallet-unit attestation trust anchors distributed by EC |
+| WRP | MS registrar | MS RP registry API / signed registry output | Intended-use and attribute scope from registrar data |
+| WRPAC | MS-notified Access CA (to EC) | **EC** Access-CA TL / LoTE | Issues RP access certificates used in presentation auth |
+| WRPRC | MS-associated provider + MS notification to EC | **EC** Registration-Certificate-Provider TL / LoTE | Issues RP registration certificates (per intended use) |
+
+</div>
+
+<div class="recap-split-right">
+
+![MS → EC → TL → LoTL → verifiers (trusted lists flow)](diagrams/d03-trusted-lists.svg)
+
+</div>
+
+</div>
+
+---
+
 <!-- _class: lote-trust-overview -->
 ## Part 2 — EUDIW uses an Hierarchical authoritative listing model
 
@@ -144,32 +179,6 @@ Participants register nationally; **CIRs**/**IETF**/**ARF** describe who publish
 
 ---
 
-<!-- _class: responsibility-recap-slide -->
-## Part 2 — Responsibility matrix<br>(recap)
-
-<div class="recap-split">
-
-<div class="recap-split-left">
-
-| Role | Registration | TL / LoTE publication | Notes |
-|------|----------------|----------------------|--------|
-| PID Provider | MS registrar | **EC** EU PID TL | MS TLP not compiler for EU PID TL |
-| EAA / QEAA | MS registrar | MS national TLs; **PuB-EAA** via **EC** TL | Several list “surfaces” |
-| Wallet Provider | notification MS→EC | **EC** wallet-provider TL | Operational evaluation at EC side |
-| WRP / WRPAC / WRPRC | registrar vs notification | mix of **MS** APIs + **EC** LoTE | RP registration API (ARF Tech Spec 5) |
-
-</div>
-
-<div class="recap-split-right">
-
-![MS → EC → TL → LoTL → verifiers (trusted lists flow)](diagrams/d03-trusted-lists.svg)
-
-</div>
-
-</div>
-
----
-
 <!-- _class: design-pressure-matrix -->
 ## Part 2 — Design pressure & trusted-list singularities (matrix)
 
@@ -184,23 +193,28 @@ Participants register nationally; **CIRs**/**IETF**/**ARF** describe who publish
 
 ---
 
+<!-- _class: domestic-gap-matrix -->
 ## Part 2 — Domestic gap & Italian choice
 
-- **EC-hosted lists** (PID, Pub-EAA, Wallet Provider, WRPAC, …) **do not** map 1:1 onto **national-only** trust needs: Member States remain free to operate **additional** national infrastructures.  
-- **Italian approach:** keep **OpenID Federation** as the **national, JWT-first trust plane** for wallet ecosystem participants, while **EUDIW ARF / TL obligations** are satisfied where mandated (X.509 access certs, EC lists, registrar APIs) — **avoid forcing one technology to emulate the other**.  
-- **Implication:** full “harmonisation” into a single mechanism is **not** pursued; **interworking** and **clear client signalling** matter more:
-  - **`client_id_prefixes_supported`**: **`openid_federation`** vs **`x509_hash`** — two ways the verifier knows which trust machinery applies.
-  - **`openid_federation:`** prefix ⇒ the **federation trust chain** and entity configuration **`sub`** must match the presented identifier.
-  - **`x509_hash:`** prefix ⇒ the hash of the **RP access certificate** **`x5c`** (per national **access** rules and **LoTE of Access**) must match the embedded hash (**bound by reference**).
+| Topic | Position |
+|------|----------|
+| EC-hosted lists | **EC-hosted lists** (PID, Pub-EAA, Wallet Provider, WRPAC, …) **do not** map 1:1 onto **national-only** trust needs; Member States remain free to operate **additional** national infrastructures. |
+| Italian approach | Keep **OpenID Federation** as the **national, JWT-first trust plane** for wallet ecosystem participants, while **EUDIW ARF / TL obligations** are met where mandated (X.509 access certs, EC lists, registrar APIs) — **avoid forcing one technology to emulate the other**. |
+| Implication | Full “harmonisation” into a single mechanism is **not** pursued; **interworking** and **clear client signalling** matter more. |
+| `client_id_prefixes_supported` | **`openid_federation`** vs **`x509_hash`** — two ways the verifier knows which trust machinery applies. |
+| `openid_federation:` | The **federation trust chain** and entity configuration **`sub`** must match the presented identifier. |
+| `x509_hash:` | The hash of the **RP access certificate** **`x5c`** (per national **access** rules and **LoTE of Access**) must match the embedded hash (**bound by reference**). |
 
 ---
 
 ## Part 3 — Cost lens: multiplicity vs federation chain
 
-- **EUDIW path:** presentation may touch **TLS / access cert**, **OCSP/CRL**, **one or more registration certificates**, **several status lists / registry APIs**, **discovery** — **five-ish trust surfaces** before app logic.  
-- **OpenID Federation path:** one **trust chain** of signed statements + optional trust marks + historical JWKS + policieis + **subordinate events**.  
-- **Critique:** duplicated **revocation / freshness** semantics across X.509 and JWT worlds if both are always evaluated -> **rule:** once an X.509 is issued its lyfecyle is handled using PKIX tools and not openid federation API.
-- **Mitigation for RPs:** choose **`x509_hash`** presentation where acceptable to **reuse X.509-heavy verifier patterns** from EUDIW discussions and **trim live federation fetches** on the hot path (still subject to national profile rules).
+| Lens | Position |
+|------|----------|
+| EUDIW path | Presentation may touch **TLS / access cert**, **OCSP/CRL**, **one or more registration certificates**, **several status lists / registry APIs**, **discovery** — **five-ish trust surfaces** before app logic. |
+| OpenID Federation path | One **trust chain** of signed statements + optional trust marks + historical JWKS + policieis + **subordinate events**. |
+| Critique | Duplicated **revocation / freshness** semantics across X.509 and JWT worlds if both are always evaluated -> **rule:** once an X.509 is issued its lyfecyle is handled using PKIX tools and not openid federation API. |
+| Mitigation for RPs | Choose **`x509_hash`** presentation where acceptable to **reuse X.509-heavy verifier patterns** from EUDIW discussions and **trim live federation fetches** on the hot path (still subject to national profile rules). |
 
 ---
 
@@ -226,9 +240,14 @@ FBK, IPZS, Mike ... is there space for that?
 
 ---
 
+<!-- _class: trust-proxy-slide -->
 ## Part 4 — Trust proxies
 
 - **No appetite (today) for “trust proxies”** that would call Federation APIs to **re-evaluate foreign TLs / revocations** on behalf of wallets: risks include **privacy** (who is probed), **SPoF**, and **trust drift** when proxy caches diverge from wallet-local policy / TTLs.
+
+![Latency and trust-surface comparison for wallet trust evaluation paths](images/latency-spikes.png)
+
+
 
 ---
 
