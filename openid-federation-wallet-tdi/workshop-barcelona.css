@@ -213,8 +213,8 @@ section.responsibility-recap-slide > *:not(footer):not(:is(h1, marp-h1)) {
 }
 section.responsibility-recap-slide .recap-split {
   display: grid;
-  grid-template-columns: minmax(0, 0.7fr) minmax(0, 0.3fr);
-  gap: 0.75rem 1rem;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 0.2fr);
+  gap: 0.65rem 0.8rem;
   align-items: start;
   width: 100%;
   margin-top: 0.02em;
@@ -417,6 +417,42 @@ section.metadata-delta-matrix blockquote {
 section.metadata-delta-matrix blockquote p {
   margin: 0;
   font-size: inherit;
+}
+
+/* Domestic gap slide: compact 2-column matrix */
+section.domestic-gap-matrix {
+  font-size: 32px;
+  line-height: 1.24;
+  padding: 34px 46px calc(48px + 2.55em) 46px;
+}
+section.domestic-gap-matrix :is(h2, marp-h2) {
+  margin: 0 0 0.16em 0;
+  font-size: 1.08em;
+}
+section.domestic-gap-matrix > *:not(footer):not(:is(h1, marp-h1)) {
+  padding: 0.08em 0.32em;
+}
+section.domestic-gap-matrix table {
+  font-size: 0.68em;
+  width: 100%;
+  table-layout: fixed;
+  margin: 0.1em 0 0;
+}
+section.domestic-gap-matrix th,
+section.domestic-gap-matrix td {
+  padding: 0.14em 0.3em;
+  line-height: 1.24;
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+section.domestic-gap-matrix th:nth-child(1),
+section.domestic-gap-matrix td:nth-child(1) {
+  width: 24%;
+}
+section.domestic-gap-matrix th:nth-child(2),
+section.domestic-gap-matrix td:nth-child(2) {
+  width: 76%;
 }
 
 section.lead {
@@ -758,14 +794,22 @@ section.latency-fullbleed [data-marpit-advanced-background-container='true'] fig
 }
 
 /* Trust-proxy figure: fit slide width, preserve aspect ratio — no horizontal crop */
+section.trust-proxy-slide {
+  padding: 22px 30px calc(30px + 2.15em) 30px;
+  font-size: 22px;
+  line-height: 1.16;
+}
+
 section.trust-proxy-slide :is(h2, marp-h2) {
   margin-top: 0;
-  margin-bottom: 0.2em;
+  margin-bottom: 0.08em;
+  font-size: 0.98em;
 }
 
 section.trust-proxy-slide > p {
   margin: 0;
   line-height: 0;
+  padding: 0.02em 0.14em;
 }
 
 section.trust-proxy-slide img {
@@ -774,8 +818,8 @@ section.trust-proxy-slide img {
   max-width: 100%;
   width: auto;
   height: auto;
-  max-height: min(58vh, 620px);
-  margin: 0.1em auto 0;
+  max-height: min(68vh, 590px);
+  margin: 0.02em auto 0;
   object-fit: contain;
   object-position: center top;
 }
