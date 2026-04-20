@@ -26,7 +26,7 @@ A **state of play** on **trust management** in the **Italian IT-Wallet** and how
 
 ## Two trust-evaluation approaches, one ecosystem
 
-- **History:** at IT-Wallet kick-off, **OpenID Federation** was the more **mature, implementable** horizontal trust layer for a **national** federation.  
+- **History:** at IT-Wallet kick-off (PoC in October 2023, pre-release in October 2024), **OpenID Federation** was the more **mature, implementable** horizontal trust layer for a **national** federation.  
 - **Today:** Federation **1.0** track is definitively **stable**; ARF / TS / LoTE still **move quickly** with evident complexity and overlapping mechanisms — reasonable to **integrate European profile pieces where legally required, without collapsing national federation design**.  
 - **Strategy:** **incremental convergence** on outputs (what verifiers can prove) rather than forcing one protocol stack everywhere.
 
@@ -38,7 +38,7 @@ A **state of play** on **trust management** in the **Italian IT-Wallet** and how
 
 ## Part 0 — Legacy SPID/CIE vs IT-Wallet based **Federation 1.0** (short intro)
 
-The **national IT-Wallet rules** align with **OpenID Federation 1.0** and the **OpenID Federation Wallet Architecture** draft. While pre-1.0 OpenID Federation drafts are used in the the legacy OIDC SPID/CIE profile. 
+The **national IT-Wallet rules** align with **OpenID Federation 1.0** and the **OpenID Federation Wallet Architecture** draft. While pre-1.0 OpenID Federation drafts are used in the the legacy OIDC SPID/CIE profile (January 2023). 
 
 Two different Federations, using two different Trust Anchors.
 
@@ -161,9 +161,9 @@ Wallet Instance **must not** publish discoverable online metadata; federation en
 
 <div class="lote-split-left">
 
-Participants register nationally; **CIRs**/**IETF**/**ARF** describe who publishes what (PID TL at EC, many wallet-provider / WRPAC lists, sector-specific registration artefacts, …).
+Participants register nationally; **CIRs**/**IETF**/**ARF** describe who publishes what (PID TL at EC, many wallet-provider / WRPAC lists, sector-specific registration artifacts, …).
 
-**List of Trusted Lists**/**trusted lists**/**LoTE** represent this articulated division of responsibilities.
+**List of Trusted Lists**/**trusted lists**/**LoTE** represent this articulated division of roles and subjects.
 
 </div>
 
