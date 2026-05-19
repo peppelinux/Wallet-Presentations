@@ -8,7 +8,8 @@
 
   const INDEX_URL = "search-index.json";
   const SNIPPET_RADIUS = 90;
-  const MAX_RESULTS = 80;
+  const MAX_RESULTS = 50;
+  const MAX_SNIPPETS_PER_RESULT = 4;
   const ES = window.EidasSearch;
 
   /** SDO folder name → primary tag used in reference.json */
@@ -51,10 +52,52 @@
       .toLowerCase()
       .split(/\s+/)
       .filter((t) => t.length >= 2);
-  const parseTags = ES ? ES.parseTags.bind(ES) : (raw) =>
-    String(raw)
-      .split(/[,;\s]+/)
-      .filter(Boolean);
+  const parseTags = (raw) => {
+    const parts = ES
+      ? ES.parseTags(raw)
+      : String(raw)
+          .toLowerCase()
+          .split(/[,;\s]+/)
+          .filter(Boolean);
+    return parts.map((t) => normalizeTagInput(t)).filter(Boolean);
+  };
+
+  const ALLOWED_TAGS = new Set([
+    "eu-legal-act",
+    "regulation",
+    "implementing-regulation",
+    "implementing-decision",
+    "implementing-act",
+    "cited-by-eu-law",
+    "nested-reference",
+    "downloaded",
+    "unchanged",
+    "unavailable",
+    "119-series",
+    "319-series",
+    "trust-services",
+    "common-criteria",
+    "document-text",
+  ]);
+
+  function normalizeTagInput(tag) {
+    const raw = String(tag)
+      .trim()
+      .toLowerCase()
+      .replace(/_/g, "-")
+      .replace(/-+/g, "-");
+    const aliases = {
+      implementing_regulation: "implementing-regulation",
+      "implementing-regulations": "implementing-regulation",
+      implementing_decision: "implementing-decision",
+      implementing_decisions: "implementing-decision",
+      "implementing-decisions": "implementing-decision",
+      implementing_acts: "implementing-act",
+      "implementing-acts": "implementing-act",
+    };
+    const t = aliases[raw] || raw;
+    return ALLOWED_TAGS.has(t) ? t : "";
+  }
 
   function docBody(doc) {
     return doc.body || doc.metadata?.body || "";
@@ -69,6 +112,76 @@
     if (!primaryTag) return false;
     const tags = (doc.tags || []).map((t) => String(t).toLowerCase());
     return tags.some((t) => t === primaryTag || t.startsWith(primaryTag + "-"));
+  }
+
+  function referenceKey(doc) {
+    if (doc.reference_key) return doc.reference_key;
+    const id = doc.id || "";
+    let m = id.match(/^legal:([^:]+):/);
+    if (m) return `legal:${m[1]}`;
+    m = id.match(/^spec-meta:(.+)$/);
+    if (m) return `spec:${m[1]}`;
+    m = id.match(/^spec-doc:(.+):\d+$/);
+    if (m) return `spec:${m[1]}`;
+    return id;
+  }
+
+  function aggregateMatches(scored) {
+    const groups = new Map();
+    for (const hit of scored) {
+      const key = referenceKey(hit.doc);
+      let group = groups.get(key);
+      if (!group) {
+        group = { key, hits: [], score: 0 };
+        groups.set(key, group);
+      }
+      group.hits.push(hit);
+      group.score = Math.max(group.score, hit.s);
+    }
+    const out = [...groups.values()];
+    for (const group of out) {
+      group.hits.sort((a, b) => b.s - a.s);
+      group.doc = pickRepresentativeDoc(group.hits);
+    }
+    out.sort((a, b) => b.score - a.score);
+    return out;
+  }
+
+  function pickRepresentativeDoc(hits) {
+    const meta = hits.find((h) => (h.doc.id || "").startsWith("spec-meta:"));
+    if (meta) return meta.doc;
+    return hits[0].doc;
+  }
+
+  function displayTitle(doc, hits) {
+    const base = doc.title || doc.id || "";
+    if ((doc.id || "").startsWith("spec-")) {
+      const plain = base.replace(/\s*\(document §\d+\)\s*$/i, "").trim();
+      if (plain) return plain;
+    }
+    return base;
+  }
+
+  function snippetLabel(doc) {
+    if (doc.kind === "specification") return "Catalogue metadata";
+    if (doc.kind === "legal" && doc.chunk != null) return `Passage ${doc.chunk + 1}`;
+    if (doc.chunk != null) return `Document passage ${doc.chunk + 1}`;
+    return "Match";
+  }
+
+  function uniqueSnippetHits(hits, terms) {
+    const seen = new Set();
+    const out = [];
+    for (const hit of hits) {
+      const text = (hit.doc.text || "").trim();
+      if (!text) continue;
+      const sig = text.slice(0, 120);
+      if (seen.has(sig)) continue;
+      seen.add(sig);
+      out.push(hit);
+      if (out.length >= MAX_SNIPPETS_PER_RESULT) break;
+    }
+    return out;
   }
 
   function highlight(text, terms) {
@@ -166,7 +279,11 @@
     return `<table class="meta-table"><tbody>${rows.join("")}</tbody></table>`;
   }
 
-  function renderResult(doc, terms) {
+  function renderAggregatedResult(group, terms) {
+    const doc = group.doc;
+    const hits = group.hits;
+    const matchCount = hits.length;
+    const snippets = uniqueSnippetHits(hits, terms);
     const links = doc.links || {};
     const linkParts = [];
     if (links.markdown) linkParts.push(linkRow("Legal markdown", links.markdown, false));
@@ -180,7 +297,9 @@
     if (links.html) linkParts.push(linkRow("OJ HTML", links.html, false));
 
     const badges = [];
-    if (doc.kind) badges.push(`<span class="badge kind">${escapeHtml(doc.kind)}</span>`);
+    const kindLabel =
+      doc.kind === "specification_document" ? "specification" : doc.kind;
+    if (kindLabel) badges.push(`<span class="badge kind">${escapeHtml(kindLabel)}</span>`);
     const sdo = docBody(doc);
     if (sdo) badges.push(`<span class="badge body">${escapeHtml(SDO_LABELS[sdo] || sdo)}</span>`);
     for (const t of (doc.tags || []).slice(0, 8)) {
@@ -203,7 +322,12 @@
       section: meta.section,
       act_id: meta.id,
       files: meta.files,
-      type: doc.kind === "legal" ? "legal_regulation" : doc.kind === "specification" ? "specification" : doc.kind,
+      type:
+        doc.kind === "legal"
+          ? "legal_regulation"
+          : doc.kind === "specification" || doc.kind === "specification_document"
+            ? "specification"
+            : doc.kind,
     });
     const localDocsHtml =
       window.EidasDocs && EidasDocs.localDocumentsForNode
@@ -213,13 +337,31 @@
           )
         : "";
 
+    const matchNote =
+      matchCount > 1
+        ? `<p class="match-count">${matchCount} matching passages in this reference</p>`
+        : "";
+
+    const snippetBlocks =
+      snippets.length > 1
+        ? `<div class="match-passages">${snippets
+            .map(
+              (hit) =>
+                `<blockquote class="snippet"><span class="snippet-label">${escapeHtml(
+                  snippetLabel(hit.doc)
+                )}</span> ${highlight(hit.doc.text || "", terms)}</blockquote>`
+            )
+            .join("")}</div>`
+        : `<blockquote class="snippet">${highlight((snippets[0]?.doc.text || doc.text) || "", terms)}</blockquote>`;
+
     return `<article class="result">
-      <h3>${escapeHtml(doc.title || doc.id)}</h3>
+      <h3>${escapeHtml(displayTitle(doc, hits))}</h3>
       <p class="badges">${badges.join("")}</p>
+      ${matchNote}
       ${summaryBlock}
       ${kwBlock}
       ${localDocsHtml}
-      <blockquote class="snippet">${highlight(doc.text || "", terms)}</blockquote>
+      ${snippetBlocks}
       <p class="links">${linkParts.join(" · ") || "<em>No links</em>"}</p>
       ${renderMetadata(doc.metadata)}
     </article>`;
@@ -235,6 +377,7 @@
 
     if (!terms.length && !requiredTags.length && !bodyFilter && !kindFilter) {
       statusEl.textContent = "Enter a search query, tag(s), or filter.";
+    statusEl.setAttribute("role", "status");
       resultsEl.innerHTML = "";
       return;
     }
@@ -245,7 +388,8 @@
       if (s > 0) scored.push({ doc, s });
     }
     scored.sort((a, b) => b.s - a.s);
-    const top = scored.slice(0, MAX_RESULTS);
+    const aggregated = aggregateMatches(scored);
+    const top = aggregated.slice(0, MAX_RESULTS);
 
     const filterBits = [];
     if (bodyFilter) filterBits.push(SDO_LABELS[bodyFilter] || bodyFilter);
@@ -255,9 +399,9 @@
     statusEl.textContent =
       top.length === 0
         ? `No matches${filterNote}.`
-        : `Showing ${top.length} of ${scored.length} match(es) in ${index.document_count} indexed chunks${filterNote}.`;
+        : `Showing ${top.length} of ${aggregated.length} reference(s) (${scored.length} chunk match(es) in ${index.document_count} indexed passages)${filterNote}.`;
 
-    resultsEl.innerHTML = top.map(({ doc }) => renderResult(doc, terms)).join("");
+    resultsEl.innerHTML = top.map((group) => renderAggregatedResult(group, terms)).join("");
     if (window.EidasDocs) EidasDocs.bindViewButtons(resultsEl);
   }
 

@@ -57,7 +57,7 @@ Each spec folder includes **`reference.json`** with:
 - `released_at` — best-effort ISO-8601 release date (e.g. from ETSI `(YYYY-MM)`)
 - `parent_legal_regulations` — EU acts that cite this spec (`id`, `title`, `celex`, `eli`, …)
 - `parent_specifications` — other standards that cite this spec (nested references)
-- `tags` — string array for filtering (SDO, doc type, ESI/119/319 series, status, legal section, …)
+- `tags` — small allowlisted set for filtering (provenance, status, ETSI 119/319 series, trust-services, common-criteria, EU legal kind). SDO is **`body`**, not a tag. Vocabulary: `scripts/tag_normalize.py` · refresh with `make metadata`.
 - `summary` — short description of scope/purpose (from abstract/scope text, or fallback when unavailable)
 - `scope_keywords` — ranked terms describing what the specification addresses
 - `summary_meta` — how the summary was derived (`artifact`, `sources`, `generated_at`)

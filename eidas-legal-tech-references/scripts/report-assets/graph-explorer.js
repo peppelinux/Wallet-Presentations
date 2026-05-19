@@ -19,6 +19,8 @@
   const DOWNLOADED = new Set(["downloaded", "unchanged"]);
 
   let graphData = null;
+  /** @type {Map<string, object>} */
+  let graphNodesById = new Map();
   let network = null;
   let nodesDataSet = null;
   let edgesDataSet = null;
@@ -27,22 +29,46 @@
   let excludedBodies = new Set();
   let layoutFrozen = false;
   let layoutFreezePending = false;
+  /** @type {Map<string, {x: number, y: number}>} */
+  const userPositions = new Map();
 
   const $ = (sel, root) => (root || document).querySelector(sel);
+
+  function pinFixed() {
+    return { x: true, y: true };
+  }
+
+  function rememberNodePositions(ids) {
+    if (!network) return;
+    const list = ids || nodesDataSet.getIds();
+    const pos = network.getPositions(list);
+    for (const id of list) {
+      if (pos[id]) userPositions.set(id, { x: pos[id].x, y: pos[id].y });
+    }
+  }
+
+  function positionFields(id) {
+    const p = userPositions.get(id);
+    if (!p) return {};
+    return { x: p.x, y: p.y, fixed: pinFixed() };
+  }
 
   function sdoMeta(body) {
     return SDO_ICONS[body] || SDO_ICONS.other;
   }
 
   function specLabel(node) {
-    if (node.type !== "specification") return node.act_id || node.id;
+    if (!node || typeof node !== "object") return "";
+    if (node.type === "legal_regulation") return node.act_id || node.id || "";
     const parts = [node.body, node.designation].filter(Boolean);
     if (node.version) parts.push("V" + node.version);
-    return parts.join(" ");
+    if (parts.length) return parts.join(" ");
+    return node.act_id || node.id || "";
   }
 
   function specNodeId(node) {
-    return specLabel(node).replace(/"/g, "'");
+    const label = specLabel(node);
+    return label ? String(label).replace(/"/g, "'") : "";
   }
 
   /**
@@ -310,19 +336,12 @@
       scale: network.getScale(),
     };
 
-    const pinnedPos = layoutFrozen ? network.getPositions() : {};
     const updates = [];
     for (const id of nodeById.keys()) {
       const hidden = !visible.has(id);
       const n = nodeById.get(id);
       const isHi = highlight.has(id);
-      const pos = pinnedPos[id];
-      const upd = { id, hidden };
-      if (pos) {
-        upd.x = pos.x;
-        upd.y = pos.y;
-        upd.fixed = true;
-      }
+      const upd = { id, hidden, ...positionFields(id) };
       if (n?.type === "specification" || n?.type === "legal_regulation") {
         if (hidden) {
           upd.opacity = 0;
@@ -363,20 +382,55 @@
           .join(", ");
         msg += ` · SDO shown: ${bodies || "—"}`;
       }
-      msg += " · drag nodes or pan canvas";
+      msg += " · drag to reposition (nodes stay put)";
       status.textContent = msg;
     }
+  }
+
+  function formatContextSummaryBlock(raw) {
+    const parts = [];
+    const legal = raw.parent_legal_regulations || [];
+    if (legal.length) {
+      const acts = legal
+        .map((lp) => lp.title || lp.id)
+        .filter(Boolean)
+        .slice(0, 4);
+      if (acts.length) parts.push(`Cited by EU act(s): ${acts.join("; ")}.`);
+    }
+    if (raw.reason) parts.push(String(raw.reason).trim());
+    if (parts.length) {
+      return `<div class="summary-block"><strong>Context</strong><br/>${EidasSearch.escapeHtml(parts.join(" "))}</div>`;
+    }
+    return (
+      '<p class="summary-block"><em>No summary yet. Run <code>make summaries</code> ' +
+      "(refreshes <code>report/</code> automatically).</em></p>"
+    );
+  }
+
+  function resolveGraphNode(id) {
+    if (!id) return null;
+    return graphNodesById.get(id) || null;
+  }
+
+  function resolveNodeForDetail(nodeOrId) {
+    const id = typeof nodeOrId === "string" ? nodeOrId : nodeOrId?.id;
+    const visNode = typeof nodeOrId === "object" && nodeOrId ? nodeOrId : nodeById.get(id);
+    const graphNode = resolveGraphNode(id);
+    if (!visNode && !graphNode) return null;
+    const raw = graphNode || visNode?.raw || visNode;
+    return { ...(visNode || {}), id, raw };
   }
 
   function renderDetail(node) {
     const panel = $("#graph-detail");
     if (!panel) return;
-    if (!node || node.id === "__root__") {
+    const resolved = resolveNodeForDetail(node);
+    if (!resolved || resolved.id === "__root__") {
       panel.innerHTML =
         '<p class="placeholder">Click a legal act or specification to view summary, scope keywords, and links.</p>';
       return;
     }
-    const raw = node.raw || node;
+    const raw = resolved.raw || resolved;
     const links = [];
     const localDocs =
       window.EidasDocs && EidasDocs.localDocumentsForNode
@@ -416,7 +470,7 @@
 
     const summary = raw.summary
       ? `<div class="summary-block"><strong>Summary</strong><br/>${EidasSearch.escapeHtml(raw.summary)}</div>`
-      : '<p class="summary-block"><em>No summary (run <code>make summaries</code>).</em></p>';
+      : formatContextSummaryBlock(raw);
 
     const kw = (raw.scope_keywords || []).length
       ? `<p class="keywords"><strong>Scope / purpose:</strong> ${EidasSearch.escapeHtml(
@@ -446,7 +500,8 @@
         raw.parent_specifications
           .map((p) => {
             const pid = specNodeId(p);
-            const label = [p.body, p.designation].filter(Boolean).join(" ");
+            const label = specLabel(p) || [p.body, p.designation].filter(Boolean).join(" ");
+            if (!pid) return EidasSearch.escapeHtml(label);
             return `<a href="#" class="graph-jump" data-graph-node="${EidasSearch.escapeHtml(pid)}">${EidasSearch.escapeHtml(label)}</a>`;
           })
           .join(", "),
@@ -486,7 +541,7 @@
         ev.preventDefault();
         const targetId = a.getAttribute("data-graph-node");
         if (!targetId || !network || !nodeById.has(targetId)) return;
-        const target = nodeById.get(targetId);
+        const target = resolveNodeForDetail(targetId);
         nodesDataSet.update({ id: targetId, hidden: false, opacity: 1 });
         network.selectNodes([targetId]);
         network.focus(targetId, { scale: 1.15, animation: { duration: 400, easingFunction: "easeInOutQuad" } });
@@ -524,45 +579,33 @@
     excludedBodies.clear();
   }
 
-  /** Pin every node at its current coordinates (no physics drift). */
-  function pinAllNodePositions(nodeIds) {
-    if (!network || !nodesDataSet) return;
-    const ids = nodeIds || nodesDataSet.getIds();
-    const positions = network.getPositions(ids);
-    const updates = ids.map((id) => {
-      const pos = positions[id];
-      if (!pos) return null;
-      return { id, x: pos.x, y: pos.y, fixed: true };
-    }).filter(Boolean);
-    if (updates.length) nodesDataSet.update(updates);
-  }
-
   /**
-   * Run hierarchical layout once, then freeze and pin positions.
+   * Run hierarchical layout once, then freeze: physics off, positions stored, nodes pinned.
    */
   function freezeHierarchicalLayout() {
     if (!network || layoutFrozen) return;
     layoutFrozen = true;
     layoutFreezePending = false;
 
-    const positions = network.getPositions();
+    rememberNodePositions();
+
     network.setOptions({
       layout: { hierarchical: { enabled: false }, improvedLayout: false },
-      physics: { enabled: false },
+      physics: { enabled: false, stabilization: { enabled: false } },
       edges: {
         smooth: { type: "cubicBezier", forceDirection: "vertical", roundness: 0.5 },
       },
     });
-    const updates = Object.entries(positions).map(([id, pos]) => ({
-      id,
-      x: pos.x,
-      y: pos.y,
-      fixed: true,
-    }));
+
+    const updates = [];
+    for (const [id, p] of userPositions) {
+      updates.push({ id, x: p.x, y: p.y, fixed: pinFixed() });
+    }
     if (updates.length) nodesDataSet.update(updates);
 
+    if (typeof network.stopSimulation === "function") network.stopSimulation();
+
     network.fit({ animation: { duration: 300, easingFunction: "easeInOutQuad" } });
-    pinAllNodePositions();
 
     if (layoutFreezePending) applyFilters();
   }
@@ -572,17 +615,10 @@
 
     network.on("dragStart", (params) => {
       if (!params.nodes?.length) return;
-      nodesDataSet.update(params.nodes.map((id) => ({ id, fixed: false })));
-    });
-
-    network.on("dragging", (params) => {
-      if (!params.nodes?.length) return;
-      const pos = network.getPositions(params.nodes);
+      network.setOptions({ physics: { enabled: false } });
       nodesDataSet.update(
         params.nodes.map((id) => ({
           id,
-          x: pos[id].x,
-          y: pos[id].y,
           fixed: false,
         }))
       );
@@ -590,21 +626,22 @@
 
     network.on("dragEnd", (params) => {
       if (!params.nodes?.length) return;
-      const pos = network.getPositions(params.nodes);
+      rememberNodePositions(params.nodes);
       nodesDataSet.update(
         params.nodes.map((id) => ({
           id,
-          x: pos[id].x,
-          y: pos[id].y,
-          fixed: true,
+          ...positionFields(id),
         }))
       );
+      network.setOptions({ physics: { enabled: false } });
+      if (typeof network.stopSimulation === "function") network.stopSimulation();
     });
   }
 
   function initNetwork(container, data) {
     layoutFrozen = false;
     layoutFreezePending = false;
+    userPositions.clear();
     const visNodes = buildVisNodes(data.nodes, data.edges);
     const visEdges = buildVisEdges(data.edges, data.nodes);
 
@@ -637,7 +674,7 @@
           nodeDistance: 140,
           damping: 0.12,
         },
-        stabilization: { iterations: 120, fit: true },
+        stabilization: { iterations: 120, fit: true, updateInterval: 25 },
       },
       interaction: {
         dragNodes: true,
@@ -651,7 +688,6 @@
       nodes: {
         margin: 10,
         widthConstraint: { maximum: 200 },
-        fixed: false,
       },
       edges: {
         smooth: { type: "cubicBezier", forceDirection: "vertical", roundness: 0.5 },
@@ -669,8 +705,7 @@
 
     network.on("click", (params) => {
       if (!params.nodes.length) return;
-      const node = nodeById.get(params.nodes[0]);
-      renderDetail(node);
+      renderDetail(resolveNodeForDetail(params.nodes[0]));
       network.selectNodes([params.nodes[0]]);
     });
 
@@ -694,6 +729,7 @@
     loadGraphData()
       .then((data) => {
         graphData = data;
+        graphNodesById = new Map(data.nodes.map((n) => [n.id, n]));
         const bodies = [...new Set(data.nodes.filter((n) => n.type === "specification" && n.body).map((n) => n.body))].sort();
         initSdoChips(bodies);
         initNetwork(container, data);

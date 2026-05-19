@@ -14,3 +14,4 @@ implementing-decisions/**/*.md
 
 # Generated references report (make report)
 report/
+*/__pycache__/*

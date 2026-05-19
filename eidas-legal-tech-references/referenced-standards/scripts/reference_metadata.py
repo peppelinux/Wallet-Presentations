@@ -8,6 +8,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import sys
+
 from references import SpecReference
 from resolvers import (
     body_folder,
@@ -18,6 +20,10 @@ from resolvers import (
 from spec_summarizer import enrich_reference_document
 
 REF_ROOT = Path(__file__).resolve().parents[1]
+_CORPUS_SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"
+if str(_CORPUS_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_CORPUS_SCRIPTS))
+from tag_normalize import normalize_tags  # noqa: E402
 
 LEGAL_PREFIXES = ("regulation/", "implementing-acts/", "implementing-decisions/")
 SDO_FOLDERS = frozenset(
@@ -167,68 +173,35 @@ def compute_tags(
     spec_parents: list[dict[str, Any]],
     files: dict[str, Any] | None,
 ) -> list[str]:
-    """Classification tags for filtering and search."""
-    tags: set[str] = {"normative-reference", "technical-specification"}
+    """Small tag set for filtering (see tag_normalize.ALLOWED_TAGS)."""
+    tags: set[str] = {status.replace("_", "-")}
 
-    body_tag = ref.body.lower().replace("_", "-")
-    tags.add(body_tag)
-
-    des = ref.designation.upper()
-    etsi_m = re.match(r"^(EN|TS|TR|SR)\s+(.+)", des)
-    if etsi_m:
-        tags.add(etsi_m.group(1).lower())
-        num = etsi_m.group(2).replace(" ", "")
-        if num.startswith("119"):
-            tags.update({"esi", "ades", "119-series"})
-        elif num.startswith("319"):
-            tags.update({"esi", "trust-services", "319-series"})
-    elif des.startswith("RFC "):
-        tags.update({"rfc", "ietf-internet"})
-    elif des.startswith("CEN/EN"):
-        tags.update({"cen-en", "european-standard"})
-    elif des.startswith("CEN/TS"):
-        tags.update({"cen-ts", "european-technical-specification"})
-        if "419261" in des or "419" in des:
-            tags.add("trust-services")
-        if "18170" in des:
-            tags.add("common-criteria")
-    elif ref.body == "W3C":
-        tags.add("w3c-recommendation")
-        if "vc-data-model" in ref.designation.lower():
-            tags.update({"eudi", "wallet", "verifiable-credentials"})
-    elif ref.body == "ISO-IEC":
-        tags.add("iso-iec")
-        if "15408" in des:
-            tags.update({"common-criteria", "security-evaluation"})
-        if "27001" in des:
-            tags.add("information-security-management")
-        if "18013" in des:
-            tags.update({"mobile-driving-licence", "mdl", "wallet"})
-    elif ref.body == "ITU-T":
-        tags.add("itu-t-recommendation")
-
-    tags.add(status.replace("_", "-"))
-
-    if files:
-        tags.add("local-artifact")
     if spec_parents:
         tags.add("nested-reference")
     if legal_parents:
         tags.add("cited-by-eu-law")
-    for lp in legal_parents:
-        kind = lp.get("kind")
-        if kind:
-            tags.add(str(kind).replace("_", "-"))
-        section = lp.get("section", "").replace("_", "-")
-        if section:
-            tags.add(section)
+        for lp in legal_parents:
+            kind = lp.get("kind")
+            if kind:
+                tags.add(str(kind).replace("_", "-"))
 
-    if ref.version:
-        tags.add("versioned")
-    if ref.date or (ref.version and re.fullmatch(r"\d{4}", str(ref.version))):
-        tags.add("dated-release")
+    des = ref.designation.upper()
+    etsi_m = re.match(r"^(EN|TS|TR|SR)\s+(.+)", des)
+    if etsi_m:
+        num = etsi_m.group(2).replace(" ", "")
+        if num.startswith("119"):
+            tags.add("119-series")
+        elif num.startswith("319"):
+            tags.update({"319-series", "trust-services"})
+    elif des.startswith("CEN/TS"):
+        if "419261" in des or "419" in des:
+            tags.add("trust-services")
+        if "18170" in des:
+            tags.add("common-criteria")
+    elif ref.body == "ISO-IEC" and "15408" in des:
+        tags.add("common-criteria")
 
-    return sorted(tags)
+    return normalize_tags(tags)
 
 
 def collect_parents(

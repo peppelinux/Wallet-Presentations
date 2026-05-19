@@ -8,6 +8,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from tag_normalize import ALLOWED_TAGS, legal_act_tags, normalize_tags
+
 CORPUS_ROOT = Path(__file__).resolve().parents[1]
 REF_ROOT = CORPUS_ROOT / "referenced-standards"
 STANDARDS_DIR = REF_ROOT / "standards"
@@ -23,23 +25,6 @@ SPEC_FILE_SUFFIXES = (".md", ".txt", ".html")
 
 # Canonical SDO folders (order used in search UI)
 SDO_BODIES = ("ETSI", "IETF", "W3C", "CEN", "ISO-IEC", "ITU-T", "IEEE")
-
-# Tags that duplicate the SDO filter — omit from suggested tag facets
-SDO_TAG_NAMES = frozenset(
-    {
-        "cen",
-        "cen-ts",
-        "etsi",
-        "ietf",
-        "ietf-internet",
-        "w3c",
-        "w3c-recommendation",
-        "iso-iec",
-        "itu-t",
-        "itu-t-recommendation",
-        "ieee",
-    }
-)
 
 _FRONT_MATTER = re.compile(r"^---\s*\n.*?\n---\s*\n", re.DOTALL)
 
@@ -99,9 +84,7 @@ def _load_legal_documents() -> list[dict[str, Any]]:
                 continue
             body_text = _strip_front_matter(raw)
             kind = meta.get("kind") or "legal"
-            tags = [kind.replace("_", "-")]
-            if base.name != "regulation":
-                tags.append(base.name.replace("-", "_"))
+            tags = legal_act_tags(kind, base.name)
             title = meta.get("title") or act_id
             label = f"{act_id} — {title}"
             links = {
@@ -128,10 +111,12 @@ def _load_legal_documents() -> list[dict[str, Any]]:
                     legal_files[ext] = {"path": p.relative_to(CORPUS_ROOT).as_posix()}
             if legal_files:
                 meta_out["files"] = legal_files
+            ref_key = f"legal:{act_id}"
             for i, chunk in enumerate(_chunk_text(body_text)):
                 docs.append(
                     {
                         "id": f"legal:{act_id}:{i}",
+                        "reference_key": ref_key,
                         "kind": "legal",
                         "body": None,
                         "tags": tags,
@@ -202,7 +187,7 @@ def _load_spec_documents(standards_root: Path) -> list[dict[str, Any]]:
         folder = ref_path.parent
         folder_rel = folder.relative_to(standards_root).as_posix()
         body = doc.get("body")
-        tags = list(doc.get("tags") or [])
+        tags = normalize_tags(doc.get("tags") or [])
         label = _spec_label(doc)
         links: dict[str, Any] = {
             "reference_json": _rel_from_report(ref_path),
@@ -228,9 +213,11 @@ def _load_spec_documents(standards_root: Path) -> list[dict[str, Any]]:
             if doc.get(k) is not None
         }
         meta_text = _metadata_blob(doc)
+        ref_key = f"spec:{folder_rel}"
         docs.append(
             {
                 "id": f"spec-meta:{folder_rel}",
+                "reference_key": ref_key,
                 "kind": "specification",
                 "body": body,
                 "tags": tags,
@@ -249,6 +236,7 @@ def _load_spec_documents(standards_root: Path) -> list[dict[str, Any]]:
                 docs.append(
                     {
                         "id": f"spec-doc:{folder_rel}:{i}",
+                        "reference_key": ref_key,
                         "kind": "specification_document",
                         "body": body,
                         "tags": tags + ["document-text"],
@@ -286,7 +274,7 @@ def build_search_index(
     tag_set: set[str] = set()
     for d in documents:
         tag_set.update(d.get("tags") or [])
-    suggested_tags = sorted(t for t in tag_set if t.lower() not in SDO_TAG_NAMES)
+    suggested_tags = sorted(t for t in tag_set if t in ALLOWED_TAGS)
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),

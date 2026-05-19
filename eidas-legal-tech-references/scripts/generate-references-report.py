@@ -301,6 +301,26 @@ def build_graph(refs: list[dict[str, Any]]) -> dict[str, Any]:
                 }
             )
 
+    by_spec_id = {spec_node_id(doc): doc for doc in refs}
+    for n in nodes.values():
+        if n.get("type") != "specification":
+            continue
+        doc = by_spec_id.get(n["id"])
+        if not doc:
+            continue
+        patched = False
+        if not n.get("summary") and doc.get("summary"):
+            n["summary"] = doc["summary"]
+            patched = True
+        if not n.get("scope_keywords") and doc.get("scope_keywords"):
+            n["scope_keywords"] = doc["scope_keywords"]
+        if not n.get("tags") and doc.get("tags"):
+            n["tags"] = doc["tags"]
+        if n.get("status") is None and doc.get("status"):
+            n["status"] = doc["status"]
+        if patched:
+            n["search_text"] = _spec_search_text({**doc, **n})
+
     node_list = list(nodes.values())
     for n in node_list:
         if n.get("type") == "legal_regulation":
@@ -610,7 +630,11 @@ def render_html(data: dict[str, Any], mermaid_src: str) -> str:
         )
 
     spec_links_section = ""
+    spec_nav_item = ""
     if spec_link_rows:
+        spec_nav_item = (
+            f'<li><a href="#spec-links">Specification cross-references ({len(spec_edges)})</a></li>'
+        )
         spec_links_section = f"""
     <section id="spec-links">
       <h2>Links between specifications</h2>
@@ -630,85 +654,39 @@ def render_html(data: dict[str, Any], mermaid_src: str) -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>eIDAS technical references report</title>
   <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <link rel="stylesheet" href="report-layout.css"/>
   <link rel="stylesheet" href="graph-explorer.css"/>
-  <style>
-    :root {{
-      --bg: #fafafa; --card: #fff; --border: #ddd; --text: #1a1a1a;
-      --accent: #0366d6; --legal: #e8f4fc; --ok: #e8fce8;
-    }}
-    * {{ box-sizing: border-box; }}
-    body {{
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      line-height: 1.5; color: var(--text); background: var(--bg);
-      margin: 0; padding: 0 1.5rem 3rem; max-width: 1400px;
-    }}
-    header {{
-      padding: 1.5rem 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;
-    }}
-    h1 {{ margin: 0 0 0.25rem; font-size: 1.75rem; }}
-    .meta {{ color: #555; font-size: 0.9rem; }}
-    nav {{
-      background: var(--card); border: 1px solid var(--border); border-radius: 8px;
-      padding: 1rem 1.25rem; margin-bottom: 2rem;
-    }}
-    nav ul {{ margin: 0; padding-left: 1.25rem; columns: 2; gap: 2rem; }}
-  @media (max-width: 700px) {{ nav ul {{ columns: 1; }} }}
-    nav a {{ color: var(--accent); text-decoration: none; }}
-    nav a:hover {{ text-decoration: underline; }}
-    section {{
-      background: var(--card); border: 1px solid var(--border); border-radius: 8px;
-      padding: 1.25rem 1.5rem; margin-bottom: 1.5rem;
-    }}
-    h2 {{ margin-top: 0; font-size: 1.25rem; border-bottom: 1px solid var(--border);
-          padding-bottom: 0.5rem; }}
-    .stats {{
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 0.75rem; margin: 1rem 0;
-    }}
-    .stat {{
-      background: var(--bg); border-radius: 6px; padding: 0.75rem; text-align: center;
-    }}
-    .stat strong {{ display: block; font-size: 1.5rem; }}
-    .stat span {{ font-size: 0.8rem; color: #555; }}
-    .table-wrap {{ overflow-x: auto; }}
-    table {{ width: 100%; border-collapse: collapse; font-size: 0.85rem; }}
-    th, td {{ border: 1px solid var(--border); padding: 0.4rem 0.6rem; text-align: left; }}
-    th {{ background: #f0f0f0; position: sticky; top: 0; }}
-    tr:nth-child(even) {{ background: #f9f9f9; }}
-    code {{ font-size: 0.8em; word-break: break-all; }}
-    .tags {{ font-size: 0.75rem; max-width: 220px; }}
-    .src-cell {{ font-size: 0.82rem; max-width: 280px; line-height: 1.45; }}
-    .src-path {{ display: block; margin-bottom: 0.2rem; word-break: break-all; }}
-    .src-missing {{ color: #999; font-size: 0.75rem; }}
-    .src-view {{ font-size: 0.75rem; margin-left: 0.15rem; }}
-    .legend {{ font-size: 0.85rem; color: #555; margin-bottom: 1rem; }}
-    .legend span {{ display: inline-block; padding: 0.15rem 0.5rem; margin-right: 0.5rem;
-                     border-radius: 4px; }}
-    .legend .legal {{ background: var(--legal); }}
-    .legend .ok {{ background: var(--ok); }}
-    footer {{ font-size: 0.85rem; color: #666; margin-top: 2rem; }}
-  </style>
 </head>
 <body>
-  <header>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="site-shell">
+  <header class="site-header" role="banner">
     <h1>eIDAS technical references report</h1>
-    <p class="meta">Generated {esc(generated)} · Toolchain: eidas-legal-tech-references</p>
-    <p class="meta">For legal traceability and implementer conformance — official EU law cited against normative standards (ETSI, IETF, …).</p>
+    <p class="site-meta">Generated {esc(generated)} · Toolchain: eidas-legal-tech-references</p>
+    <p class="site-meta">For legal traceability and implementer conformance — official EU law cited against normative standards (ETSI, IETF, …).</p>
   </header>
 
-  <nav aria-label="Report sections">
-    <strong>Contents</strong>
-    <ul>
-      <li><a href="#summary">Summary</a></li>
-      <li><a href="#graph">Interactive reference graph</a></li>
-      <li><a href="#downloaded">Downloaded references ({len(downloaded)})</a></li>
-      <li><a href="#unavailable">Unavailable references ({len(unavailable)})</a></li>
-      <li><a href="#legal-links">Legal act → specification links ({len(legal_edges)})</a></li>
-      <li><a href="search.html">Search corpus</a></li>
-      {"<li><a href=\"#spec-links\">Specification cross-references (" + str(len(spec_edges)) + ")</a></li>" if spec_edges else ""}
-    </ul>
+  <nav class="site-nav" id="site-nav" aria-labelledby="nav-heading">
+    <div class="site-nav-bar">
+      <span class="site-nav-title" id="nav-heading">Contents</span>
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav-panel">
+        <span class="nav-toggle-label">Menu</span>
+      </button>
+    </div>
+    <div class="site-nav-panel" id="site-nav-panel" role="navigation">
+      <ul class="site-nav-list">
+        <li><a href="#summary">Summary</a></li>
+        <li><a href="#graph">Interactive graph</a></li>
+        <li><a href="#downloaded">Downloaded references ({len(downloaded)})</a></li>
+        <li><a href="#unavailable">Unavailable references ({len(unavailable)})</a></li>
+        <li><a href="#legal-links">Legal act → specification links ({len(legal_edges)})</a></li>
+        {spec_nav_item}
+        <li><a href="search.html">Search corpus</a></li>
+      </ul>
+    </div>
   </nav>
 
+  <main id="main" class="site-main">
   <section id="summary">
     <h2>Summary</h2>
     <div class="stats">
@@ -739,9 +717,10 @@ def render_html(data: dict[str, Any], mermaid_src: str) -> str:
     <div id="graph-explorer">
       <div class="graph-toolbar">
         <div class="search-row">
-          <input type="search" id="graph-search" placeholder="Search name, summary, scope keywords…" autocomplete="off"/>
+          <label class="visually-hidden" for="graph-search">Filter graph</label>
+          <input type="search" id="graph-search" placeholder="Search name, summary, scope keywords…" autocomplete="off" aria-describedby="graph-status"/>
           <button type="button" class="btn btn-primary" id="graph-search-btn">Apply</button>
-          <button type="button" class="btn" id="graph-clear">Reset</button>
+          <button type="button" class="btn" id="graph-clear">Reset filters</button>
           <a class="btn" href="search.html">Full corpus search</a>
         </div>
         <div id="sdo-filters" class="sdo-filters" aria-label="Standardization body filters"></div>
@@ -800,7 +779,9 @@ def render_html(data: dict[str, Any], mermaid_src: str) -> str:
   </section>
 {spec_links_section}
 
-  <footer>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
     <p>
       Also available:
       <a href="search.html">Search</a> ·
@@ -810,7 +791,9 @@ def render_html(data: dict[str, Any], mermaid_src: str) -> str:
       <a href="search-index.json">search-index.json</a>
     </p>
   </footer>
+  </div>
 
+  <script src="report-nav.js"></script>
   <script src="graph-data.js"></script>
   <script src="eidas-search-core.js"></script>
   <script src="document-links.js"></script>
@@ -863,6 +846,8 @@ def main() -> int:
     search_index = build_search_index(standards_root=standards_root)
     search_index_path, search_index_js = write_search_index(out_dir, search_index)
     asset_names = (
+        "report-layout.css",
+        "report-nav.js",
         "search.html",
         "search.js",
         "eidas-search-core.js",

@@ -29,7 +29,7 @@ help:
 	@echo "  make / make specs   Discover refs in legal texts + download (parallel)"
 	@echo "  make discover       List references without downloading"
 	@echo "  make metadata       Refresh all reference.json (provenance + URLs)"
-	@echo "  make summaries      Add summary + scope_keywords to downloaded specs"
+	@echo "  make summaries      Add summaries (downloaded + fallback for unavailable)"
 	@echo "  make clean          Remove downloaded standards tree"
 	@echo ""
 	@echo "Reports: run  make report  from parent eidas-legal-tech-references/  → report/index.html"

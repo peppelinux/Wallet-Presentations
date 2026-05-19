@@ -1,36 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="viewer-page">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Document viewer</title>
-  <style>
-    * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; }
-    header {
-      display: flex; align-items: center; gap: 0.75rem;
-      padding: 0.45rem 0.75rem; background: #1a365d; color: #fff;
-      font-size: 0.9rem;
-    }
-    header a { color: #9ecbff; }
-    #doc-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    #frame-wrap { height: calc(100% - 40px); background: #525659; }
-    #doc-frame, #doc-embed { width: 100%; height: 100%; border: 0; display: none; }
-    #doc-frame.active, #doc-embed.active { display: block; }
-    #error { padding: 2rem; color: #c00; display: none; }
-  </style>
+  <link rel="stylesheet" href="report-layout.css"/>
 </head>
-<body>
-  <header>
-    <a href="#" id="back-link" onclick="window.close(); return false;">Close</a>
-    <span id="doc-title">Loading…</span>
-    <a id="open-tab" href="#" target="_blank" rel="noopener">Open in tab</a>
+<body class="viewer-page">
+  <header class="viewer-header" role="banner">
+    <a href="#" id="back-link">Close</a>
+    <h1 id="doc-title" class="viewer-title">Loading…</h1>
+    <a id="open-tab" href="#" target="_blank" rel="noopener noreferrer">Open in new tab</a>
   </header>
-  <div id="frame-wrap">
-    <p id="error"></p>
-    <iframe id="doc-frame" title="Document"></iframe>
-    <embed id="doc-embed" type="application/pdf" />
-  </div>
+  <main id="frame-wrap">
+    <p id="error" role="alert"></p>
+    <iframe id="doc-frame" title="Document content"></iframe>
+    <embed id="doc-embed" type="application/pdf" title="PDF document"/>
+  </main>
   <script src="viewer.js"></script>
 </body>
 </html>

@@ -39,7 +39,7 @@ help:
 	@echo "  make sync          Download or refresh all acts from Cellar"
 	@echo "  make markdown      Convert synced .html to .md (needs pandoc)"
 	@echo "  make specs         Download referenced standards (referenced-standards/)"
-	@echo "  make summaries     Summaries for legal acts + downloaded specs"
+	@echo "  make summaries     Summaries for legal acts + specs, then refresh report/"
 	@echo "  make report        Report index + search UI (report/index.html, search.html)"
 	@echo "  make report-specs  Alias for make report"
 	@echo "  make check         Report upstream drift (exit 2 if changed)"
@@ -83,7 +83,7 @@ discover-specs:
 metadata-specs:
 	$(MAKE) -C "$(TECH)" metadata WORKERS=$(WORKERS)
 
-summaries: summaries-legal summaries-specs
+summaries: summaries-legal summaries-specs report
 
 summaries-legal:
 	$(PYTHON) "$(ROOT)scripts/enrich-legal-summaries.py"

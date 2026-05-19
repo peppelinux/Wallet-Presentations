@@ -349,19 +349,18 @@ def enrich_reference_document(
     """
     status = doc.get("status") or ""
     if status not in DOWNLOADED_STATUSES:
-        doc.pop("summary", None)
-        doc.pop("scope_keywords", None)
-        doc.pop("summary_meta", None)
         return doc
 
     text, artifact = load_spec_text(dest_dir, doc.get("files"), ref_root)
     if not text:
-        doc["summary"] = None
-        doc["scope_keywords"] = []
+        summary = fallback_spec_summary(doc)
+        doc["summary"] = summary
+        doc["scope_keywords"] = doc.get("scope_keywords") or []
         doc["summary_meta"] = {
             "generated_at": _utc_now(),
-            "status": "no_extractable_text",
+            "status": "fallback_no_extractable_text" if summary else "no_extractable_text",
             "artifact": artifact,
+            "sources": ["designation", "parent_legal_regulations", "reason"],
         }
         return doc
 
