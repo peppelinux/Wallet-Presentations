@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Build static site under ./site: root index listing every presentation folder that contains deck.md
+# Build static site under ./site:
+#   - root index listing every presentation folder that contains deck.md
+#   - eIDAS references report (eidas-legal-tech-references/report/) when the corpus is present
 # Optional: GITHUB_PAGES_BASE — e.g. https://myorg.github.io/Wallet-Presentations (no trailing slash required)
 set -euo pipefail
 
@@ -65,6 +67,54 @@ for deck in "${DECK_PATHS[@]}"; do
   NAMES+=("${name}")
 done
 
+EIDAS_NAME="eidas-legal-tech-references"
+EIDAS_SRC="${ROOT}/${EIDAS_NAME}"
+EIDAS_DEST="${SITE}/${EIDAS_NAME}"
+EIDAS_REPORT_READY=0
+
+publish_eidas_report() {
+  [[ -d "${EIDAS_SRC}" ]] || return 0
+
+  if [[ -d "${EIDAS_SRC}/referenced-standards/standards" ]]; then
+    echo "=== Building eIDAS references report ==="
+    if ! make -C "${EIDAS_SRC}" report PYTHON="${PYTHON:-python3}"; then
+      echo "WARN: make report failed; using existing report/ if present" >&2
+    fi
+  else
+    echo "NOTE: ${EIDAS_SRC}/referenced-standards/standards not found — skip report build" >&2
+  fi
+
+  if [[ ! -f "${EIDAS_SRC}/report/index.html" ]]; then
+    echo "NOTE: no ${EIDAS_SRC}/report/index.html — eIDAS report omitted from site" >&2
+    return 0
+  fi
+
+  echo "=== Publishing eIDAS references report to site ==="
+  rm -rf "${EIDAS_DEST}"
+  mkdir -p "${EIDAS_DEST}"
+
+  rsync -a \
+    --exclude='.git' \
+    --exclude='__pycache__' \
+    --exclude='*.pyc' \
+    --exclude='.venv' \
+    "${EIDAS_SRC}/report/" "${EIDAS_DEST}/report/"
+
+  for sub in referenced-standards regulation implementing-acts implementing-decisions; do
+    if [[ -d "${EIDAS_SRC}/${sub}" ]]; then
+      rsync -a \
+        --exclude='.git' \
+        --exclude='__pycache__' \
+        --exclude='*.pyc' \
+        "${EIDAS_SRC}/${sub}/" "${EIDAS_DEST}/${sub}/"
+    fi
+  done
+
+  EIDAS_REPORT_READY=1
+}
+
+publish_eidas_report
+
 {
   echo '<!DOCTYPE html>'
   echo '<html lang="en">'
@@ -84,6 +134,8 @@ done
   echo 'main { max-width:44rem; margin:0 auto; padding:2rem 1.25rem 3rem; }'
   echo 'ul.decks { list-style:none; padding:0; margin:0; }'
   echo 'li.deck-card { margin:0 0 1.1rem; padding:0.9rem 1rem 1rem; border-radius:6px; border-left:6px solid var(--peach); background:rgba(255,255,255,0.95); box-shadow:0 1px 3px rgba(0,0,0,0.06); }'
+  echo 'li.deck-card.report-card { border-left-color: var(--teal); }'
+  echo 'h2.site-section { margin:2rem 0 0.75rem; font-size:1.15rem; color:var(--teal); font-weight:700; }'
   echo 'li.deck-card a.deck-link { text-decoration:none; color:var(--accent); font-weight:600; display:block; }'
   echo 'li.deck-card a.deck-link:hover { text-decoration:underline; }'
   echo 'li.deck-card span.path { display:block; font-size:0.88rem; font-weight:400; color:#666; margin-top:0.25rem; }'
@@ -92,17 +144,32 @@ done
   echo '</style>'
   echo '</head>'
   echo '<body>'
-  echo '<header><h1>Wallet presentations</h1><p class="lead">Static slide decks built with Marp. Open a deck below; each line matches the slide footer of that presentation.</p></header>'
-  echo '<main><ul class="decks">'
+  echo '<header><h1>Wallet presentations</h1><p class="lead">Slide decks (Marp) and the eIDAS legal &amp; technical references report. Open an item below.</p></header>'
+  echo '<main>'
+  echo '<h2 class="site-section">Slide decks</h2>'
+  echo '<ul class="decks">'
   while IFS=$'\t' read -r name foot_esc; do
     echo "  <li class=\"deck-card\">"
     echo "    <a class=\"deck-link\" href=\"./${name}/index.html\"><strong>${name}</strong><span class=\"path\">/${name}/index.html</span></a>"
     echo "    <p class=\"deck-footer\">${foot_esc}</p>"
     echo "  </li>"
   done < "${META_TMP}"
-  echo '</ul></main>'
+  echo '</ul>'
+  if [[ "${EIDAS_REPORT_READY}" -eq 1 ]]; then
+    eidas_foot='Interactive graph, full-text search, and tables linking EU implementing acts to normative standards (ETSI, IETF, W3C, …). Built from the eidas-legal-tech-references toolchain.'
+    echo '<h2 class="site-section">Reference reports</h2>'
+    echo '<ul class="decks">'
+    echo "  <li class=\"deck-card report-card\">"
+    echo "    <a class=\"deck-link\" href=\"./${EIDAS_NAME}/report/index.html\"><strong>eIDAS legal &amp; technical references</strong><span class=\"path\">/${EIDAS_NAME}/report/index.html</span></a>"
+    echo "    <p class=\"deck-footer\">${eidas_foot}</p>"
+    echo '  </li>'
+    echo '</ul>'
+  fi
+  echo '</main>'
   echo '<footer>Repository: Wallet-Presentations · Built by GitHub Actions · Index: <a href="'"${PAGES_BASE}"'/">'"${PAGES_BASE}"'/</a></footer>'
   echo '</body></html>'
 } > "${SITE}/index.html"
 
-echo "Site ready at ${SITE} (${#NAMES[@]} presentation(s))"
+extra=0
+[[ "${EIDAS_REPORT_READY}" -eq 1 ]] && extra=1
+echo "Site ready at ${SITE} (${#NAMES[@]} presentation(s), ${extra} reference report(s))"

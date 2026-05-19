@@ -16,6 +16,7 @@ on:
       - "**/.marprc.yml"
       - "**/diagrams/**"
       - "**/images/**"
+      - "eidas-legal-tech-references/**"
       - "scripts/**"
       - ".github/workflows/release-trust-management-deck.yml"
   workflow_dispatch:
@@ -36,6 +37,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies (eIDAS report)
+        run: |
+          if [[ -f eidas-legal-tech-references/requirements.txt ]]; then
+            python -m pip install --upgrade pip
+            pip install -r eidas-legal-tech-references/requirements.txt
+          fi
 
       - name: Install Chromium dependencies (Marp PDF)
         run: |
