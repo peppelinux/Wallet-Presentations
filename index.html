@@ -16,6 +16,8 @@ p.lead { margin:0; max-width:48rem; color:#444; }
 main { max-width:44rem; margin:0 auto; padding:2rem 1.25rem 3rem; }
 ul.decks { list-style:none; padding:0; margin:0; }
 li.deck-card { margin:0 0 1.1rem; padding:0.9rem 1rem 1rem; border-radius:6px; border-left:6px solid var(--peach); background:rgba(255,255,255,0.95); box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+li.deck-card.report-card { border-left-color: var(--teal); }
+h2.site-section { margin:2rem 0 0.75rem; font-size:1.15rem; color:var(--teal); font-weight:700; }
 li.deck-card a.deck-link { text-decoration:none; color:var(--accent); font-weight:600; display:block; }
 li.deck-card a.deck-link:hover { text-decoration:underline; }
 li.deck-card span.path { display:block; font-size:0.88rem; font-weight:400; color:#666; margin-top:0.25rem; }
@@ -24,8 +26,10 @@ footer { padding:1rem 1.5rem 2rem; font-size:0.9rem; color:#666; text-align:cent
 </style>
 </head>
 <body>
-<header><h1>Wallet presentations</h1><p class="lead">Static slide decks built with Marp. Open a deck below; each line matches the slide footer of that presentation.</p></header>
-<main><ul class="decks">
+<header><h1>Wallet presentations</h1><p class="lead">Slide decks (Marp) and the eIDAS legal &amp; technical references report. Open an item below.</p></header>
+<main>
+<h2 class="site-section">Slide decks</h2>
+<ul class="decks">
   <li class="deck-card">
     <a class="deck-link" href="./openid-federation-wallet-tdi/index.html"><strong>openid-federation-wallet-tdi</strong><span class="path">/openid-federation-wallet-tdi/index.html</span></a>
     <p class="deck-footer">4th International Workshop on Trends in Digital Identity — Verona, 20 April 2026 · Giuseppe De Marco</p>
@@ -34,6 +38,7 @@ footer { padding:1rem 1.5rem 2rem; font-size:0.9rem; color:#666; text-align:cent
     <a class="deck-link" href="./trust-management-eudi-wallet/index.html"><strong>trust-management-eudi-wallet</strong><span class="path">/trust-management-eudi-wallet/index.html</span></a>
     <p class="deck-footer">Session 3: ITU Workshop on &quot;Trustable and Interoperable Digital Identities for Human and Agentic AI&quot;, (Geneva, Switzerland, 30–31 March 2026)</p>
   </li>
-</ul></main>
+</ul>
+</main>
 <footer>Repository: Wallet-Presentations · Built by GitHub Actions · Index: <a href="https://peppelinux.github.io/Wallet-Presentations/">https://peppelinux.github.io/Wallet-Presentations/</a></footer>
 </body></html>
