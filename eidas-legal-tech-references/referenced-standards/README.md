@@ -52,18 +52,21 @@ make discover
 
 Each spec folder includes **`reference.json`** with:
 
-- `download_url` / `download_urls` — HTTPS locations to fetch the document (if known)
+- `download_url` / `download_urls` — HTTPS catalogue/search links (ISO uses [iso.org search](https://www.iso.org/search.html), not `/standard/{id}.html`, which is an internal catalogue id)
 - `version` — normative version string when parsed from citations
 - `released_at` — best-effort ISO-8601 release date (e.g. from ETSI `(YYYY-MM)`)
 - `parent_legal_regulations` — EU acts that cite this spec (`id`, `title`, `celex`, `eli`, …)
 - `parent_specifications` — other standards that cite this spec (nested references)
 - `tags` — small allowlisted set for filtering (provenance, status, ETSI 119/319 series, trust-services, common-criteria, EU legal kind). SDO is **`body`**, not a tag. Vocabulary: `scripts/tag_normalize.py` · refresh with `make metadata`.
-- `summary` — short description of scope/purpose (from abstract/scope text, or fallback when unavailable)
+- `title` — official or catalogue title when known (especially for unavailable ISO/CEN/ITU specs)
+- `purpose` — one-line scope from public catalogues or ISO series heuristics
+- `summary` — short description (from downloaded text, or catalogue + EU legal context when unavailable)
 - `scope_keywords` — ranked terms describing what the specification addresses
 - `summary_meta` — how the summary was derived (`artifact`, `sources`, `generated_at`)
+- `catalogue_meta` — optional provenance for catalogue lookups (Wikipedia, RFC Editor, legal citation, …)
 
 Refresh metadata without re-downloading: `make metadata`  
-Regenerate summaries for all local copies: `make summaries` (requires `pdftotext` for ETSI PDFs)
+Regenerate summaries: `make summaries` (downloaded specs need `pdftotext` for ETSI PDFs; unavailable specs use public catalogue lookups, cached in `.catalogue-cache.json`)
 
 ### Report
 

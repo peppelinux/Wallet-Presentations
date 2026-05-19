@@ -146,10 +146,11 @@ def process_spec(
     sources = merged_sources(ref.key, sources, lock)
     if metadata_only:
         prev = specs_index.get(ref.key, {})
+        catalogue = catalog_download_urls(ref)
         result = ResolveResult(
             status=prev.get("status", "unchanged"),
-            url=prev.get("url"),
-            download_urls=prev.get("download_urls") or catalog_download_urls(ref),
+            url=catalogue[0] if catalogue else prev.get("url"),
+            download_urls=catalogue or prev.get("download_urls"),
             reason=prev.get("reason"),
         )
     else:

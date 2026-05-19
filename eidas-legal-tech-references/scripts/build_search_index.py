@@ -156,6 +156,7 @@ def _metadata_blob(doc: dict[str, Any]) -> str:
     parts = [
         _spec_label(doc),
         doc.get("title") or "",
+        doc.get("purpose") or "",
         doc.get("summary") or "",
         " ".join(doc.get("scope_keywords") or []),
         doc.get("status") or "",
@@ -201,6 +202,7 @@ def _load_spec_documents(standards_root: Path) -> list[dict[str, Any]]:
                 "designation",
                 "version",
                 "title",
+                "purpose",
                 "summary",
                 "scope_keywords",
                 "status",

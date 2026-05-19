@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import shutil
 import subprocess
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
@@ -132,6 +133,23 @@ W3C_KNOWN = {
 }
 
 
+def iso_catalogue_urls(ref: SpecReference) -> list[str]:
+    """
+    Catalogue links for ISO/IEC standards.
+
+    Do not use https://www.iso.org/standard/{digits}.html — that path is ISO's
+    internal catalogue id (e.g. /standard/17000.html is ISO 9328-2:1991, not ISO/IEC 17000).
+  """
+    des = ref.designation.strip()
+    if not re.search(r"\bISO\b", des, re.I):
+        des = f"ISO {des}"
+    des = re.sub(r"ISO\s*/\s*IEC", "ISO/IEC", des, flags=re.I)
+    query = urllib.parse.quote_plus(des)
+    return [
+        f"https://www.iso.org/search.html?q={query}",
+    ]
+
+
 def catalog_download_urls(ref: SpecReference) -> list[str]:
     """Known or inferred HTTPS download / catalogue URLs (may be empty)."""
     if ref.body == "ETSI":
@@ -142,12 +160,7 @@ def catalog_download_urls(ref: SpecReference) -> list[str]:
         ver = ref.version or "1.1"
         return [u for u, _ in W3C_KNOWN.get((ref.designation, ver), [])]
     if ref.body == "ISO-IEC":
-        num = re.sub(r"^ISO/IEC\s*|^ISO\s*", "", ref.designation).strip()
-        urls: list[str] = []
-        if re.fullmatch(r"\d+", num):
-            urls.append(f"https://www.iso.org/standard/{num}.html")
-        urls.append(f"https://www.iso.org/search.html?q={num}")
-        return urls
+        return iso_catalogue_urls(ref)
     if ref.body == "CEN":
         num = re.sub(r"^CEN/(?:EN|TS)\s*", "", ref.designation, flags=re.I).strip()
         return [

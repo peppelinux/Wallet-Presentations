@@ -468,6 +468,13 @@
       if (raw.status) badges.push(`<span class="badge">${EidasSearch.escapeHtml(raw.status)}</span>`);
     }
 
+    const titleBlock =
+      raw.title && raw.title !== specLabel(raw)
+        ? `<p class="spec-title"><strong>Title:</strong> ${EidasSearch.escapeHtml(raw.title)}</p>`
+        : "";
+    const purposeBlock = raw.purpose
+      ? `<p class="spec-purpose"><strong>Purpose:</strong> ${EidasSearch.escapeHtml(raw.purpose)}</p>`
+      : "";
     const summary = raw.summary
       ? `<div class="summary-block"><strong>Summary</strong><br/>${EidasSearch.escapeHtml(raw.summary)}</div>`
       : formatContextSummaryBlock(raw);
@@ -524,6 +531,8 @@
     panel.innerHTML = `
       <h3>${EidasSearch.escapeHtml(specLabel(raw))}</h3>
       <p class="badges">${badges.join("")}</p>
+      ${titleBlock}
+      ${purposeBlock}
       ${summary}
       ${kw}
       ${localDocsHtml}

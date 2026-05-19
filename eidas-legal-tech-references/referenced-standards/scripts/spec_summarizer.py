@@ -311,6 +311,15 @@ def extract_scope_keywords(
 
 def fallback_spec_summary(doc: dict[str, Any]) -> str | None:
     """Short summary when no local artifact is available."""
+    try:
+        from catalogue_metadata import build_unavailable_summary
+
+        built = build_unavailable_summary(doc)
+        if built:
+            return built
+    except ImportError:
+        pass
+
     parts: list[str] = []
     title = doc.get("title")
     if title:
@@ -321,6 +330,9 @@ def fallback_spec_summary(doc: dict[str, Any]) -> str | None:
         ).strip()
         if label:
             parts.append(label)
+    purpose = doc.get("purpose")
+    if purpose:
+        parts.append(str(purpose).strip())
     legal = doc.get("parent_legal_regulations") or []
     if legal:
         acts = ", ".join(lp.get("id", "") for lp in legal[:4] if lp.get("id"))

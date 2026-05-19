@@ -308,6 +308,15 @@
     if ((doc.tags || []).length > 8) badges.push(`<span class="badge">+${doc.tags.length - 8}</span>`);
 
     const meta = doc.metadata || {};
+    const titleBlock =
+      meta.title && meta.title !== (doc.title || "")
+        ? `<p class="summary"><strong>Title:</strong> ${escapeHtml(meta.title)}</p>`
+        : meta.title
+          ? `<p class="summary"><strong>Title:</strong> ${escapeHtml(meta.title)}</p>`
+          : "";
+    const purposeBlock = meta.purpose
+      ? `<p class="summary"><strong>Purpose:</strong> ${escapeHtml(meta.purpose)}</p>`
+      : "";
     const summaryBlock = meta.summary
       ? `<p class="summary"><strong>Summary:</strong> ${escapeHtml(meta.summary)}</p>`
       : "";
@@ -358,6 +367,8 @@
       <h3>${escapeHtml(displayTitle(doc, hits))}</h3>
       <p class="badges">${badges.join("")}</p>
       ${matchNote}
+      ${titleBlock}
+      ${purposeBlock}
       ${summaryBlock}
       ${kwBlock}
       ${localDocsHtml}

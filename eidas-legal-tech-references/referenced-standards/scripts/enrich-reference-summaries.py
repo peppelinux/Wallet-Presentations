@@ -16,11 +16,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 STANDARDS = ROOT / "standards"
+LEGAL_ROOT = ROOT.parent
 
+from catalogue_metadata import (  # noqa: E402
+    build_unavailable_summary,
+    enrich_catalogue_metadata,
+)
 from spec_summarizer import (  # noqa: E402
     DOWNLOADED_STATUSES,
     enrich_reference_document,
-    fallback_spec_summary,
 )
 from datetime import datetime, timezone
 
@@ -30,6 +34,11 @@ def main() -> int:
     parser.add_argument("--standards-root", type=Path, default=STANDARDS)
     parser.add_argument("--body", help="Only process one SDO folder (e.g. ETSI)")
     parser.add_argument("--dry-run", action="store_true", help="Print counts only")
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Skip network catalogue lookups (ISO series + legal context only)",
+    )
     args = parser.parse_args()
 
     standards_root = args.standards_root.resolve()
@@ -49,6 +58,8 @@ def main() -> int:
             continue
         before = json.dumps(
             {
+                "title": doc.get("title"),
+                "purpose": doc.get("purpose"),
                 "summary": doc.get("summary"),
                 "scope_keywords": doc.get("scope_keywords"),
             },
@@ -57,18 +68,28 @@ def main() -> int:
         if doc.get("status") in DOWNLOADED_STATUSES:
             enriched = enrich_reference_document(doc, ref_path.parent, ref_root=ROOT)
         else:
-            enriched = dict(doc)
-            summary = fallback_spec_summary(enriched)
+            enriched = enrich_catalogue_metadata(
+                doc,
+                legal_root=LEGAL_ROOT,
+                cache_root=ROOT,
+                use_network=not args.offline,
+            )
+            summary = build_unavailable_summary(enriched)
             if summary:
                 enriched["summary"] = summary
-                enriched["scope_keywords"] = enriched.get("scope_keywords") or []
-                enriched["summary_meta"] = {
-                    "generated_at": datetime.now(timezone.utc).isoformat(),
-                    "status": "fallback",
-                    "sources": ["designation", "parent_legal_regulations", "reason"],
-                }
+            sources = list((enriched.get("catalogue_meta") or {}).get("sources") or [])
+            sources.extend(["designation", "parent_legal_regulations"])
+            if enriched.get("reason"):
+                sources.append("reason")
+            enriched["summary_meta"] = {
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "status": "catalogue_fallback",
+                "sources": sorted(set(sources)),
+            }
         after = json.dumps(
             {
+                "title": enriched.get("title"),
+                "purpose": enriched.get("purpose"),
                 "summary": enriched.get("summary"),
                 "scope_keywords": enriched.get("scope_keywords"),
             },
