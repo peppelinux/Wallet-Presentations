@@ -156,7 +156,7 @@ publish_eidas_report
   done < "${META_TMP}"
   echo '</ul>'
   if [[ "${EIDAS_REPORT_READY}" -eq 1 ]]; then
-    eidas_foot='Interactive graph, full-text search, and tables linking EU implementing acts to normative standards (ETSI, IETF, W3C, …). Built from the eidas-legal-tech-references toolchain.'
+    eidas_foot='Interactive graph, full-text search, and tables linking EU implementing acts to normative standards (ETSI, IETF, W3C, …) and EUDI ARF technical specifications (EC TS). Built from the eidas-legal-tech-references toolchain.'
     echo '<h2 class="site-section">Reference reports</h2>'
     echo '<ul class="decks">'
     echo "  <li class=\"deck-card report-card\">"

@@ -14,6 +14,7 @@
 
   /** SDO folder name → primary tag used in reference.json */
   const SDO_TAG_BY_BODY = {
+    ARF: "arf-technical-spec",
     ETSI: "etsi",
     IETF: "ietf",
     W3C: "w3c",
@@ -24,6 +25,7 @@
   };
 
   const SDO_LABELS = {
+    ARF: "ARF (EC TS)",
     ETSI: "ETSI",
     IETF: "IETF",
     W3C: "W3C",
@@ -47,11 +49,21 @@
   const sdoChipsEl = $("#sdo-chips");
 
   const escapeHtml = ES ? ES.escapeHtml.bind(ES) : (s) => String(s);
-  const tokenize = ES ? ES.tokenize.bind(ES) : (q) =>
-    String(q)
-      .toLowerCase()
-      .split(/\s+/)
-      .filter((t) => t.length >= 2);
+  const parseQuery = ES
+    ? ES.parseQuery.bind(ES)
+    : (q) => ({
+        raw: String(q || "").trim(),
+        phrases: [],
+        required: String(q || "")
+          .toLowerCase()
+          .split(/\s+/)
+          .filter((t) => t.length >= 2),
+        excluded: [],
+      });
+  const hasQuery = ES ? ES.hasQuery.bind(ES) : (p) => !!(p.required && p.required.length);
+  const highlightPatterns = ES
+    ? ES.highlightPatterns.bind(ES)
+    : (p) => (p.required || []).slice();
   const parseTags = (raw) => {
     const parts = ES
       ? ES.parseTags(raw)
@@ -78,6 +90,7 @@
     "trust-services",
     "common-criteria",
     "document-text",
+    "arf-technical-spec",
   ]);
 
   function normalizeTagInput(tag) {
@@ -184,12 +197,13 @@
     return out;
   }
 
-  function highlight(text, terms) {
-    if (!terms.length) return escapeHtml(text);
+  function highlight(text, parsed) {
+    const patterns = highlightPatterns(parsed);
+    if (!patterns.length) return escapeHtml(text);
     const lower = text.toLowerCase();
     let best = -1;
     let bestTerm = "";
-    for (const t of terms) {
+    for (const t of patterns) {
       const i = lower.indexOf(t);
       if (i >= 0 && (best < 0 || i < best)) {
         best = i;
@@ -203,7 +217,7 @@
     const start = Math.max(0, best - SNIPPET_RADIUS);
     const end = Math.min(text.length, best + bestTerm.length + SNIPPET_RADIUS);
     let snippet = (start > 0 ? "…" : "") + text.slice(start, end) + (end < text.length ? "…" : "");
-    for (const t of [...terms].sort((a, b) => b.length - a.length)) {
+    for (const t of patterns) {
       if (!t) continue;
       const re = new RegExp(`(${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
       snippet = snippet.replace(re, "<mark>$1</mark>");
@@ -211,7 +225,7 @@
     return snippet;
   }
 
-  function scoreDoc(doc, terms, requiredTags, bodyFilter, kindFilter) {
+  function scoreDoc(doc, parsed, requiredTags, bodyFilter, kindFilter) {
     if (!docMatchesSdo(doc, bodyFilter)) return -1;
     if (kindFilter && doc.kind !== kindFilter) return -1;
     const docTags = (doc.tags || []).map((t) => t.toLowerCase());
@@ -229,19 +243,26 @@
           meta.body,
         ])
       : ((doc.text || "") + " " + (doc.title || "") + " " + (meta.summary || "")).toLowerCase();
-    let score = 0;
-    if (terms.length === 0) {
+    if (ES) {
+      const score = ES.scoreQuery(hay, parsed, requiredTags, docTags.join(" "));
+      if (score < 0) return -1;
+      if (!hasQuery(parsed)) {
+        return bodyFilter || kindFilter || requiredTags.length ? 1 : 0;
+      }
+      let out = score;
+      for (const rt of requiredTags) {
+        if ((doc.text || "").toLowerCase().includes(rt)) out += 2;
+      }
+      if (doc.kind === "specification") out += 1;
+      return out;
+    }
+    if (!hasQuery(parsed)) {
       return bodyFilter || kindFilter || requiredTags.length ? 1 : 0;
     }
-    for (const t of terms) {
-      if (hay.includes(t)) score += 10;
-      else return -1;
-    }
-    for (const rt of requiredTags) {
-      if ((doc.text || "").toLowerCase().includes(rt)) score += 2;
-    }
-    if (doc.kind === "specification") score += 1;
-    return score;
+    if (!parsed.phrases.every((p) => hay.includes(p))) return -1;
+    if (!parsed.required.every((t) => hay.includes(t))) return -1;
+    if (parsed.excluded.some((t) => hay.includes(t))) return -1;
+    return 10;
   }
 
   function linkRow(label, href, external) {
@@ -279,11 +300,11 @@
     return `<table class="meta-table"><tbody>${rows.join("")}</tbody></table>`;
   }
 
-  function renderAggregatedResult(group, terms) {
+  function renderAggregatedResult(group, parsed) {
     const doc = group.doc;
     const hits = group.hits;
     const matchCount = hits.length;
-    const snippets = uniqueSnippetHits(hits, terms);
+    const snippets = uniqueSnippetHits(hits, parsed);
     const links = doc.links || {};
     const linkParts = [];
     if (links.markdown) linkParts.push(linkRow("Legal markdown", links.markdown, false));
@@ -358,10 +379,10 @@
               (hit) =>
                 `<blockquote class="snippet"><span class="snippet-label">${escapeHtml(
                   snippetLabel(hit.doc)
-                )}</span> ${highlight(hit.doc.text || "", terms)}</blockquote>`
+                )}</span> ${highlight(hit.doc.text || "", parsed)}</blockquote>`
             )
             .join("")}</div>`
-        : `<blockquote class="snippet">${highlight((snippets[0]?.doc.text || doc.text) || "", terms)}</blockquote>`;
+        : `<blockquote class="snippet">${highlight((snippets[0]?.doc.text || doc.text) || "", parsed)}</blockquote>`;
 
     return `<article class="result">
       <h3>${escapeHtml(displayTitle(doc, hits))}</h3>
@@ -381,12 +402,12 @@
   function runSearch() {
     if (!index) return;
     const q = qInput.value.trim();
-    const terms = tokenize(q);
+    const parsed = parseQuery(q);
     const requiredTags = parseTags(tagsInput.value);
     const bodyFilter = bodySelect.value || "";
     const kindFilter = kindSelect.value || "";
 
-    if (!terms.length && !requiredTags.length && !bodyFilter && !kindFilter) {
+    if (!hasQuery(parsed) && !requiredTags.length && !bodyFilter && !kindFilter) {
       statusEl.textContent = "Enter a search query, tag(s), or filter.";
     statusEl.setAttribute("role", "status");
       resultsEl.innerHTML = "";
@@ -395,7 +416,7 @@
 
     const scored = [];
     for (const doc of index.documents) {
-      const s = scoreDoc(doc, terms, requiredTags, bodyFilter, kindFilter);
+      const s = scoreDoc(doc, parsed, requiredTags, bodyFilter, kindFilter);
       if (s > 0) scored.push({ doc, s });
     }
     scored.sort((a, b) => b.s - a.s);
@@ -412,7 +433,7 @@
         ? `No matches${filterNote}.`
         : `Showing ${top.length} of ${aggregated.length} reference(s) (${scored.length} chunk match(es) in ${index.document_count} indexed passages)${filterNote}.`;
 
-    resultsEl.innerHTML = top.map((group) => renderAggregatedResult(group, terms)).join("");
+    resultsEl.innerHTML = top.map((group) => renderAggregatedResult(group, parsed)).join("");
     if (window.EidasDocs) EidasDocs.bindViewButtons(resultsEl);
   }
 

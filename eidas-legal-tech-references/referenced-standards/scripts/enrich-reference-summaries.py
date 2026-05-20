@@ -67,6 +67,16 @@ def main() -> int:
         )
         if doc.get("status") in DOWNLOADED_STATUSES:
             enriched = enrich_reference_document(doc, ref_path.parent, ref_root=ROOT)
+            des_u = (enriched.get("designation") or "").strip().upper()
+            body = enriched.get("body")
+            enriched["parent_specifications"] = [
+                sp
+                for sp in enriched.get("parent_specifications") or []
+                if not (
+                    sp.get("body") == body
+                    and (sp.get("designation") or "").strip().upper() == des_u
+                )
+            ]
         else:
             enriched = enrich_catalogue_metadata(
                 doc,

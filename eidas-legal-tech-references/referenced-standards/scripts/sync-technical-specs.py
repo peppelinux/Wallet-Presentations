@@ -23,6 +23,16 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
+from arf_technical_specs import (
+    ARF_INDEX_TREE,
+    catalog as arf_catalog,
+    collect_into as collect_arf_technical_specs,
+    fetch_markdown,
+    parse_latest_version,
+    parse_title_from_markdown,
+    write_catalogue_reference,
+)
+from prune_stale_specs import collapse_refs_to_latest, prune_stale_specs
 from reference_metadata import write_reference_for_spec
 from references import ExtractionResult, SpecReference, collect_from_legal_tree, extract_from_text
 from resolvers import (
@@ -132,6 +142,49 @@ def _files_meta(result: ResolveResult, standards_root: Path) -> dict[str, dict] 
     return files or None
 
 
+def _rekey_arf_refs(
+    all_refs: dict[str, SpecReference],
+    all_sources: dict[str, set[str]],
+) -> None:
+    """Use versioned keys (ARF|TS03|V1.5.1) so storage paths are stable."""
+    for key in list(all_refs.keys()):
+        ref = all_refs[key]
+        if ref.body != "ARF":
+            continue
+        enriched = _arf_ref_enriched(ref)
+        if enriched.key == key:
+            all_refs[key] = enriched
+            continue
+        all_refs[enriched.key] = enriched
+        all_sources[enriched.key] = all_sources.pop(key, set())
+        all_refs.pop(key, None)
+
+
+def _arf_ref_enriched(ref: SpecReference) -> SpecReference:
+    """Resolve version/title from published markdown before choosing storage path."""
+    if ref.body != "ARF":
+        return ref
+    for entry in arf_catalog():
+        if entry.designation.upper() != ref.designation.upper():
+            continue
+        try:
+            text, _url = fetch_markdown(entry)
+        except Exception:
+            return ref
+        ver = parse_latest_version(text)
+        title = parse_title_from_markdown(text, ref.title or entry.title)
+        if not ver and not title:
+            return ref
+        return SpecReference(
+            body=ref.body,
+            designation=ref.designation,
+            version=ver or ref.version,
+            date=ref.date,
+            title=title or ref.title,
+        )
+    return ref
+
+
 def process_spec(
     ref: SpecReference,
     sources: set[str],
@@ -154,6 +207,7 @@ def process_spec(
             reason=prev.get("reason"),
         )
     else:
+        ref = _arf_ref_enriched(ref)
         result = resolve_and_download(ref, standards_root, force=force)
 
     ref_path = write_reference_for_spec(
@@ -190,7 +244,7 @@ def process_spec(
         lock_entry["reason"] = result.reason
     if result.error:
         lock_entry["error"] = result.error
-    return ref.key, result.status, lock_entry
+    return ref.key, result.status, lock_entry  # ref.key includes version when ARF
 
 
 def run_sync(
@@ -219,7 +273,17 @@ def run_sync(
     all_refs: dict[str, SpecReference] = {}
     all_sources: dict[str, set[str]] = {}
     merge_extraction(all_refs, all_sources, collect_from_legal_tree(legal_root))
-    print(f"Found {len(all_refs)} reference(s) in legal texts")
+    arf_wave = ExtractionResult()
+    arf_entries = collect_arf_technical_specs(arf_wave)
+    merge_extraction(all_refs, all_sources, arf_wave)
+    _rekey_arf_refs(all_refs, all_sources)
+    dropped = collapse_refs_to_latest(all_refs, all_sources)
+    print(
+        f"Found {len(all_refs) - len(arf_entries)} reference(s) in legal texts; "
+        f"+{len(arf_entries)} ARF technical specification(s) "
+        f"({ARF_INDEX_TREE})"
+        + (f"; dropped {dropped} older duplicate version(s)" if dropped else "")
+    )
 
     if discover_only:
         for ref in sorted(all_refs.values(), key=lambda r: (r.body, r.designation)):
@@ -276,18 +340,28 @@ def run_sync(
             for future in as_completed(futures):
                 ref = futures[future]
                 try:
-                    _key, status, meta = future.result()
+                    spec_key, status, meta = future.result()
                 except Exception as exc:
-                    status, meta = "error", {"error": str(exc)}
+                    spec_key, status, meta = ref.key, "error", {"error": str(exc)}
                 if meta:
-                    lock.setdefault("specs", {})[ref.key] = meta
+                    lock.setdefault("specs", {})[spec_key] = meta
                 counts[status] = counts.get(status, 0) + 1
-                fetched_keys.add(ref.key)
+                fetched_keys.add(spec_key)
                 with _print_lock:
                     label = f"{ref.body} {ref.designation}"
                     if ref.version:
                         label += f" V{ref.version}"
                     print(f"• {label} … {status}")
+
+    if not discover_only:
+        dirs_rm, lock_rm = prune_stale_specs(standards_root, all_refs, lock)
+        if dirs_rm or lock_rm:
+            print(
+                f"Pruned superseded: {dirs_rm} folder(s), {lock_rm} manifest entry/entries"
+            )
+    if not discover_only and standards_root.joinpath("ARF").is_dir():
+        cat_path = write_catalogue_reference(standards_root)
+        print(f"Wrote ARF catalogue {cat_path.relative_to(ROOT)}")
 
     save_lock(lock)
     return counts

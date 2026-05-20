@@ -91,4 +91,5 @@ Slide decks in the parent repository (e.g. trust management, IT-Wallet) use this
 
 - [EUR-Lex](https://eur-lex.europa.eu/)
 - [Publications Office Cellar](https://publications.europa.eu/)
+- [EUDI ARF technical specifications](https://github.com/eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework/tree/main/docs/technical-specifications) (EC TS01–TS11; synced under `referenced-standards/standards/ARF/`)
 - [EUDI implementing acts overview](https://docs.igrant.io/regulations/implementing-acts-overview/)

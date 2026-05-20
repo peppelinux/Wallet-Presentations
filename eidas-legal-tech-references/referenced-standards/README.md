@@ -8,6 +8,7 @@ It discovers **technical standards and specifications** cited in the parent lega
 
 | Subfolder | Body |
 |-----------|------|
+| `ARF/` | [EUDI ARF complementary technical specifications](https://github.com/eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework/tree/main/docs/technical-specifications) — `ARF/reference.json` is the **catalogue index**; each TS lives in `ARF/TSnn-<version>/` with its markdown and `reference.json` |
 | `ETSI/` | ETSI EN / TS / TR / SR |
 | `IETF/` | RFCs |
 | `W3C/` | W3C Recommendations (catalogued entries) |
@@ -45,8 +46,10 @@ make discover
 ## How discovery works
 
 1. Scan `../**/*.md` for normative references.
-2. Download into `standards/<body>/`.
-3. Extract text from downloaded files and repeat for nested references up to `DEPTH`.
+2. Include the [ARF technical specifications](https://github.com/eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework/tree/main/docs/technical-specifications) catalogue (TS01–TS11) as first-class sources (always synced, not only when cited in EU law).
+3. Download into `standards/<body>/`.
+4. Extract text from downloaded files and repeat for nested references up to `DEPTH`.
+5. **Prune superseded versions** — if the same specification appears in several versions (e.g. ETSI TS 119 612 V2.3.1 and V2.4.1, or an ARF TS bump), only the **latest** is kept on disk and in `manifest.lock.json`; older folders are deleted automatically.
 
 `manifest.lock.json` records status per reference.
 
@@ -57,11 +60,11 @@ Each spec folder includes **`reference.json`** with:
 - `released_at` — best-effort ISO-8601 release date (e.g. from ETSI `(YYYY-MM)`)
 - `parent_legal_regulations` — EU acts that cite this spec (`id`, `title`, `celex`, `eli`, …)
 - `parent_specifications` — other standards that cite this spec (nested references)
-- `tags` — small allowlisted set for filtering (provenance, status, ETSI 119/319 series, trust-services, common-criteria, EU legal kind). SDO is **`body`**, not a tag. Vocabulary: `scripts/tag_normalize.py` · refresh with `make metadata`.
+- `tags` — **small fixed vocabulary** for filtering only (~12 values: `downloaded`, `cited-by-eu-law`, `319-series`, `arf-technical-spec`, …). Assigned in `compute_tags()` from provenance and series; **not** mined from document text. See `scripts/tag_normalize.py`.
 - `title` — official or catalogue title when known (especially for unavailable ISO/CEN/ITU specs)
 - `purpose` — one-line scope from public catalogues or ISO series heuristics
 - `summary` — short description (from downloaded text, or catalogue + EU legal context when unavailable)
-- `scope_keywords` — ranked terms describing what the specification addresses
+- `scope_keywords` — **subject terms** (wallet, attestation, RFC 5280, …): ETSI Keywords line + designation + domain glossary hits in abstract/summary — **not** random frequent words
 - `summary_meta` — how the summary was derived (`artifact`, `sources`, `generated_at`)
 - `catalogue_meta` — optional provenance for catalogue lookups (Wikipedia, RFC Editor, legal citation, …)
 

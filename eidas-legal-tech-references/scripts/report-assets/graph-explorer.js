@@ -10,6 +10,7 @@
     IETF: { icon: "🌐", label: "IETF", color: "#2d7d46" },
     W3C: { icon: "🔗", label: "W3C", color: "#005a9c" },
     CEN: { icon: "🇪🇺", label: "CEN", color: "#003399" },
+    ARF: { icon: "🇪🇺", label: "ARF (EC TS)", color: "#003399" },
     "ISO-IEC": { icon: "🔒", label: "ISO/IEC", color: "#6b4c9a" },
     "ITU-T": { icon: "📞", label: "ITU-T", color: "#006699" },
     IEEE: { icon: "⚡", label: "IEEE", color: "#00629b" },
@@ -79,6 +80,9 @@
 
     for (const n of rawNodes) {
       if (n.type === "legal_regulation") levels.set(n.id, 1);
+      if (n.type === "specification" && n.body === "ARF" && n.folder === "ARF") {
+        levels.set(n.id, 1);
+      }
     }
 
     for (const e of rawEdges) {
@@ -91,9 +95,9 @@
     let guard = 0;
     while (changed && guard++ < 64) {
       changed = false;
-      for (const e of rawEdges) {
-        if (e.kind !== "references") continue;
-        const parentLv = levels.get(e.from);
+    for (const e of rawEdges) {
+      if (e.kind !== "references" && e.kind !== "related") continue;
+      const parentLv = levels.get(e.from);
         const childLv = levels.get(e.to) ?? 0;
         if (parentLv !== undefined) {
           const want = parentLv + 1;
@@ -173,12 +177,18 @@
         const status = n.status || "";
         const ok = DOWNLOADED.has(status);
         const des = n.designation || n.id;
-        const shortDes = des.length > 36 ? des.slice(0, 34) + "…" : des;
+        const isArfCatalog =
+          n.body === "ARF" && n.folder === "ARF";
+        const shortDes = isArfCatalog
+          ? "EC TS01–TS11"
+          : des.length > 36
+            ? des.slice(0, 34) + "…"
+            : des;
         visNodes.push({
           id,
           label: `${meta.icon} ${shortDes}${n.version ? "\nV" + n.version : ""}`,
           level: levels.get(id) ?? 2,
-          shape: "ellipse",
+          shape: isArfCatalog ? "box" : "ellipse",
           color: {
             background: ok ? "#e8fce8" : "#f0f0f0",
             border: meta.color,
@@ -211,6 +221,21 @@
       });
     }
 
+    const arfCatalog = rawNodes.find(
+      (n) => n.type === "specification" && n.body === "ARF" && n.folder === "ARF"
+    );
+    if (arfCatalog) {
+      visEdges.push({
+        id: "root-arf-catalog",
+        from: "__root__",
+        to: arfCatalog.id,
+        arrows: "to",
+        color: { color: "#003399", highlight: "#0366d6" },
+        width: 1.5,
+        dashes: true,
+      });
+    }
+
     for (const e of rawEdges) {
       if (e.kind !== "cites") continue;
       visEdges.push({
@@ -237,6 +262,20 @@
         title: "references",
       });
     }
+
+    for (const e of rawEdges) {
+      if (e.kind !== "related") continue;
+      visEdges.push({
+        id: `${e.from}-${e.to}-related`,
+        from: e.from,
+        to: e.to,
+        arrows: "to",
+        color: { color: "#9ab", highlight: "#0366d6" },
+        width: 1,
+        dashes: [2, 6],
+        title: "related (EUDI Wallet)",
+      });
+    }
     return visEdges;
   }
 
@@ -250,7 +289,7 @@
     }
   }
 
-  function computeVisibility(terms) {
+  function computeVisibility(parsed) {
     const visible = new Set();
     const highlight = new Set();
 
@@ -267,19 +306,20 @@
       }
 
       const hay = nodeHaystack(raw);
-      const textMatch = EidasSearch.matchesTerms(hay, terms);
+      const textMatch = EidasSearch.matchesQuery(hay, parsed);
+      const hasTextFilter = EidasSearch.hasQuery(parsed);
 
-      if (terms.length && raw.type === "specification") {
+      if (hasTextFilter && raw.type === "specification") {
         show = show && textMatch;
-      } else if (terms.length && raw.type === "legal_regulation") {
+      } else if (hasTextFilter && raw.type === "legal_regulation") {
         show = show && textMatch;
       }
 
       if (show) visible.add(id);
-      if (textMatch && terms.length) highlight.add(id);
+      if (textMatch && hasTextFilter) highlight.add(id);
     }
 
-    if (terms.length || excludedBodies.size > 0) {
+    if (EidasSearch.hasQuery(parsed) || excludedBodies.size > 0) {
       let frontier = [...visible];
       while (frontier.length) {
         const next = [];
@@ -305,7 +345,10 @@
               const raw = child.raw;
               let ok = true;
               if (excludedBodies.size > 0 && excludedBodies.has(raw.body)) ok = false;
-              if (terms.length && !EidasSearch.matchesTerms(nodeHaystack(raw), terms)) {
+              if (
+                EidasSearch.hasQuery(parsed) &&
+                !EidasSearch.matchesQuery(nodeHaystack(raw), parsed)
+              ) {
                 if (!highlight.has(c)) ok = false;
               }
               if (ok || highlight.has(c)) visible.add(c);
@@ -327,9 +370,9 @@
     }
 
     const q = $("#graph-search")?.value || "";
-    const terms = EidasSearch.tokenize(q);
-    const { visible, highlight } = computeVisibility(terms);
-    const hasFilter = terms.length > 0 || excludedBodies.size > 0;
+    const parsed = EidasSearch.parseQuery(q);
+    const { visible, highlight } = computeVisibility(parsed);
+    const hasFilter = EidasSearch.hasQuery(parsed) || excludedBodies.size > 0;
 
     const camera = {
       position: network.getViewPosition(),
@@ -345,7 +388,7 @@
       if (n?.type === "specification" || n?.type === "legal_regulation") {
         if (hidden) {
           upd.opacity = 0;
-        } else if (terms.length && !isHi) {
+        } else if (EidasSearch.hasQuery(parsed) && !isHi) {
           upd.opacity = 0.4;
         } else {
           upd.opacity = 1;
@@ -375,7 +418,13 @@
     const status = $("#graph-status");
     if (status) {
       let msg = `Showing ${shown} of ${total} nodes · hierarchical layout`;
-      if (terms.length) msg += ` · search: ${terms.map((t) => `"${t}"`).join(", ")}`;
+      if (EidasSearch.hasQuery(parsed)) {
+        const bits = [];
+        for (const p of parsed.phrases) bits.push(`"${p}"`);
+        for (const t of parsed.required) bits.push(`+${t}`);
+        for (const t of parsed.excluded) bits.push(`-${t}`);
+        msg += ` · search: ${bits.join(" ")}`;
+      }
       if (excludedBodies.size) {
         const bodies = Object.keys(SDO_ICONS)
           .filter((b) => b !== "other" && !excludedBodies.has(b))
@@ -664,10 +713,10 @@
         hierarchical: {
           enabled: true,
           direction: "UD",
-          sortMethod: "directed",
-          levelSeparation: 160,
-          nodeSpacing: 95,
-          treeSpacing: 140,
+          sortMethod: "hubsize",
+          levelSeparation: 140,
+          nodeSpacing: 85,
+          treeSpacing: 75,
           blockShifting: true,
           edgeMinimization: true,
           parentCentralization: true,
@@ -692,7 +741,7 @@
         hover: true,
         tooltipDelay: 200,
         navigationButtons: true,
-        keyboard: { enabled: true },
+        keyboard: { enabled: true, bindToWindow: false },
       },
       nodes: {
         margin: 10,
@@ -720,6 +769,35 @@
 
     network.on("doubleClick", (params) => {
       if (params.nodes.length) network.focus(params.nodes[0], { scale: 1.2, animation: true });
+    });
+  }
+
+  /** Keys that vis-network uses for pan/zoom — keep them in the search field when it is focused. */
+  const GRAPH_NAV_KEYS = new Set([
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowUp",
+    "ArrowDown",
+    "Home",
+    "End",
+    "PageUp",
+    "PageDown",
+  ]);
+
+  function setupSearchKeyboard(searchEl) {
+    if (!searchEl) return;
+
+    const setGraphKeyboard = (enabled) => {
+      if (!network) return;
+      network.setOptions({
+        interaction: { keyboard: { enabled, bindToWindow: false } },
+      });
+    };
+
+    searchEl.addEventListener("focus", () => setGraphKeyboard(false));
+    searchEl.addEventListener("blur", () => setGraphKeyboard(true));
+    searchEl.addEventListener("keydown", (e) => {
+      if (GRAPH_NAV_KEYS.has(e.key)) e.stopPropagation();
     });
   }
 
@@ -751,6 +829,7 @@
             t = setTimeout(() => fn(...args), ms);
           };
         };
+        setupSearchKeyboard(search);
         search?.addEventListener("input", debounce(applyFilters, 200));
         $("#graph-search-btn")?.addEventListener("click", (e) => {
           e.preventDefault();

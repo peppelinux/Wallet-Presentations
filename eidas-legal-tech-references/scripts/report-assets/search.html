@@ -11,7 +11,7 @@
   <div class="site-shell">
     <header class="site-header" role="banner">
       <h1>Search eIDAS references</h1>
-      <p class="site-meta">Full-text search over legal markdown and specification metadata (summary and scope keywords).</p>
+      <p class="site-meta">Full-text search over legal markdown and specification metadata (summary and scope keywords). Case-insensitive; use <code>+term</code> / <code>-term</code> to require or exclude words, and <code>"exact phrase"</code> for phrase matching.</p>
     </header>
 
     <nav class="site-nav" id="site-nav" aria-labelledby="nav-heading">
@@ -33,7 +33,7 @@
     <main id="main" class="site-main">
       <form id="search-form" class="search-form" role="search" aria-label="Corpus search">
         <label for="q">Full text</label>
-        <input type="search" id="q" name="q" placeholder="e.g. ETSI EN 319 401 qualified certificate" autocomplete="off"/>
+        <input type="search" id="q" name="q" placeholder='e.g. ETSI +"qualified certificate" -draft · "Wallet Unit" +TS03' autocomplete="off"/>
 
         <div class="form-row">
           <div>

@@ -28,6 +28,8 @@ ALLOWED_TAGS = frozenset(
         "common-criteria",
         # Search index: full specification text chunks
         "document-text",
+        # EUDI ARF complementary technical specifications (EC TS series)
+        "arf-technical-spec",
     }
 )
 

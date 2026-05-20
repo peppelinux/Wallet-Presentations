@@ -6,7 +6,6 @@ import json
 import re
 import shutil
 import subprocess
-from collections import Counter
 from datetime import datetime, timezone
 from html import unescape
 from pathlib import Path
@@ -18,7 +17,7 @@ DOWNLOADED_STATUSES = frozenset({"downloaded", "unchanged"})
 TEXT_SUFFIXES = (".txt", ".md", ".html", ".htm", ".pdf")
 SUMMARY_MAX_LEN = 900
 SCOPE_MAX_LEN = 4000
-KEYWORD_MAX = 24
+KEYWORD_MAX = 16
 
 STOPWORDS = frozenset(
     """
@@ -29,6 +28,16 @@ STOPWORDS = frozenset(
     use used using one two three four five six seven eight nine ten
     document section part version standard specification requirements
     etu etsi ietf w3c iso iec cen itu ieee rfc en ts tr sr
+    according accordingly another across present presents comprising comprise
+    actors ensuring types technical connection specifies provides including
+    within between during without through over under however therefore
+    furthermore moreover whereas otherwise namely example examples noted
+    described describes description following previous subsequent respective
+    relevant applicable appropriate necessary possible available respective
+    order case cases means method methods process processes procedure
+    information data details detail noted notes note well work works working
+    made make makes making given give given takes take taken using used
+    based related relating relation respect accordance accordance
     """.split()
 )
 
@@ -180,6 +189,101 @@ def _extract_html_fields(text: str) -> tuple[str | None, str | None, list[str]]:
     return title, abstract, []
 
 
+_SKIP_MD_SECTIONS = frozenset(
+    {
+        "licensing and reuse",
+        "licensing",
+        "versioning",
+        "references",
+        "table of contents",
+        "acknowledgements",
+        "changelog",
+        "github discussion",
+    }
+)
+
+
+def _strip_markdown_markup(text: str) -> str:
+    text = re.sub(r"(?is)<[^>]+>", " ", text)
+    text = re.sub(r"!\[[^\]]*\]\([^)]*\)", " ", text)
+    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    text = re.sub(r"`([^`]+)`", r"\1", text)
+    text = re.sub(r"\*\*([^*]+)\*\*", r"\1", text)
+    text = re.sub(r"_{1,2}([^_]+)_{1,2}", r"\1", text)
+    text = re.sub(r"^#{1,6}\s+", "", text, flags=re.M)
+    return _clean_ws(text)
+
+
+def _markdown_section_body(text: str, heading_pattern: str) -> str | None:
+    m = re.search(
+        rf"(?is)^##\s+{heading_pattern}\s*$\n+(.+?)(?=^##\s|\Z)",
+        text,
+        re.M,
+    )
+    if not m:
+        return None
+    body = m.group(1)
+    sub = re.search(r"(?m)^###\s", body)
+    if sub:
+        body = body[: sub.start()]
+    return body.strip()
+
+
+def _markdown_section_plain(text: str, heading_pattern: str) -> str | None:
+    raw = _markdown_section_body(text, heading_pattern)
+    if not raw:
+        return None
+    plain = _strip_markdown_markup(raw)
+    return plain if len(plain) > 40 else None
+
+
+def _markdown_focus_text(text: str) -> str:
+    """Abstract + introduction (for keywords) — skip licensing, versioning, etc."""
+    chunks: list[str] = []
+    for pattern in (
+        r"Abstract",
+        r"1\s+Introduction\s+and\s+Overview",
+        r"Introduction\s+and\s+Overview",
+        r"Introduction",
+    ):
+        plain = _markdown_section_plain(text, pattern)
+        if plain:
+            chunks.append(plain)
+    return "\n\n".join(chunks)
+
+
+def _extract_markdown_fields(
+    text: str,
+) -> tuple[str | None, str | None, str, list[str]]:
+    """Title, summary, and focus text from ARF / GitHub markdown technical specs."""
+    sources: list[str] = []
+    title: str | None = None
+    m = re.search(r"(?m)^#\s+(.+?)\s*$", text)
+    if m:
+        title = _clean_ws(_strip_markdown_markup(m.group(1)))
+        sources.append("md-title")
+
+    summary = _markdown_section_plain(text, r"Abstract")
+    if summary:
+        summary = summary[:SUMMARY_MAX_LEN]
+        sources.append("md-abstract")
+    else:
+        for pattern in (
+            r"1\s+Introduction\s+and\s+Overview",
+            r"Introduction\s+and\s+Overview",
+            r"Introduction",
+        ):
+            intro = _markdown_section_plain(text, pattern)
+            if intro:
+                summary = intro[:SUMMARY_MAX_LEN]
+                sources.append("md-intro")
+                break
+
+    focus = _markdown_focus_text(text)
+
+    return title, summary, focus, sources
+
+
 def _extract_generic_scope(text: str) -> str | None:
     for pat in (
         r"(?is)\babstract\s*\n+(.+?)(?:\n\s*\n\s*(?:\d+\.|introduction|table of contents)\b)",
@@ -205,7 +309,19 @@ def extract_document_insights(
     keyword_hints: list[str] = []
     sources: list[str] = []
 
+    focus_text = ""
     des_u = designation.upper()
+
+    if body == "ARF" or artifact == "md":
+        t, s, focus, md_sources = _extract_markdown_fields(text)
+        sources.extend(md_sources)
+        if t:
+            title = t
+        if s:
+            summary = s
+        if focus:
+            focus_text = focus
+
     if body == "IETF" or des_u.startswith("RFC ") or artifact == "txt":
         t, s, _ = _extract_rfc_title_and_abstract(text)
         if t:
@@ -237,23 +353,49 @@ def extract_document_insights(
         summary = "European / normative specification addressing: " + ", ".join(keyword_hints[:10]) + "."
         sources.append("etsi-keywords-line")
 
-    if not summary:
-        plain = _clean_ws(text[:3000])
+    if not summary and body != "ARF":
+        plain = _clean_ws(_strip_markdown_markup(text[:3000]))
         if len(plain) > 120:
             summary = plain[:SUMMARY_MAX_LEN]
             sources.append("document-lead")
+
+    if not focus_text and body == "ARF":
+        focus_text = _markdown_focus_text(text)
 
     return {
         "title": title,
         "summary": summary,
         "keyword_hints": keyword_hints,
         "sources": sources,
+        "focus_text": focus_text,
     }
 
 
 def _tokenize(text: str) -> list[str]:
     words = re.findall(r"[a-z][a-z0-9\-]{2,}", text.lower())
     return [w for w in words if w not in STOPWORDS and not w.isdigit()]
+
+
+def _add_keyword(out: list[str], seen: set[str], raw: str) -> None:
+    w = re.sub(r"\s+", " ", raw.strip().lower())
+    if not w or len(w) < 3 or w in STOPWORDS or w in seen:
+        return
+    seen.add(w)
+    out.append(w)
+
+
+def _designation_keywords(designation: str) -> list[str]:
+    """Stable tokens from the normative reference string (RFC 5280, TS 119 612, …)."""
+    found: list[str] = []
+    seen: set[str] = set()
+    for num in re.findall(r"\d{3,}(?:-\d+)?", designation):
+        _add_keyword(found, seen, num)
+    for token in re.findall(r"[A-Za-z]{2,}", designation):
+        t = token.lower()
+        if t in {"en", "ts", "tr", "sr", "iec", "iso"}:
+            continue
+        _add_keyword(found, seen, t)
+    return found
 
 
 def extract_scope_keywords(
@@ -264,49 +406,38 @@ def extract_scope_keywords(
     designation: str,
     legal_parents: list[dict[str, Any]],
 ) -> list[str]:
-    """Rank terms for scope / purpose (deduplicated, sorted)."""
-    focus = " ".join(
-        filter(
-            None,
-            [
-                summary or "",
-                " ".join(keyword_hints),
-                designation,
-                " ".join(tags),
-                " ".join(lp.get("title", "") or "" for lp in legal_parents),
-            ],
-        )
-    )
-    sample = focus + "\n" + text[:12000]
-    counts: Counter[str] = Counter()
-    for w in _tokenize(sample):
-        weight = 3 if w in DOMAIN_TERMS else 1
-        if summary and w in summary.lower():
-            weight += 2
-        counts[w] += weight
+    """
+    Scope terms for reports/search — not the same as ``tags``.
+
+    Only keeps: ETSI catalogue keywords, designation tokens, and domain
+    vocabulary (wallet, certificate, attestation, …) found in summary/abstract.
+    Generic prose terms (according, present, another, …) are never emitted.
+    """
+    out: list[str] = []
+    seen: set[str] = set()
 
     for hint in keyword_hints:
-        for part in re.split(r"[,;/]+", hint.lower()):
-            w = part.strip()
-            if len(w) >= 3 and w not in STOPWORDS:
-                counts[w] += 5
+        for part in re.split(r"[,;/]+", hint):
+            _add_keyword(out, seen, part)
 
-    for tag in tags:
-        for piece in tag.replace("_", "-").split("-"):
-            if len(piece) >= 4 and piece not in STOPWORDS:
-                counts[piece] += 2
+    for token in _designation_keywords(designation):
+        _add_keyword(out, seen, token)
 
-    ranked = [w for w, _ in counts.most_common(KEYWORD_MAX * 2)]
-    # Prefer domain terms in final list
-    domain_first = [w for w in ranked if w in DOMAIN_TERMS]
-    rest = [w for w in ranked if w not in domain_first]
-    out: list[str] = []
-    for w in domain_first + rest:
-        if w not in out:
-            out.append(w)
-        if len(out) >= KEYWORD_MAX:
-            break
-    return sorted(out)
+    focus_parts = [
+        summary or "",
+        " ".join(keyword_hints),
+        designation,
+        " ".join(lp.get("title", "") or "" for lp in legal_parents[:3]),
+    ]
+    sample = " ".join(filter(None, focus_parts)).lower()
+    if text:
+        sample = f"{sample}\n{text[:8000].lower()}"
+
+    domain_hits = [w for w in DOMAIN_TERMS if w in sample]
+    for w in sorted(domain_hits):
+        _add_keyword(out, seen, w)
+
+    return out[:KEYWORD_MAX]
 
 
 def fallback_spec_summary(doc: dict[str, Any]) -> str | None:
@@ -387,8 +518,15 @@ def enrich_reference_document(
     if summary and len(summary) > SUMMARY_MAX_LEN:
         summary = summary[: SUMMARY_MAX_LEN - 1].rsplit(" ", 1)[0] + "…"
 
+    body = doc.get("body") or ""
+    keyword_sample = insights.get("focus_text") or ""
+    if body == "ARF" and keyword_sample:
+        keyword_sample = keyword_sample[:SCOPE_MAX_LEN]
+    else:
+        keyword_sample = text
+
     keywords = extract_scope_keywords(
-        text,
+        keyword_sample,
         summary,
         insights.get("keyword_hints") or [],
         doc.get("tags") or [],

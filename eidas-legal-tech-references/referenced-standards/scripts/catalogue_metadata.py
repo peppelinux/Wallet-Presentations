@@ -541,10 +541,16 @@ def enrich_catalogue_metadata(
     out["catalogue_meta"] = catalogue_meta
 
     if not out.get("scope_keywords"):
-        hints: list[str] = []
-        for blob in (out.get("purpose"), out.get("title"), designation):
-            if blob:
-                hints.extend(re.findall(r"[a-zA-Z]{4,}", str(blob)))
-        out["scope_keywords"] = sorted({w.lower() for w in hints if w.lower() not in {"iso", "iec", "part", "with"}})[:12]
+        from spec_summarizer import extract_scope_keywords
+
+        purpose = (out.get("purpose") or "").strip()
+        out["scope_keywords"] = extract_scope_keywords(
+            purpose,
+            purpose or None,
+            [],
+            out.get("tags") or [],
+            designation,
+            out.get("parent_legal_regulations") or [],
+        )
 
     return out

@@ -42,6 +42,11 @@ from build_search_index import build_search_index, write_search_index
 
 DOWNLOADED_STATUSES = frozenset({"downloaded", "unchanged"})
 
+ARF_TS_INDEX_URL = (
+    "https://github.com/eu-digital-identity-wallet/"
+    "eudi-doc-architecture-and-reference-framework/tree/main/docs/technical-specifications"
+)
+
 
 def esc(value: Any) -> str:
     if value is None:
@@ -322,6 +327,40 @@ def build_graph(refs: list[dict[str, Any]]) -> dict[str, Any]:
             n["status"] = doc["status"]
         if patched:
             n["search_text"] = _spec_search_text({**doc, **n})
+
+    arf_catalog = next(
+        (doc for doc in refs if doc.get("body") == "ARF" and doc.get("_folder") == "ARF"),
+        None,
+    )
+    arf_ts_docs = [
+        doc for doc in refs if doc.get("body") == "ARF" and doc.get("_folder") != "ARF"
+    ]
+    if arf_catalog:
+        catalog_id = spec_node_id(arf_catalog)
+        for doc in arf_ts_docs:
+            sid = spec_node_id(doc)
+            if sid not in nodes:
+                continue
+            edges.append(
+                {
+                    "from": catalog_id,
+                    "to": sid,
+                    "kind": "references",
+                    "source": "ARF/technical-specifications",
+                }
+            )
+        for act_id in ("2024-2979", "2024-2977", "2024-2982", "eidas-consolidated"):
+            lid = legal_node_id({"id": act_id})
+            if lid in nodes:
+                edges.append(
+                    {
+                        "from": lid,
+                        "to": catalog_id,
+                        "kind": "related",
+                        "source": "corpus:arf-wallet-acts",
+                    }
+                )
+                break
 
     node_list = list(nodes.values())
     for n in node_list:
@@ -665,7 +704,7 @@ def render_html(data: dict[str, Any], mermaid_src: str) -> str:
   <header class="site-header" role="banner">
     <h1>eIDAS technical references report</h1>
     <p class="site-meta">Generated {esc(generated)} · Toolchain: eidas-legal-tech-references</p>
-    <p class="site-meta">For legal traceability and implementer conformance — official EU law cited against normative standards (ETSI, IETF, …).</p>
+    <p class="site-meta">For legal traceability and implementer conformance — official EU law cited against normative standards (ETSI, IETF, W3C, …) and EUDI ARF complementary technical specifications (EC TS01–TS11).</p>
   </header>
 
   <nav class="site-nav" id="site-nav" aria-labelledby="nav-heading">
@@ -714,13 +753,13 @@ def render_html(data: dict[str, Any], mermaid_src: str) -> str:
     <p class="graph-legend">
       <span class="legal">EU legal act</span>
       <span class="ok">Downloaded specification</span>
-      Hierarchical view (top → bottom): framework → legal acts → cited standards. Drag a node — it stays where you place it. Pan/zoom the canvas. Filters hide nodes without shifting the view.
+      Hierarchical view (top → bottom): framework → legal acts → cited standards; ARF EC TS (catalogue node, linked to core wallet acts). Drag a node — it stays where you place it. Pan/zoom the canvas. Filters hide nodes without shifting the view.
     </p>
     <div id="graph-explorer">
       <div class="graph-toolbar">
         <div class="search-row">
           <label class="visually-hidden" for="graph-search">Filter graph</label>
-          <input type="search" id="graph-search" placeholder="Search name, summary, scope keywords…" autocomplete="off" aria-describedby="graph-status"/>
+          <input type="search" id="graph-search" placeholder='Filter: +required -excluded · "exact phrase"' autocomplete="off" aria-describedby="graph-status" title="Case-insensitive. Use +word, -word, or &quot;phrase&quot; (same syntax as corpus search)."/>
           <button type="button" class="btn btn-primary" id="graph-search-btn">Apply</button>
           <button type="button" class="btn" id="graph-clear">Reset filters</button>
           <a class="btn" href="search.html">Full corpus search</a>

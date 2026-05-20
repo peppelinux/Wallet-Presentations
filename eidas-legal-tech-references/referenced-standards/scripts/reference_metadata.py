@@ -27,12 +27,15 @@ from tag_normalize import normalize_tags  # noqa: E402
 
 LEGAL_PREFIXES = ("regulation/", "implementing-acts/", "implementing-decisions/")
 SDO_FOLDERS = frozenset(
-    {"ETSI", "IETF", "W3C", "ISO-IEC", "CEN", "ITU-T", "IEEE", "other"}
+    {"ARF", "ETSI", "IETF", "W3C", "ISO-IEC", "CEN", "ITU-T", "IEEE", "other"}
 )
 STANDARDS_PATH_MARKERS = ("referenced-standards/standards/", "standards/")
 
 
-def _spec_body_folder_from_source(source: str) -> tuple[str, str] | None:
+def _spec_body_folder_from_source(
+    source: str,
+    standards_root: Path | None = None,
+) -> tuple[str, str] | None:
     """
     Resolve SDO body + folder from a citation source path.
 
@@ -40,21 +43,30 @@ def _spec_body_folder_from_source(source: str) -> tuple[str, str] | None:
       IETF/RFC-5280/RFC-5280.txt
       referenced-standards/standards/IETF/RFC-5280/RFC-5280.txt
       standards/IETF/RFC-5280/RFC-5280.txt
+      ARF/technical-specifications/ts3-wallet-unit-attestation.md
     """
     norm = source.replace("\\", "/").lstrip("/")
     for marker in STANDARDS_PATH_MARKERS:
         if norm.startswith(marker):
             norm = norm[len(marker) :]
             break
+    if standards_root is not None:
+        from arf_technical_specs import resolve_body_folder_from_source
+
+        arf_pair = resolve_body_folder_from_source(norm, standards_root)
+        if arf_pair:
+            return arf_pair
     parts = Path(norm).parts
     if len(parts) < 2 or parts[0] not in SDO_FOLDERS:
+        return None
+    if parts[0] == "ARF" and len(parts) >= 2 and parts[1] == "technical-specifications":
         return None
     return parts[0], parts[1]
 
 
-def _canonical_spec_source(source: str) -> str:
+def _canonical_spec_source(source: str, standards_root: Path | None = None) -> str:
     """Normalize spec citation sources to {body}/{folder}/… under the standards tree."""
-    pair = _spec_body_folder_from_source(source)
+    pair = _spec_body_folder_from_source(source, standards_root)
     if not pair:
         return source
     body, folder = pair
@@ -129,11 +141,11 @@ def _spec_parent_from_source(
 ) -> dict[str, Any] | None:
     if any(source.startswith(p) for p in LEGAL_PREFIXES):
         return None
-    pair = _spec_body_folder_from_source(source)
+    pair = _spec_body_folder_from_source(source, standards_root)
     if not pair:
         return None
     body, folder = pair
-    canon_source = _canonical_spec_source(source)
+    canon_source = _canonical_spec_source(source, standards_root)
     ref_path = standards_root / body / folder / "reference.json"
     if ref_path.is_file():
         try:
@@ -200,6 +212,8 @@ def compute_tags(
             tags.add("common-criteria")
     elif ref.body == "ISO-IEC" and "15408" in des:
         tags.add("common-criteria")
+    elif ref.body == "ARF":
+        tags.add("arf-technical-spec")
 
     return normalize_tags(tags)
 
@@ -245,6 +259,15 @@ def build_reference_document(
     legal_parents, spec_parents = collect_parents(
         sources, legal_root, standards_root, specs_index
     )
+    spec_parents = [
+        sp
+        for sp in spec_parents
+        if not (
+            sp.get("body") == ref.body
+            and (sp.get("designation") or "").strip().upper()
+            == ref.designation.strip().upper()
+        )
+    ]
     tags = compute_tags(ref, status, legal_parents, spec_parents, files)
 
     doc: dict[str, Any] = {

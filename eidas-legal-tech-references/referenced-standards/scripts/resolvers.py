@@ -12,6 +12,14 @@ from pathlib import Path
 
 from references import SpecReference
 
+from arf_technical_specs import (
+    ARF_INDEX_TREE,
+    ArfTechnicalSpec,
+    catalog as arf_catalog,
+    download_urls_for as arf_download_urls,
+    fetch_markdown,
+)
+
 USER_AGENT = "Wallet-Presentations/1.0 (+https://github.com/peppelinux/Wallet-Presentations; tech-specs-sync)"
 
 
@@ -28,6 +36,7 @@ class ResolveResult:
 
 def body_folder(body: str) -> str:
     mapping = {
+        "ARF": "ARF",
         "ETSI": "ETSI",
         "ISO-IEC": "ISO-IEC",
         "IETF": "IETF",
@@ -150,8 +159,22 @@ def iso_catalogue_urls(ref: SpecReference) -> list[str]:
     ]
 
 
+def _arf_entry_for_ref(ref: SpecReference) -> ArfTechnicalSpec | None:
+    m = re.match(r"TS(\d{1,2})$", ref.designation.strip(), re.I)
+    if not m:
+        return None
+    des = f"TS{int(m.group(1)):02d}"
+    for entry in arf_catalog():
+        if entry.designation.upper() == des:
+            return entry
+    return None
+
+
 def catalog_download_urls(ref: SpecReference) -> list[str]:
     """Known or inferred HTTPS download / catalogue URLs (may be empty)."""
+    if ref.body == "ARF":
+        entry = _arf_entry_for_ref(ref)
+        return arf_download_urls(entry) if entry else [ARF_INDEX_TREE]
     if ref.body == "ETSI":
         return etsi_pdf_urls(ref) if ref.version else []
     if ref.body == "IETF":
@@ -300,6 +323,34 @@ def resolve_and_download(
             reason=f"{ref.body} standards typically require a licensed copy; not freely redistributable",
             download_urls=catalog_download_urls(ref),
         )
+
+    if ref.body == "ARF":
+        entry = _arf_entry_for_ref(ref)
+        if not entry:
+            return ResolveResult(
+                "unavailable",
+                reason="Unknown ARF technical specification designation",
+                download_urls=[ARF_INDEX_TREE],
+            )
+        dest = dest_dir / f"{safe_filename(ref)}.md"
+        urls = arf_download_urls(entry)
+        if dest.exists() and not force:
+            return ResolveResult(
+                "unchanged", dest, urls[0], download_urls=urls
+            )
+        try:
+            text, content_url = fetch_markdown(entry)
+            dest.write_text(text, encoding="utf-8")
+            return ResolveResult(
+                "downloaded", dest, content_url, download_urls=urls
+            )
+        except Exception as exc:
+            return ResolveResult(
+                "error",
+                error=str(exc),
+                url=entry.content_raw_url(),
+                download_urls=urls,
+            )
 
     return ResolveResult(
         "unavailable",
