@@ -1,7 +1,7 @@
 ---
 marp: true
-theme: workshop-barcelona
-paginate: true
+theme: it-wallet-dtd
+paginate: false
 footer: 'GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco'
 ---
 
@@ -14,14 +14,12 @@ footer: 'GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case s
 
 ---
 
-## This case in 10 minutes
+## Today We talk about
 
-This slot sits in **Part 1** — after the Federation basics, before Part 2’s open questions.
-
-1. **Why Federation** for wallets and VCs, relative to **SAML** and **X.509** lists.
-2. **How Italy applied it** — Trust Anchor, leaves, wallet instances, runtime evaluation.
+1. **Why Federation** for wallets and Digital Credentials.
+2. **How Italy applied it** — Trust Anchor, Intermediaries and Leaves in Wallet Architectures.
 3. **What production taught us** — adoption, open specs, coexistence with EUDIW trusted lists.
-4. **What we still feed into the roadmap** — a handoff to Part 2.
+4. **What we still feed into the roadmap** — questions and answers.
 
 Today we talk about a **deployed national federation** for credential issuance and presentation, not a greenfield protocol pitch.
 

@@ -2,7 +2,7 @@
 
 ROOT         := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 DECK         := $(ROOT)deck.md
-THEME        := $(ROOT)workshop-barcelona.css
+THEME        := $(ROOT)it-wallet-dtd.css
 MARPC        := $(ROOT).marprc.yml
 DIAGRAM_MMD  := $(wildcard $(ROOT)diagrams/*.mmd)
 DIAGRAM_SVG  := $(DIAGRAM_MMD:.mmd=.svg)

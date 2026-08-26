@@ -51,9 +51,11 @@ for deck in "${DECK_PATHS[@]}"; do
   mkdir -p "${dest}/diagrams" "${dest}/images"
 
   cp "${dir}/deck.html" "${dest}/index.html"
-  if [[ -f "${dir}/workshop-barcelona.css" ]]; then
-    cp "${dir}/workshop-barcelona.css" "${dest}/"
-  fi
+  shopt -s nullglob
+  for css in "${dir}"/*.css; do
+    cp "${css}" "${dest}/"
+  done
+  shopt -u nullglob
 
   shopt -s nullglob
   for svg in "${dir}/diagrams"/*.svg; do
