@@ -1,7 +1,0 @@
-standards/**/*
-!standards/
-!standards/**/
-!standards/**/.gitkeep
-
-# Generated lock lists discovered specs
-manifest.lock.json

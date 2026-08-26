@@ -22,6 +22,7 @@ Each **top-level directory** that contains a `deck.md` and `Makefile` is one Mar
 |--------|--------|
 | [`trust-management-eudi-wallet/`](trust-management-eudi-wallet/) | Trust management in the EUDI Wallet ecosystem (overview, matrices, diagrams) |
 | [`openid-federation-wallet-tdi/`](openid-federation-wallet-tdi/) | OpenID Federation 1.0 vs EUDIW trusted lists in IT-Wallet — coexistence, costs, evolution (~20 min) |
+| [`gdc-italian-federation-vc-wallet/`](gdc-italian-federation-vc-wallet/) | GDC 2026 Geneva — Case study: Italian Federation for VC & Wallet (~10 min, OpenID Federation Part 1) |
 | [`eidas-legal-tech-references/report/`](eidas-legal-tech-references/report/) | **References report** — interactive graph, search, tables ([`make -C eidas-legal-tech-references report`](eidas-legal-tech-references/)) |
 
 To list folders locally:
@@ -47,7 +48,7 @@ The site **index** lists each slide deck with the same **`footer:`** text as in 
 From a presentation directory:
 
 ```bash
-cd trust-management-eudi-wallet   # or openid-federation-wallet-tdi
+cd trust-management-eudi-wallet   # or openid-federation-wallet-tdi, gdc-italian-federation-vc-wallet
 make              # diagrams (if any), deck.html + deck.pdf
 make help
 ```
