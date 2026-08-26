@@ -1,0 +1,15 @@
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '20px', 'primaryColor': '#e8f4f3', 'primaryTextColor': '#2d2d2d', 'lineColor': '#008080'}}}%%
+flowchart TB
+  TA["National Trust Anchor"]
+
+  WP["Wallet Provider"]
+  CI["Credential Issuer<br/>PID · QEAA · EAA"]
+  INT["RP Intermediary<br/>OIDF Intermediate"]
+  RP["Relying Party"]
+  WI["Wallet Instance<br/>not a Federation Entity"]
+
+  TA --> WP
+  TA --> CI
+  TA --> INT
+  INT --> RP
+  WP -.->|"Wallet Attestation"| WI

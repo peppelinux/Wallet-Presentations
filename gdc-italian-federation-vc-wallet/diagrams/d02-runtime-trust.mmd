@@ -1,0 +1,16 @@
+%%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '20px', 'primaryColor': '#e8f4f3', 'primaryTextColor': '#2d2d2d', 'lineColor': '#008080'}}}%%
+flowchart TB
+  TA["Trust Anchor keys<br/>distributed out of band"]
+
+  subgraph ISS["Issuance"]
+    direction LR
+    WI1["Wallet Instance"] -->|"WIA + WP trust chain"| CI["Credential Issuer"]
+  end
+
+  subgraph PRE["Presentation"]
+    direction LR
+    WI2["Wallet Instance"] -->|"RP trust chain + VP"| RP["Relying Party"]
+  end
+
+  TA -.-> ISS
+  TA -.-> PRE
