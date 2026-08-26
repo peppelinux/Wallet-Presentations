@@ -1,0 +1,415 @@
+/* @theme it-wallet-dtd */
+/* Graphic style from DTD IT-Wallet deck (23 Jul 2026): #0066CC, Titillium Web, geometry title, ·D logo */
+
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&display=swap');
+
+:root {
+  --brand: #0066cc;
+  --brand-dark: #004c99;
+  --brand-soft: #e8f3fc;
+  --brand-mid: #5ba3e8;
+  --text: #1a1a1a;
+  --text-muted: #5c6f82;
+  --surface: #ffffff;
+}
+
+section {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'Titillium Web', 'Liberation Sans', Arial, sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.38;
+  padding: 88px 56px 64px 56px;
+}
+
+section > *:not(footer) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Content slides: DTD wordmark, top right */
+section:not(.lead)::after {
+  content: '';
+  position: absolute;
+  top: 28px;
+  right: 40px;
+  width: 340px;
+  height: 62px;
+  background: url('./images/dtd-logo-blue.png') no-repeat right center;
+  background-size: contain;
+  z-index: 3;
+  pointer-events: none;
+}
+
+h1,
+marp-h1 {
+  color: var(--brand);
+  font-size: 1.5em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.4em 0;
+}
+
+h2 {
+  color: var(--brand);
+  font-size: 1.22em;
+  font-weight: 700;
+  margin: 0 0 0.45em 0;
+  padding: 0 360px 0.28em 0;
+  border-bottom: 2px solid var(--brand);
+}
+
+h3 {
+  color: var(--brand);
+  font-size: 1.05em;
+  font-weight: 600;
+}
+
+strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+a {
+  color: var(--brand);
+}
+
+ul,
+ol {
+  line-height: 1.38;
+}
+
+li::marker {
+  color: var(--brand);
+}
+
+table {
+  font-size: 0.82em;
+  border-collapse: collapse;
+  margin: 0.35em 0;
+}
+
+th {
+  background: var(--brand);
+  color: #fff;
+  font-weight: 600;
+  padding: 0.35em 0.5em;
+  text-align: left;
+}
+
+td {
+  border: 1px solid #d6e6f5;
+  padding: 0.3em 0.45em;
+  background: #fff;
+}
+
+tr:nth-child(even) td {
+  background: var(--brand-soft);
+}
+
+blockquote {
+  border-left: 5px solid var(--brand);
+  color: var(--text-muted);
+}
+
+code {
+  background: var(--brand-soft);
+  color: var(--brand-dark);
+  padding: 0.08em 0.2em;
+  border-radius: 3px;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+footer {
+  color: var(--text-muted);
+  font-size: 0.48em;
+  line-height: 1.25;
+}
+
+section > footer {
+  position: absolute;
+  left: 56px;
+  right: 56px;
+  bottom: 28px;
+  margin: 0;
+  z-index: 2;
+}
+
+/* ========== Title + closing (PPT first-slide language) ========== */
+section.lead {
+  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+  padding: 96px 72px 80px 72px;
+  background-color: var(--brand);
+  color: #fff;
+  background-image:
+    url('./images/dtd-logo-white.png'),
+    url('./images/title-geometry.png');
+  background-repeat: no-repeat, no-repeat;
+  background-position: top 24px right 40px, center right;
+  background-size: 180px auto, cover;
+}
+
+section.lead :is(h1, marp-h1) {
+  color: #fff;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0 0 0.45em 0;
+  max-width: 72%;
+  font-size: 1.72em;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: left;
+}
+
+section.lead.lead-title-tight :is(h1, marp-h1) {
+  font-size: 1.48em;
+  line-height: 1.14;
+  max-width: 74%;
+}
+
+section.lead p,
+section.lead strong {
+  color: rgba(255, 255, 255, 0.95);
+  text-align: left;
+  max-width: 70%;
+  font-weight: 400;
+}
+
+section.lead strong {
+  color: #fff;
+  font-weight: 700;
+}
+
+section.lead em,
+section.lead i {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+section.lead footer {
+  color: rgba(255, 255, 255, 0.82);
+  left: 72px;
+  right: 72px;
+  bottom: 36px;
+  text-align: left;
+}
+
+/* Thank you: same blue field; QR on white pad */
+section.thank-you-slide .thank-you-qr {
+  margin: 0.55em 0 0;
+  padding: 0.7em 0.9em 0.55em;
+  background: #ffffff;
+  border-radius: 8px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35em;
+  max-width: min(92%, 340px);
+}
+
+section.thank-you-slide .thank-you-qr img {
+  display: block;
+  width: 200px;
+  height: 200px;
+  margin: 0;
+}
+
+section.thank-you-slide .thank-you-qr-url {
+  margin: 0;
+  padding: 0;
+  line-height: 1.25;
+  font-size: 0.62em;
+  font-weight: 600;
+  max-width: 100%;
+}
+
+section.thank-you-slide .thank-you-qr-url a {
+  color: var(--brand);
+  word-break: break-all;
+}
+
+/* ========== Content layouts (this deck) ========== */
+section.compare-3-slide {
+  font-size: 24px;
+  line-height: 1.26;
+  padding: 80px 44px 56px 44px;
+}
+section.compare-3-slide :is(h2, marp-h2) {
+  margin: 0 0 0.2em 0;
+  font-size: 1.12em;
+}
+section.compare-3-slide table {
+  font-size: 0.78em;
+  width: 100%;
+  table-layout: fixed;
+  margin: 0.08em 0 0.2em;
+}
+section.compare-3-slide th,
+section.compare-3-slide td {
+  padding: 0.16em 0.32em;
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.28;
+}
+section.compare-3-slide th:nth-child(1),
+section.compare-3-slide td:nth-child(1) {
+  width: 14%;
+}
+section.compare-3-slide > p {
+  margin: 0.2em 0 0;
+  font-size: 0.92em;
+  line-height: 1.32;
+}
+
+section.topology-slide {
+  padding: 80px 48px 56px 48px;
+}
+section.topology-slide :is(h2, marp-h2) {
+  margin: 0 0 0.16em 0;
+}
+section.topology-slide > p {
+  margin: 0.12em 0 0;
+  font-size: 0.88em;
+  line-height: 1.32;
+}
+section.topology-slide img[alt='diagram'] {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: min(400px, 54vh);
+  height: auto;
+  margin: 0.08em auto 0.1em;
+  object-fit: contain;
+  object-position: center top;
+}
+
+section.federation-api-compact {
+  font-size: 26px;
+  line-height: 1.28;
+  padding: 80px 52px 56px 52px;
+}
+section.federation-api-compact :is(h2, marp-h2) {
+  margin-top: 0;
+  margin-bottom: 0.18em;
+  font-size: 1.14em;
+}
+section.federation-api-compact table {
+  font-size: 0.78em;
+  margin: 0.12em 0 0.18em 0;
+  width: 100%;
+}
+
+section.domestic-gap-matrix {
+  font-size: 28px;
+  line-height: 1.24;
+  padding: 80px 46px 56px 46px;
+}
+section.domestic-gap-matrix :is(h2, marp-h2) {
+  margin: 0 0 0.16em 0;
+  font-size: 1.08em;
+}
+section.domestic-gap-matrix table {
+  font-size: 0.68em;
+  width: 100%;
+  table-layout: fixed;
+  margin: 0.1em 0 0;
+}
+section.domestic-gap-matrix th,
+section.domestic-gap-matrix td {
+  padding: 0.14em 0.3em;
+  line-height: 1.24;
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+section.domestic-gap-matrix th:nth-child(1),
+section.domestic-gap-matrix td:nth-child(1) {
+  width: 24%;
+}
+
+section.case-stats-slide {
+  padding: 80px 48px 56px 48px;
+  font-size: 26px;
+}
+section.case-stats-slide :is(h2, marp-h2) {
+  margin: 0 0 0.22em 0;
+}
+section.case-stats-slide .stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0.1em 0 0.35em;
+}
+section.case-stats-slide .stat {
+  background: var(--brand-soft);
+  border-top: 5px solid var(--brand);
+  border-radius: 4px;
+  padding: 0.45em 0.4em 0.5em;
+  text-align: center;
+}
+section.case-stats-slide .stat-n {
+  color: var(--brand);
+  font-size: 1.55em;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+section.case-stats-slide .stat-l {
+  color: var(--text-muted);
+  font-size: 0.62em;
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 0.25em;
+}
+section.case-stats-slide ul {
+  margin: 0.1em 0 0;
+  font-size: 0.86em;
+  line-height: 1.34;
+}
+
+section.browser-shot-slide {
+  padding: 76px 40px 52px 40px;
+  font-size: 24px;
+}
+section.browser-shot-slide :is(h2, marp-h2) {
+  margin: 0 0 0.08em 0;
+  font-size: 1.12em;
+}
+section.browser-shot-slide > p {
+  margin: 0.08em 0 0.06em;
+  font-size: 0.82em;
+  line-height: 1.28;
+}
+
+section.lessons-slide {
+  padding: 80px 48px 56px 48px;
+  font-size: 26px;
+  line-height: 1.3;
+}
+section.lessons-slide :is(h2, marp-h2) {
+  margin: 0 0 0.18em 0;
+  font-size: 1.12em;
+}
+section.lessons-slide p {
+  margin: 0.18em 0 0.08em;
+  color: var(--brand);
+  font-weight: 700;
+}
+section.lessons-slide ul {
+  margin: 0.05em 0 0.22em;
+  font-size: 0.9em;
+}
+section.lessons-slide li {
+  margin: 0.06em 0;
+}
