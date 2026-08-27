@@ -7,9 +7,8 @@ Session: **GDC 2026**, Palexpo Geneva, **Day 2 · 12:00–12:50 · Beta** — *O
 | Slide | Suggested time | Focus |
 |-------|----------------|--------|
 | Title | 0:20 | National production federation for VC & wallet — not a spec walkthrough. |
-| This case in 10 minutes | 0:25 | Four beats; this is the “who is using it / learnings” segment. **Skip if the moderator already framed the slot.** |
-| Why SAML and X.509 | 1:15 | IdP observability vs user-held VC; TSL/X.509 does listing and certs, not protocol metadata + policy. |
-| The Italian choice | 1:00 | Governmental TA; wallet instance ≠ entity; two federations (SPID/CIE pre-1.0 vs IT-Wallet 1.0). |
+| Agenda | 0:25 | Four beats; this is the “who is using it / learnings” segment. **Skip if the moderator already framed the slot.** |
+| The Italian choice | 1:15 | Governmental TA; wallet instance ≠ entity; two federations (SPID/CIE pre-1.0 vs IT-Wallet 1.0). |
 | Topology | 0:50 | Point at leaves vs intermediary vs WIA. Revocation = unpublished statement. |
 | What Federation carries | 0:50 | Chain, marks, public APIs as privacy. Do **not** read the TDI API matrix. |
 | Runtime | 1:10 | Issuance vs presentation; issuer cannot observe RP; offline = TTL + `trust_chain`. |
@@ -20,7 +19,7 @@ Session: **GDC 2026**, Palexpo Geneva, **Day 2 · 12:00–12:50 · Beta** — *O
 | Roadmap → Part 2 | 0:40 | Events, extended listing, ACME+Federation, Wallet Architecture draft. Hand the mic to Part 2. |
 | Thanks | 0:10 | QR to this deck. |
 
-**Total** ≈ 10:00–10:40. If the chair gives you **8 minutes**, drop **This case in 10 minutes** and **Two federations, one browser**.
+**Total** ≈ 9:00–10:00. If the chair gives you **8 minutes**, drop **Agenda** and **Two federations, one browser**.
 
 ### Talking points (do not put on slides)
 

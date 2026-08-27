@@ -14,7 +14,7 @@ footer: 'GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case s
 
 ---
 
-## Today We talk about
+## Agenda
 
 1. **Why Federation** for wallets and Digital Credentials.
 2. **How Italy applied it** — Trust Anchor, Intermediaries and Leaves in Wallet Architectures.
@@ -22,19 +22,6 @@ footer: 'GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case s
 4. **What we still feed into the roadmap** — questions and answers.
 
 Today we talk about a **deployed national federation** for credential issuance and presentation, not a greenfield protocol pitch.
-
----
-
-<!-- _class: compare-3-slide -->
-## Why SAML and X.509 lists do not finish the job
-
-| | **SAML / OIDC login** | **X.509 / TSL listing** | **OpenID Federation** |
-|---|---|---|---|
-| **What it solves** | Browser SSO to a service | Certificate path, qualified trust services | Signed **entity metadata**, **policies**, **trust marks**, **chains** |
-| **Wallet / VC gap** | **IdP observes every access**; no user-held credential; no offline presentation | Strong for TLS and qualified artefacts; weak for **protocol capabilities**, **dynamic metadata**, **policy language** | Trust evaluation is **orthogonal** to OpenID4VCI / OpenID4VP |
-| **Scale model** | Bilateral SP metadata, or central IdP | Hierarchical CA + list publication | Hierarchical **Trust Anchor → Intermediate → Leaf**, JWT-first, online **and** offline |
-
-Italy already runs **SPID/CIE** (SAML, then OIDC) based on OpenID Federation 1.0. The National Wallet solution, compliant with the EUDIW framework, uses OpenID Federation for Wallet Architecture 1.0. 
 
 ---
 
@@ -90,9 +77,9 @@ Federation APIs are **public** — **no client credentials**. The Trust Anchor d
 
 | Topic | Italian position |
 |------|------------------|
-| **Why a national plane** | EC-hosted PID / Wallet Provider / Access-CA lists do **not** map 1:1 onto **domestic** registration, policy, and lifecycle. |
+| **Why a national plane** | EC-hosted PID/EAA Provider / Wallet Provider / Access and Registration Certificate Provider lists do **not** map 1:1 onto **domestic** registration, policy, and lifecycle. |
 | **Strategy** | Keep **OpenID Federation** as the **JWT-first national plane**; meet **ARF / LoTE / X.509** obligations **where mandated**. Do not force one stack to emulate the other. |
-| **Client signalling** | `openid_federation:` → trust chain + Entity Configuration `sub`. `x509_hash:` → hash of the **RP access certificate**. |
+| **RP signalling** | `openid_federation:` → trust chain + Entity Configuration `sub`. `x509_hash:` → hash of the **RP access certificate**. |
 | **X.509 lifecycle** | Once an X.509 is issued, its life is **PKIX** (CRL / OCSP) — not Federation fetch. Federation **distributes** keys and certs; it does not replace certificate status. |
 | **Convergence** | On **what verifiers can prove**, not on collapsing every list into one protocol. |
 
@@ -135,7 +122,7 @@ Public **Federation Browser** + test matrix: onboarding friction is **visible**,
 **What worked**
 
 - Governmental Trust Anchor + **OIDF 1.0** beats both **pure SSI** (governance vacuum at national scale) and **SAML circles** (IdP observability).
-- **Public** federation APIs are a **privacy** feature, not a missing ACL.
+- **Public** federation APIs are a **transparency** feature for a large scale deployment with public audience.
 - **Progressive ARF alignment** (versioned national profiles) — do not wait for a frozen EU stack to ship a national wallet.
 - Harden **`OID-FED-WALLET` in production first**, then feed evidence into the draft — do not productise optional features that are still underspecified.
 
