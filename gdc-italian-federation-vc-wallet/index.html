@@ -6,7 +6,7 @@
 <footer>GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco</footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="2" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-theme="it-wallet-dtd" lang="C" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--theme:it-wallet-dtd;">
-<h2 id="today-we-talk-about">Today We talk about</h2>
+<h2 id="agenda">Agenda</h2>
 <ol>
 <li><strong>Why Federation</strong> for wallets and Digital Credentials.</li>
 <li><strong>How Italy applied it</strong> — Trust Anchor, Intermediaries and Leaves in Wallet Architectures.</li>
@@ -16,42 +16,7 @@
 <p>Today we talk about a <strong>deployed national federation</strong> for credential issuance and presentation, not a greenfield protocol pitch.</p>
 <footer>GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="3" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="compare-3-slide" data-theme="it-wallet-dtd" lang="C" class="compare-3-slide" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:compare-3-slide;--theme:it-wallet-dtd;">
-<h2 id="why-saml-and-x509-lists-do-not-finish-the-job">Why SAML and X.509 lists do not finish the job</h2>
-<table>
-<thead>
-<tr>
-<th></th>
-<th><strong>SAML / OIDC login</strong></th>
-<th><strong>X.509 / TSL listing</strong></th>
-<th><strong>OpenID Federation</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>What it solves</strong></td>
-<td>Browser SSO to a service</td>
-<td>Certificate path, qualified trust services</td>
-<td>Signed <strong>entity metadata</strong>, <strong>policies</strong>, <strong>trust marks</strong>, <strong>chains</strong></td>
-</tr>
-<tr>
-<td><strong>Wallet / VC gap</strong></td>
-<td><strong>IdP observes every access</strong>; no user-held credential; no offline presentation</td>
-<td>Strong for TLS and qualified artefacts; weak for <strong>protocol capabilities</strong>, <strong>dynamic metadata</strong>, <strong>policy language</strong></td>
-<td>Trust evaluation is <strong>orthogonal</strong> to OpenID4VCI / OpenID4VP</td>
-</tr>
-<tr>
-<td><strong>Scale model</strong></td>
-<td>Bilateral SP metadata, or central IdP</td>
-<td>Hierarchical CA + list publication</td>
-<td>Hierarchical <strong>Trust Anchor → Intermediate → Leaf</strong>, JWT-first, online <strong>and</strong> offline</td>
-</tr>
-</tbody>
-</table>
-<p>Italy already runs <strong>SPID/CIE</strong> (SAML, then OIDC) based on OpenID Federation 1.0. The National Wallet solution, compliant with the EUDIW framework, uses OpenID Federation for Wallet Architecture 1.0.</p>
-<footer>GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco</footer>
-</section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="4" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-theme="it-wallet-dtd" lang="C" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--theme:it-wallet-dtd;">
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="3" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-theme="it-wallet-dtd" lang="C" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--theme:it-wallet-dtd;">
 <h2 id="the-italian-choice">The Italian choice</h2>
 <ul>
 <li><strong>National trust plane:</strong> <strong>OpenID Federation 1.0</strong> with a <strong>governmental Trust Anchor</strong>.</li>
@@ -62,13 +27,13 @@
 </ul>
 <footer>GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="5" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="topology-slide" data-theme="it-wallet-dtd" lang="C" class="topology-slide" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:topology-slide;--theme:it-wallet-dtd;">
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="4" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="topology-slide" data-theme="it-wallet-dtd" lang="C" class="topology-slide" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:topology-slide;--theme:it-wallet-dtd;">
 <h2 id="topology--who-is-in-the-federation">Topology — who is in the federation</h2>
 <p><img src="diagrams/d01-federation-topology.svg" alt="diagram" /></p>
 <p>Trust Anchor and Intermediates are <strong>registration authorities</strong>. Leaves self-publish <strong>Entity Configuration</strong>; superiors publish <strong>Subordinate Statements</strong>. Revocation = <strong>stop publishing</strong> a valid statement.</p>
 <footer>GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="6" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="federation-api-compact" data-theme="it-wallet-dtd" lang="C" class="federation-api-compact" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:federation-api-compact;--theme:it-wallet-dtd;">
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="5" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="federation-api-compact" data-theme="it-wallet-dtd" lang="C" class="federation-api-compact" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:federation-api-compact;--theme:it-wallet-dtd;">
 <h2 id="what-italian-federation-actually-carries">What Italian Federation actually carries</h2>
 <table>
 <thead>
@@ -104,7 +69,7 @@
 <p>Federation APIs are <strong>public</strong> — <strong>no client credentials</strong>. The Trust Anchor does not learn <strong>which wallet</strong> asked about <strong>which RP</strong>.</p>
 <footer>GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="7" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="topology-slide" data-theme="it-wallet-dtd" lang="C" class="topology-slide" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:topology-slide;--theme:it-wallet-dtd;">
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="6" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="topology-slide" data-theme="it-wallet-dtd" lang="C" class="topology-slide" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:topology-slide;--theme:it-wallet-dtd;">
 <h2 id="runtime--issuance-and-presentation">Runtime — issuance and presentation</h2>
 <p><img src="diagrams/d02-runtime-trust.svg" alt="diagram" /></p>
 <ul>
@@ -114,7 +79,7 @@
 </ul>
 <footer>GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="8" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="domestic-gap-matrix" data-theme="it-wallet-dtd" lang="C" class="domestic-gap-matrix" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:domestic-gap-matrix;--theme:it-wallet-dtd;">
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="7" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="domestic-gap-matrix" data-theme="it-wallet-dtd" lang="C" class="domestic-gap-matrix" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:domestic-gap-matrix;--theme:it-wallet-dtd;">
 <h2 id="national-federation-next-to-eudiw-lists">National Federation next to EUDIW lists</h2>
 <table>
 <thead>
@@ -126,14 +91,14 @@
 <tbody>
 <tr>
 <td><strong>Why a national plane</strong></td>
-<td>EC-hosted PID / Wallet Provider / Access-CA lists do <strong>not</strong> map 1:1 onto <strong>domestic</strong> registration, policy, and lifecycle.</td>
+<td>EC-hosted PID/EAA Provider / Wallet Provider / Access and Registration Certificate Provider lists do <strong>not</strong> map 1:1 onto <strong>domestic</strong> registration, policy, and lifecycle.</td>
 </tr>
 <tr>
 <td><strong>Strategy</strong></td>
 <td>Keep <strong>OpenID Federation</strong> as the <strong>JWT-first national plane</strong>; meet <strong>ARF / LoTE / X.509</strong> obligations <strong>where mandated</strong>. Do not force one stack to emulate the other.</td>
 </tr>
 <tr>
-<td><strong>Client signalling</strong></td>
+<td><strong>RP signalling</strong></td>
 <td><code>openid_federation:</code> → trust chain + Entity Configuration <code>sub</code>. <code>x509_hash:</code> → hash of the <strong>RP access certificate</strong>.</td>
 </tr>
 <tr>
@@ -148,7 +113,7 @@
 </table>
 <footer>GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="9" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="case-stats-slide" data-theme="it-wallet-dtd" lang="C" class="case-stats-slide" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:case-stats-slide;--theme:it-wallet-dtd;">
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="8" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="case-stats-slide" data-theme="it-wallet-dtd" lang="C" class="case-stats-slide" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:case-stats-slide;--theme:it-wallet-dtd;">
 <h2 id="production-evidence-phase-1--documenti-su-io">Production evidence (Phase 1 — <em>Documenti su IO</em>)</h2>
 <div class="stat-grid">
 <div class="stat"><div class="stat-n">&gt; 12M</div><div class="stat-l">wallet activations by July 2026</div></div>
@@ -164,7 +129,7 @@
 <p>These are <strong>adoption and usage</strong> signals. Fraud, RP cost, and transaction-time econometrics are <strong>not yet</strong> measured at ecosystem scale.</p>
 <footer>GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="10" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="browser-shot-slide" data-theme="it-wallet-dtd" lang="C" class="browser-shot-slide" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:browser-shot-slide;--theme:it-wallet-dtd;">
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="9" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="browser-shot-slide" data-theme="it-wallet-dtd" lang="C" class="browser-shot-slide" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:browser-shot-slide;--theme:it-wallet-dtd;">
 <h2 id="two-federations-one-browser--inspect-the-graph">Two federations, one browser — inspect the graph</h2>
 <p><strong>Left:</strong> CIE / SPID OIDC Trust Anchor (pre-1.0, large leaf fan-out). <strong>Right:</strong> IT-Wallet Trust Anchor (<code>ta.wallet.ipzs.it</code>, Federation 1.0).</p>
 <div>
@@ -173,12 +138,12 @@
 <p>Public <strong>Federation Browser</strong> + test matrix: onboarding friction is <strong>visible</strong>, not a private registrar ticket.</p>
 <footer>GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="11" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="lessons-slide" data-theme="it-wallet-dtd" lang="C" class="lessons-slide" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:lessons-slide;--theme:it-wallet-dtd;">
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="10" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="lessons-slide" data-theme="it-wallet-dtd" lang="C" class="lessons-slide" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:lessons-slide;--theme:it-wallet-dtd;">
 <h2 id="learnings-from-deploying-federation-for-vc--wallet">Learnings from deploying Federation for VC &amp; Wallet</h2>
 <p><strong>What worked</strong></p>
 <ul>
 <li>Governmental Trust Anchor + <strong>OIDF 1.0</strong> beats both <strong>pure SSI</strong> (governance vacuum at national scale) and <strong>SAML circles</strong> (IdP observability).</li>
-<li><strong>Public</strong> federation APIs are a <strong>privacy</strong> feature, not a missing ACL.</li>
+<li><strong>Public</strong> federation APIs are a <strong>transparency</strong> feature for a large scale deployment with public audience.</li>
 <li><strong>Progressive ARF alignment</strong> (versioned national profiles) — do not wait for a frozen EU stack to ship a national wallet.</li>
 <li>Harden <strong><code>OID-FED-WALLET</code> in production first</strong>, then feed evidence into the draft — do not productise optional features that are still underspecified.</li>
 </ul>
@@ -191,7 +156,7 @@
 </ul>
 <footer>GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="12" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-theme="it-wallet-dtd" lang="C" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--theme:it-wallet-dtd;">
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="11" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-theme="it-wallet-dtd" lang="C" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--theme:it-wallet-dtd;">
 <h2 id="roadmap--what-this-case-hands-to-part-2">Roadmap — what this case hands to Part 2</h2>
 <ul>
 <li><strong>Phase 2:</strong> more credentials, proximity (BLE / NFC), <strong>private Wallet Providers</strong> in the same federation.</li>
@@ -202,7 +167,7 @@
 <p>Specs: <a href="https://italia.github.io/eid-wallet-it-docs/versione-corrente/en/">italia.github.io/eid-wallet-it-docs</a> · Trust chapter implements <strong>OID-FED 1.0</strong>.</p>
 <footer>GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="13" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="lead lead-blue thank-you-slide" data-theme="it-wallet-dtd" lang="C" class="lead lead-blue thank-you-slide" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:lead lead-blue thank-you-slide;--theme:it-wallet-dtd;">
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="12" data-footer="GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco" data-class="lead lead-blue thank-you-slide" data-theme="it-wallet-dtd" lang="C" class="lead lead-blue thank-you-slide" style="--footer:GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case study · Giuseppe De Marco;--class:lead lead-blue thank-you-slide;--theme:it-wallet-dtd;">
 <h1 id="thank-you">Thank you</h1>
 <p><strong>Questions now — or hold them for Part 2.</strong></p>
 <div class="thank-you-qr">
