@@ -25,6 +25,7 @@ Today we talk about a **deployed national federation** for credential issuance a
 
 ---
 
+<!-- _class: italian-choice-slide -->
 ## The Italian choice
 
 - **One national registrar:** **OpenID Federation 1.0** with a **governmental Trust Anchor**. Leaves: Wallet Providers, Credential Issuers (**PID** / **(Q)EAA** — identity and attribute credentials), Relying Parties. **Multiple wallets** sit under that one registrar — as **national policy** and **EUDI Wallet** both require. **Multiple certification bodies and labs** are allowed.
@@ -62,7 +63,7 @@ Federation APIs are **public** — **no client credentials**. The Trust Anchor d
 
 ---
 
-<!-- _class: topology-slide -->
+<!-- _class: topology-slide runtime-slide -->
 ## Runtime — issuance and presentation
 
 ![diagram](diagrams/d02-runtime-trust.svg)
@@ -112,10 +113,10 @@ These are **adoption and usage** signals. Fraud, RP cost, and transaction-time e
 **Left:** CIE / SPID (Italian eID) OpenID Connect Trust Anchor (pre-1.0, large leaf fan-out). **Right:** IT-Wallet Trust Anchor (`ta.wallet.ipzs.it`, Federation 1.0).
 
 <div style="text-align:center; margin-top: 0.05rem;">
-  <img src="images/federation-browser-graph.png" alt="OpenID Federation Browser — CIE/SPID Trust Anchor on the left, IT-Wallet Trust Anchor on the right" style="width: 92%; max-height: 44vh; object-fit: contain;" />
+  <a href="https://github.com/italia/openid-federation-browser"><img src="images/federation-browser-graph.png" alt="OpenID Federation Browser — CIE/SPID Trust Anchor on the left, IT-Wallet Trust Anchor on the right" /></a>
 </div>
 
-Public **Federation Browser** + test matrix: onboarding friction is **visible**, not a private registrar ticket.
+Public [OpenID Federation Browser](https://github.com/italia/openid-federation-browser) + test matrix: onboarding friction is **visible**, not a private registrar ticket.
 
 ---
 
@@ -138,6 +139,7 @@ Public **Federation Browser** + test matrix: onboarding friction is **visible**,
 
 ---
 
+<!-- _class: roadmap-slide -->
 ## Roadmap — what this case hands to Part 2
 
 - **Phase 2:** more credentials, proximity (BLE / NFC), **private Wallet Providers** at the **same national registrar**.

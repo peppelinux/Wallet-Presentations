@@ -239,6 +239,23 @@ section.thank-you-slide .thank-you-qr-url a {
 }
 
 /* ========== Content layouts (this deck) ========== */
+section.italian-choice-slide {
+  padding: 76px 48px 52px 48px;
+  font-size: 23px;
+  line-height: 1.28;
+}
+section.italian-choice-slide :is(h2, marp-h2) {
+  margin: 0 0 0.22em 0;
+  font-size: 1.28em;
+}
+section.italian-choice-slide ul {
+  margin: 0.08em 0 0;
+  padding-left: 1.15em;
+}
+section.italian-choice-slide li {
+  margin: 0.22em 0;
+}
+
 section.compare-3-slide {
   font-size: 24px;
   line-height: 1.26;
@@ -293,11 +310,22 @@ section.topology-slide img[alt='diagram'] {
   object-fit: contain;
   object-position: center top;
 }
+section.topology-slide ul {
+  margin: 0.08em 0 0;
+  font-size: 0.86em;
+  line-height: 1.28;
+}
+section.topology-slide li {
+  margin: 0.08em 0;
+}
+section.runtime-slide img[alt='diagram'] {
+  max-height: min(300px, 40vh);
+}
 
 section.federation-api-compact {
-  font-size: 26px;
-  line-height: 1.28;
-  padding: 80px 52px 56px 52px;
+  font-size: 24px;
+  line-height: 1.24;
+  padding: 76px 48px 52px 48px;
 }
 section.federation-api-compact :is(h2, marp-h2) {
   margin-top: 0;
@@ -390,23 +418,23 @@ section.case-stats-slide ul {
 }
 
 section.browser-shot-slide {
-  padding: 76px 40px 52px 40px;
-  font-size: 24px;
+  padding: 70px 24px 44px 24px;
+  font-size: 22px;
 }
 section.browser-shot-slide :is(h2, marp-h2) {
-  margin: 0 0 0.08em 0;
-  font-size: 1.12em;
+  margin: 0 0 0.06em 0;
+  font-size: 1.1em;
 }
 section.browser-shot-slide > p {
-  margin: 0.08em 0 0.06em;
-  font-size: 0.82em;
-  line-height: 1.28;
+  margin: 0.06em 0 0.04em;
+  font-size: 0.78em;
+  line-height: 1.24;
 }
 
 section.lessons-slide {
-  padding: 80px 48px 56px 48px;
-  font-size: 24px;
-  line-height: 1.28;
+  padding: 76px 48px 52px 48px;
+  font-size: 22px;
+  line-height: 1.24;
 }
 section.lessons-slide :is(h2, marp-h2) {
   margin: 0 0 0.18em 0;
@@ -422,5 +450,35 @@ section.lessons-slide ul {
   font-size: 0.9em;
 }
 section.lessons-slide li {
-  margin: 0.06em 0;
+  margin: 0.04em 0;
+}
+
+section.roadmap-slide {
+  padding: 76px 48px 52px 48px;
+  font-size: 22px;
+  line-height: 1.28;
+}
+section.roadmap-slide :is(h2, marp-h2) {
+  margin: 0 0 0.2em 0;
+  font-size: 1.16em;
+}
+section.roadmap-slide ul {
+  margin: 0.08em 0 0.18em;
+}
+section.roadmap-slide li {
+  margin: 0.12em 0;
+}
+section.roadmap-slide > p {
+  margin: 0.12em 0 0;
+  font-size: 0.86em;
+  line-height: 1.28;
+}
+
+section.browser-shot-slide img {
+  display: block;
+  width: 100%;
+  max-height: 64vh;
+  height: auto;
+  margin: 0.06em auto 0.04em;
+  object-fit: contain;
 }
