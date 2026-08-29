@@ -316,8 +316,14 @@ section.domestic-gap-matrix {
   padding: 80px 46px 56px 46px;
 }
 section.domestic-gap-matrix :is(h2, marp-h2) {
-  margin: 0 0 0.16em 0;
+  margin: 0 0 0.12em 0;
   font-size: 1.08em;
+}
+section.domestic-gap-matrix > p {
+  margin: 0 0 0.14em;
+  font-size: 0.72em;
+  line-height: 1.28;
+  color: var(--text-muted);
 }
 section.domestic-gap-matrix table {
   font-size: 0.68em;

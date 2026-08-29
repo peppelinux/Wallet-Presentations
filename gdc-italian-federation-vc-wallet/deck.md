@@ -18,7 +18,7 @@ footer: 'GDC 2026 · Geneva · 2 September · OpenID Federation Part 1 · Case s
 
 1. **Why Federation** for wallets and Digital Credentials.
 2. **How Italy applied it** — Trust Anchor, Intermediaries and Leaves in Wallet Architectures.
-3. **What production taught us** — adoption, open specs, coexistence with EUDIW trusted lists.
+3. **What production taught us** — adoption, open specs, coexistence with EU Digital Identity Wallet trusted lists.
 4. **What we still feed into the roadmap** — questions and answers.
 
 Today we talk about a **deployed national federation** for credential issuance and presentation, not a greenfield protocol pitch.
@@ -27,11 +27,11 @@ Today we talk about a **deployed national federation** for credential issuance a
 
 ## The Italian choice
 
-- **National trust plane:** **OpenID Federation 1.0** with a **governmental Trust Anchor**.
-- **Leaves:** Wallet Providers, Credential Issuers (PID / (Q)EAA), Relying Parties. **RP Intermediaries** (eIDAS Art. 5b(8)) map to **OIDF Intermediates**.
+- **One national registrar:** **OpenID Federation 1.0** with a **governmental Trust Anchor**. Leaves: Wallet Providers, Credential Issuers (**PID** / **(Q)EAA** — identity and attribute credentials), Relying Parties. **Multiple wallets** sit under that one registrar — as **national policy** and **EUDI Wallet** both require. **Multiple certification bodies and labs** are allowed.
+- **Intermediates are RP-only** (eIDAS Art. 5b(8) intermediaries). Federation *can* nest Wallet Providers under an Intermediate; **Italy does not**. That is **policy**, not a protocol limit.
 - **Wallet Instance is not a Federation Entity.** It must **not** publish `/.well-known/openid-federation`. Reliability is a **Wallet Attestation** issued by the Wallet Provider.
-- **Reuse, don’t rebuild:** SPID/CIE (preexisting eID Schemes) for identity proofing, **PDND** for authentic-source data, **App IO** as the first public wallet surface.
-- **Two federations, two Trust Anchors:** legacy **SPID/CIE OIDC** still uses **pre-1.0** Federation drafts; **IT-Wallet** is **Federation 1.0**. Retrocompatibility is achievable, given that the standard has evolved in continuity with pre-existing implementations.
+- **Reuse, don’t rebuild:** **SPID/CIE** (Italy’s existing eID schemes) for identity proofing, **PDND** (national authentic-source data platform), **App IO** (the public-service app) as the first wallet surface.
+- **Two federations, two Trust Anchors:** legacy **SPID/CIE** OpenID Connect still uses **pre-1.0** Federation drafts; **IT-Wallet** is **Federation 1.0**. Retrocompatibility is achievable, given that the standard has evolved in continuity with pre-existing implementations.
 
 ---
 
@@ -40,7 +40,7 @@ Today we talk about a **deployed national federation** for credential issuance a
 
 ![diagram](diagrams/d01-federation-topology.svg)
 
-Trust Anchor and Intermediates are **registration authorities**. Leaves self-publish **Entity Configuration**; superiors publish **Subordinate Statements**. Revocation = **stop publishing** a valid statement.
+The Trust Anchor is the **single national registrar**. **Intermediates onboard RPs only** — national policy, not a Federation limit. Leaves self-publish **Entity Configuration**; superiors publish **Subordinate Statements**. Revocation = **stop publishing** a valid statement.
 
 ---
 
@@ -73,14 +73,16 @@ Federation APIs are **public** — **no client credentials**. The Trust Anchor d
 ---
 
 <!-- _class: domestic-gap-matrix -->
-## National Federation next to EUDIW lists
+## National Federation next to EU Digital Identity Wallet lists
+
+EU **ARF** (Architecture Reference Framework) and **LoTE** (Lists of Trusted Entities) sit beside the national plane.
 
 | Topic | Italian position |
 |------|------------------|
-| **Why a national plane** | EC-hosted PID/EAA Provider / Wallet Provider / Access and Registration Certificate Provider lists do **not** map 1:1 onto **domestic** registration, policy, and lifecycle. |
+| **Why a national plane** | Commission-hosted PID/EAA Provider / Wallet Provider / Access and Registration Certificate Provider lists do **not** map 1:1 onto **domestic** registration, policy, and lifecycle. |
 | **Strategy** | Keep **OpenID Federation** as the **JWT-first national plane**; meet **ARF / LoTE / X.509** obligations **where mandated**. Do not force one stack to emulate the other. |
 | **RP signalling** | `openid_federation:` → trust chain + Entity Configuration `sub`. `x509_hash:` → hash of the **RP access certificate**. |
-| **X.509 lifecycle** | Once an X.509 is issued, its life is **PKIX** (CRL / OCSP) — not Federation fetch. Federation **distributes** keys and certs; it does not replace certificate status. |
+| **X.509 lifecycle** | Once an X.509 is issued, status is **X.509 PKI** (CRL / OCSP) — not Federation fetch. Federation **distributes** keys and certs; it does not replace certificate status. |
 | **Convergence** | On **what verifiers can prove**, not on collapsing every list into one protocol. |
 
 ---
@@ -106,7 +108,7 @@ These are **adoption and usage** signals. Fraud, RP cost, and transaction-time e
 <!-- _class: browser-shot-slide -->
 ## Two federations, one browser — inspect the graph
 
-**Left:** CIE / SPID OIDC Trust Anchor (pre-1.0, large leaf fan-out). **Right:** IT-Wallet Trust Anchor (`ta.wallet.ipzs.it`, Federation 1.0).
+**Left:** CIE / SPID (Italian eID) OpenID Connect Trust Anchor (pre-1.0, large leaf fan-out). **Right:** IT-Wallet Trust Anchor (`ta.wallet.ipzs.it`, Federation 1.0).
 
 <div style="text-align:center; margin-top: 0.05rem;">
   <img src="images/federation-browser-graph.png" alt="OpenID Federation Browser — CIE/SPID Trust Anchor on the left, IT-Wallet Trust Anchor on the right" style="width: 92%; max-height: 44vh; object-fit: contain;" />
@@ -117,32 +119,31 @@ Public **Federation Browser** + test matrix: onboarding friction is **visible**,
 ---
 
 <!-- _class: lessons-slide -->
-## Learnings from deploying Federation for VC & Wallet
+## Learnings from deploying Federation for Digital Credentials & Wallet
 
 **What worked**
 
-- Governmental Trust Anchor + **OIDF 1.0** beats both **pure SSI** (governance vacuum at national scale) and **SAML circles** (IdP observability).
+- **One registrar, many wallets** — Intermediates stay **RP-only** by policy; certification bodies and labs stay **plural**.
 - **Public** federation APIs are a **transparency** feature for a large scale deployment with public audience.
 - **Progressive ARF alignment** (versioned national profiles) — do not wait for a frozen EU stack to ship a national wallet.
 - Harden **`OID-FED-WALLET` in production first**, then feed evidence into the draft — do not productise optional features that are still underspecified.
 
 **What is hard**
 
-- Legacy **SAML/OIDC** RPs need **bridges**; contractors implemented identity years apart.
 - **Moving ARF / implementing acts** while millions are already onboarded.
-- **No appetite for “trust proxies”** that re-evaluate foreign lists on behalf of wallets (privacy, SPoF, cache drift).
+- **No appetite for “trust proxies”** that re-evaluate foreign lists on behalf of wallets (privacy, single point of failure, cache drift).
 - High activation ≠ citizens understanding **selective disclosure**. Private wallet providers enter in **Phase 2** (expected Q3 2026).
 
 ---
 
 ## Roadmap — what this case hands to Part 2
 
-- **Phase 2:** more credentials, proximity (BLE / NFC), **private Wallet Providers** in the same federation.
+- **Phase 2:** more credentials, proximity (BLE / NFC), **private Wallet Providers** at the **same national registrar**.
 - **Phase 3:** notify the public IT-Wallet as an **EUDI Wallet** — Federation remains the **national** plane; EU lists are **additional** evidence, not a replacement.
-- **Standards we are pushing from practice:** [Federation Subordinate Events](https://openid.net/specs/openid-federation-subordinate-events-1_0.html), [Extended Subordinate Listing](https://openid.net/specs/openid-federation-extended-listing-1_0-01.html), [ACME + OpenID Federation](https://datatracker.ietf.org/doc/draft-ietf-acme-openid-federation/), and a possible **federation-scoped registration** analogue to OIDC DCR.
-- **Open questions for Part 2:** due-diligence artefacts, Wallet Architecture draft maturity, how national federations **interwork** without a trust-proxy SPoF.
+- **Standards we are pushing from practice:** [Federation Subordinate Events](https://openid.net/specs/openid-federation-subordinate-events-1_0.html), [Extended Subordinate Listing](https://openid.net/specs/openid-federation-extended-listing-1_0-01.html), [ACME + OpenID Federation](https://datatracker.ietf.org/doc/draft-ietf-acme-openid-federation/), and a possible **federation-scoped registration** analogue to OpenID Connect Dynamic Client Registration.
+- **Open questions for Part 2:** due-diligence artefacts, Wallet Architecture draft maturity, how national federations **interwork** without a trust-proxy single point of failure.
 
-Specs: [italia.github.io/eid-wallet-it-docs](https://italia.github.io/eid-wallet-it-docs/versione-corrente/en/) · Trust chapter implements **OID-FED 1.0**.
+Specs: [italia.github.io/eid-wallet-it-docs](https://italia.github.io/eid-wallet-it-docs/versione-corrente/en/) · Trust chapter implements **OpenID Federation 1.0**.
 
 ---
 

@@ -24,9 +24,9 @@ ACME bound to a federation identifier using previous federation-scoped registrat
 
 Federation does not issue or present credentials. It answers who may participate, with which keys, metadata, and policies — online and offline. Ecosystems bind that answer to a protocol.
 
-The TA registers Wallet Providers, Credential Issuers and RPs. The wallet evaluates the RP chain before presenting; the issuer evaluates the Wallet Provider chain plus a Wallet Attestation. The issuer does not see which RP was used.
+The TA is the **single national registrar** for Wallet Providers, Credential Issuers, and (directly or via Intermediates) RPs. **Intermediates onboard RPs only** — national policy, not a Federation limit. Multiple Wallet Providers share that one registrar, as EUDI Wallet rules also require. Multiple certification bodies and labs are allowed. The wallet evaluates the RP chain before presenting; the issuer evaluates the Wallet Provider chain plus a Wallet Attestation. The issuer does not see which RP was used.
 
-Government login (SPID/CIE, Swedish healthcare, NL/FI, eduGAIN): the same chains, with OIDC metadata instead of OpenID4VCI/VP. Open finance (Australia) demonstrates why listing must paginate. RP intermediaries (eIDAS Art. 5b(8)) map to OIDF Intermediates plus a Trust Mark so the wallet can show who registered the RP.
+Government login (SPID/CIE, Swedish healthcare, NL/FI, eduGAIN): the same chains, with OIDC metadata instead of OpenID4VCI/VP. Open finance (Australia) demonstrates why listing must paginate. RP intermediaries (eIDAS Art. 5b(8)) map to OIDF Intermediates plus a Trust Mark so the wallet can show who registered the RP. Italy does not put Wallet Providers under Intermediates.
 
 Finance and AI agents are the same job, a leaf with typed metadata and a chain to a TA the counterpart already trusts, but they still need protocol profiles, as wallets needed Wallet Architectures. 
 
@@ -36,13 +36,13 @@ Data quality, UX, and qualified-signature law sit beside this plane, not inside 
 
 ### What are some of the best practices for Trust Registries in the current OIDFed?
 
-The registry is the Trust Anchor (and its Intermediates) plus the Federation API — not a separate product.
+The registry is the Trust Anchor plus the Federation API — not a separate product. Italy uses Intermediates only to onboard Relying Parties (eIDAS Art. 5b(8)). That constraint is **national policy**: Federation would allow Wallet Providers under an Intermediate.
 
-Register once per perimeter; delegate with Intermediates and keep `max_path_length` / `allowed_leaf_entity_types` tight. Leaves self-issue Entity Configuration; superiors attest keys and apply metadata policy. Revocation is the absence of a valid subordinate statement. Keep Trust Mark status on its own endpoint so it cannot disagree with `/fetch`.
+Register once per perimeter. Keep `max_path_length` / `allowed_leaf_entity_types` tight so an RP Intermediate cannot register a Wallet Provider. Leaves self-issue Entity Configuration; superiors attest keys and apply metadata policy. Revocation is the absence of a valid subordinate statement. Keep Trust Mark status on its own endpoint so it cannot disagree with `/fetch`.
 
 Publish historical keys (and events, if the profile requires them). Distribute TA keys out of band. Leave federation endpoints public and unauthenticated so the TA never learns which wallet asked about which RP. Register the Wallet Provider, not the instance.
 
-Use Trust Marks for roles, not marketing. Keep semantic catalogues (claims, credential types) next to the federation graph, not inside it. Once an X.509 is issued, PKIX owns its life; Federation represents and underlying infrastructure to automize their issuance.
+Use Trust Marks for roles, not marketing. Keep semantic catalogues (claims, credential types) next to the federation graph, not inside it. Once an X.509 is issued, **X.509 PKI** (CRL / OCSP) owns its life; Federation is the infrastructure that can automate issuance.
 
 ---
 
@@ -50,7 +50,7 @@ Use Trust Marks for roles, not marketing. Keep semantic catalogues (claims, cred
 
 Yes. Restricting membership is what a Trust Anchor is for. No subordinate statement means not a member.
 
-Values become enforceable only if they are operationalized: admission rules (jurisdiction, DPIA, sector licence, “no advertising use”), Trust Marks that split Wallet / Issuer / RP roles, and `metadata_policy` for machine-checkable privacy (what an RP may request, which formats an issuer may advertise). Constraints stop an Intermediate accredited only for RPs from onboarding a Wallet Provider.
+Values become enforceable only if they are operationalized: admission rules (jurisdiction, DPIA, sector licence, “no advertising use”), Trust Marks that split Wallet / Issuer / RP roles, and `metadata_policy` for machine-checkable privacy (what an RP may request, which formats an issuer may advertise). Italy accredits Intermediates for RPs only, so they cannot onboard a Wallet Provider — policy, not a protocol ceiling. Multiple wallets sit under the single national TA. Multiple certification bodies and labs are in scope (national + EUDI).
 
 A sustainability PDF on a website is not checked at presentation time. A foreign TA will apply *its* values; sovereignty is per trust plane, chosen by which TA keys a wallet ships. Do not outsource that choice to a proxy.
 
@@ -66,7 +66,7 @@ EU lists may represent a different, expanded, sovereignty driven by a wider comm
 
 Yes. Coexistence is the end state. Federation asks whether an *entity* is a member, with these keys and this metadata. 
 
-TSL / LoTE / X.509 ask whether a *certificate* or trust service is qualified or notified. A status list asks whether a *credential* is still valid. Those are different assessments, published by different legal bodies.
+TSL (Trusted Service List) / LoTE (Lists of Trusted Entities) / X.509 ask whether a *certificate* or trust service is qualified or notified. A status list asks whether a *credential* is still valid. Those are different assessments, published by different legal bodies.
 
 Make the method explicit (`openid_federation:` vs `x509_hash:`). Do not treat both stacks as one revocation channel. Converge on what a verifier can prove, not on a single protocol. Silent fallback (“try Federation, then TSL, then a PDF”) is how due diligence may die.
 
@@ -80,7 +80,7 @@ It doubles *surfaces* if you run both end-to-end on every request. It need not d
 
 A national wallet already needs a JWT-first plane (metadata, policy, marks, offline chains, wallet attestation). EUDIW lists do not carry that, and they do not disappear: they remain for Union publication and qualified-trust continuity. 
 
-The expensive mistake is dual-evaluating Federation, LoTE, and OCSP on the domestic hot path. The expensive organisation is two teams maintaining two truths about the same legal person — fix that with one registrar process and two projections, and with PKIX owning certs while Federation owns membership.
+The expensive mistake is dual-evaluating Federation, LoTE, and OCSP on the domestic hot path. The expensive organisation is two teams maintaining two truths about the same legal person — fix that with one registrar process and two projections, and with X.509 PKI owning certs while Federation owns membership.
 
 We do not yet have euro figures for RP cost or fraud. ACME bound to the federation identifier is how participant enrolment should get cheaper.
 
