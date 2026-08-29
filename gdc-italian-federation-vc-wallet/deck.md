@@ -40,7 +40,7 @@ Today we talk about a **deployed national federation** for credential issuance a
 
 ![diagram](diagrams/d01-federation-topology.svg)
 
-The Trust Anchor is the **single national registrar**. **Intermediates onboard RPs only** — national policy, not a Federation limit. Leaves self-publish **Entity Configuration**; superiors publish **Subordinate Statements**. Revocation = **stop publishing** a valid statement.
+The Trust Anchor is the **single national registrar**. **Intermediates onboard RPs only** — national policy, not a Federation limit. Leaves self-publish **Entity Configuration**; superiors publish **Subordinate Statements**.
 
 ---
 
@@ -53,9 +53,10 @@ The Trust Anchor is the **single national registrar**. **Intermediates onboard R
 | **Subordinate Statement** | Superior attests the leaf — keys, optional **metadata policy**, constraints |
 | **Trust Chain** | Leaf EC + statements up to the Trust Anchor; **offline-verifiable** with TA keys |
 | **Trust Marks** | Compliance / role (e.g. RP, RP Intermediary, issuer, wallet solution) |
-| **Historical keys + subordinate events** | Non-repudiation and lifecycle transparency after key rotation / revocation |
+| **Subordinate Events** | Signed revoke / suspend **at time T**. Auditors do **not** infer a strike-off from a 404. Italy: **MUST**. |
+| **Historical keys** | Old chains stay verifiable after the signing keys are gone. Italy: **MUST**. |
 
-Protocol metadata types: `federation_entity` · `wallet_solution` · `openid_credential_issuer` · `oauth_authorization_server` · `openid_credential_verifier`.
+**Silence** (no valid statement) is only how a **current** chain fails — the core protocol limit. Membership revocation is **not** silence: events and historical keys are the **assurance record**. Offline freshness stays a **TTL**; certificate status stays **CRL / OCSP**.
 
 Federation APIs are **public** — **no client credentials**. The Trust Anchor does not learn **which wallet** asked about **which RP**.
 
@@ -68,7 +69,7 @@ Federation APIs are **public** — **no client credentials**. The Trust Anchor d
 
 - **Issuance:** the Credential Issuer evaluates the **Wallet Provider** chain; the instance presents a **Wallet Attestation** (no personal data).
 - **Presentation:** the Wallet evaluates the **RP** chain (or a `trust_chain` in the signed request), then presents the credential. **The issuer does not observe** the transaction.
-- **Offline / proximity:** short-lived chains; RP requests **SHOULD** carry `trust_chain`. Freshness is a **TTL** problem, not a new PKI.
+- **Offline / proximity:** short-lived chains; RP requests **SHOULD** carry `trust_chain`. Freshness is a **TTL**; certificate status is **CRL / OCSP**. Silence is the runtime gate, not the audit record.
 
 ---
 
@@ -127,6 +128,7 @@ Public **Federation Browser** + test matrix: onboarding friction is **visible**,
 - **Public** federation APIs are a **transparency** feature for a large scale deployment with public audience.
 - **Progressive ARF alignment** (versioned national profiles) — do not wait for a frozen EU stack to ship a national wallet.
 - Harden **`OID-FED-WALLET` in production first**, then feed evidence into the draft — do not productise optional features that are still underspecified.
+- Core Federation **silence** is only the runtime gate. Italy profiles **Subordinate Events** and **historical keys** as **MUST**, so revocation is a signed record.
 
 **What is hard**
 

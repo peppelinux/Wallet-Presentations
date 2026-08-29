@@ -8,7 +8,7 @@ Short answers from IT-Wallet practice. For the case-study slot and the handoff t
 
 ### What is the current feedback on Federation, and what are the plans in current and upcoming versions?
 
-Federation 1.0 (Final, Feb 2026) and 1.1 (Final, May 2026) are stable as a trust-establishment protocol. Feedback is “the core is reliable, practical, and stable.” We learned that a national registrar needs more operational APIs than the one mandated by the core specifications. Auditors need history after revocation. **Extended Subordinate Listing** and **Subordinate Events** are in Implementer’s Draft vote this week (closes 4 Sep 2026). Italy already treats events as MUST.
+Federation 1.0 (Final, Feb 2026) and 1.1 (Final, May 2026) are stable as a trust-establishment protocol. Feedback is “the core is reliable, practical, and stable.” We learned that a national registrar needs more operational APIs than the one mandated by the core specifications. Auditors need a signed history after revocation — they must not infer a strike-off from a 404. **Extended Subordinate Listing** and **Subordinate Events** are in Implementer’s Draft vote this week (closes 4 Sep 2026). Italy already profiles **Subordinate Events** and **historical keys** as MUST.
 
 Italy runs *Wallet Architectures 1.0** (draft) with the purpose to consolidate it in production before the draft grows optional features.
 
@@ -38,9 +38,11 @@ Data quality, UX, and qualified-signature law sit beside this plane, not inside 
 
 The registry is the Trust Anchor plus the Federation API — not a separate product. Italy uses Intermediates only to onboard Relying Parties (eIDAS Art. 5b(8)). That constraint is **national policy**: Federation would allow Wallet Providers under an Intermediate.
 
-Register once per perimeter. Keep `max_path_length` / `allowed_leaf_entity_types` tight so an RP Intermediate cannot register a Wallet Provider. Leaves self-issue Entity Configuration; superiors attest keys and apply metadata policy. Revocation is the absence of a valid subordinate statement. Keep Trust Mark status on its own endpoint so it cannot disagree with `/fetch`.
+Register once per perimeter. Keep `max_path_length` / `allowed_leaf_entity_types` tight so an RP Intermediate cannot register a Wallet Provider. Leaves self-issue Entity Configuration; superiors attest keys and apply metadata policy. Keep Trust Mark status on its own endpoint so it cannot disagree with `/fetch`.
 
-Publish historical keys (and events, if the profile requires them). Distribute TA keys out of band. Leave federation endpoints public and unauthenticated so the TA never learns which wallet asked about which RP. Register the Wallet Provider, not the instance.
+Absence of a valid subordinate statement is how a **current** chain fails — the runtime gate, and the core protocol limit. Italy exceeds it on purpose: **Subordinate Events** give a signed revocation or suspension at time T (auditors do not infer a strike-off from a 404); **historical keys** keep old chains verifiable after the keys are gone. Both are **MUST**. Membership revocation is not silence. Offline freshness remains a TTL; certificate status remains CRL/OCSP.
+
+Publish historical keys and events. Distribute TA keys out of band. Leave federation endpoints public and unauthenticated so the TA never learns which wallet asked about which RP. Register the Wallet Provider, not the instance.
 
 Use Trust Marks for roles, not marketing. Keep semantic catalogues (claims, credential types) next to the federation graph, not inside it. Once an X.509 is issued, **X.509 PKI** (CRL / OCSP) owns its life; Federation is the infrastructure that can automate issuance.
 
