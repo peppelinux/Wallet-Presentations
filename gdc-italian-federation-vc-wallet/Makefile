@@ -10,7 +10,7 @@ HTML         := $(ROOT)deck.html
 PDF          := $(ROOT)deck.pdf
 PPTX         := $(ROOT)deck.pptx
 
-MERMAID ?= npx --yes @mermaid-js/mermaid-cli@latest
+MERMAID ?= npx --yes @mermaid-js/mermaid-cli@latest -p "$(ROOT)scripts/puppeteer-no-sandbox.json"
 MARP ?= npx --yes @marp-team/marp-cli
 
 .PHONY: all html pdf pptx diagrams clean help rebuild

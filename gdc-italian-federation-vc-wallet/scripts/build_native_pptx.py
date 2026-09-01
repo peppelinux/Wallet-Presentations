@@ -330,23 +330,23 @@ def paragraphs(body: str) -> list[str]:
 
 def mermaid_png(mmd: Path, dest: Path) -> Path:
     dest.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        [
-            "npx",
-            "--yes",
-            "@mermaid-js/mermaid-cli@latest",
-            "-i",
-            str(mmd),
-            "-o",
-            str(dest),
-            "-b",
-            "transparent",
-            "-s",
-            "2",
-        ],
-        check=True,
-        cwd=str(mmd.parent),
-    )
+    puppeteer_cfg = ROOT / "scripts" / "puppeteer-no-sandbox.json"
+    cmd = [
+        "npx",
+        "--yes",
+        "@mermaid-js/mermaid-cli@latest",
+        "-p",
+        str(puppeteer_cfg),
+        "-i",
+        str(mmd),
+        "-o",
+        str(dest),
+        "-b",
+        "transparent",
+        "-s",
+        "2",
+    ]
+    subprocess.run(cmd, check=True, cwd=str(mmd.parent))
     return dest
 
 
