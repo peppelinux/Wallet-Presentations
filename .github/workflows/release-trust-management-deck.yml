@@ -43,11 +43,14 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Python dependencies (eIDAS report)
+      - name: Install Python dependencies (eIDAS report + native PPTX)
         run: |
+          python -m pip install --upgrade pip
           if [[ -f eidas-legal-tech-references/requirements.txt ]]; then
-            python -m pip install --upgrade pip
             pip install -r eidas-legal-tech-references/requirements.txt
+          fi
+          if [[ -f gdc-italian-federation-vc-wallet/scripts/requirements-pptx.txt ]]; then
+            pip install -r gdc-italian-federation-vc-wallet/scripts/requirements-pptx.txt
           fi
 
       - name: Install Chromium dependencies (Marp PDF)

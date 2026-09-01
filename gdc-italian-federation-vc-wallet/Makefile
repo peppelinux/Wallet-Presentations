@@ -41,7 +41,8 @@ $(HTML): $(DECK) $(DIAGRAM_SVG) $(THEME) $(MARPC)
 $(PDF): $(DECK) $(DIAGRAM_SVG) $(THEME) $(MARPC)
 	cd "$(ROOT)" && $(MARP) deck.md -o deck.pdf $(MARP_FLAGS)
 
-$(PPTX): $(DECK) $(DIAGRAM_SVG) $(THEME) $(ROOT)scripts/build_native_pptx.py
+$(PPTX): $(DECK) $(DIAGRAM_SVG) $(THEME) $(ROOT)scripts/build_native_pptx.py $(ROOT)scripts/requirements-pptx.txt
+	@python3 -c "import pptx, PIL" 2>/dev/null || python3 -m pip install -q -r "$(ROOT)scripts/requirements-pptx.txt"
 	cd "$(ROOT)" && python3 scripts/build_native_pptx.py
 
 clean:
