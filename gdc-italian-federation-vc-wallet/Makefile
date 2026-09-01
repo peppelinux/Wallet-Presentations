@@ -8,17 +8,18 @@ DIAGRAM_MMD  := $(wildcard $(ROOT)diagrams/*.mmd)
 DIAGRAM_SVG  := $(DIAGRAM_MMD:.mmd=.svg)
 HTML         := $(ROOT)deck.html
 PDF          := $(ROOT)deck.pdf
+PPTX         := $(ROOT)deck.pptx
 
 MERMAID ?= npx --yes @mermaid-js/mermaid-cli@latest
 MARP ?= npx --yes @marp-team/marp-cli
 
-.PHONY: all html pdf diagrams clean help rebuild
+.PHONY: all html pdf pptx diagrams clean help rebuild
 
-all: $(HTML) $(PDF)
-	@echo "Deck OK — $(notdir $(HTML)) $(notdir $(PDF))"
+all: $(HTML) $(PDF) $(PPTX)
+	@echo "Deck OK — $(notdir $(HTML)) $(notdir $(PDF)) $(notdir $(PPTX))"
 
 help:
-	@echo "Targets: all (default), html, pdf, diagrams, clean, rebuild"
+	@echo "Targets: all (default), html, pdf, pptx, diagrams, clean, rebuild"
 
 rebuild: clean
 	$(MAKE) all
@@ -30,6 +31,7 @@ diagrams: $(DIAGRAM_SVG)
 
 html: $(HTML)
 pdf: $(PDF)
+pptx: $(PPTX)
 
 MARP_FLAGS := --allow-local-files --no-stdin
 
@@ -39,5 +41,8 @@ $(HTML): $(DECK) $(DIAGRAM_SVG) $(THEME) $(MARPC)
 $(PDF): $(DECK) $(DIAGRAM_SVG) $(THEME) $(MARPC)
 	cd "$(ROOT)" && $(MARP) deck.md -o deck.pdf $(MARP_FLAGS)
 
+$(PPTX): $(DECK) $(DIAGRAM_SVG) $(THEME) $(ROOT)scripts/build_native_pptx.py
+	cd "$(ROOT)" && python3 scripts/build_native_pptx.py
+
 clean:
-	rm -f "$(HTML)" "$(PDF)"
+	rm -f "$(HTML)" "$(PDF)" "$(PPTX)"

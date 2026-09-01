@@ -142,9 +142,9 @@ Public [OpenID Federation Browser](https://github.com/italia/openid-federation-b
 <!-- _class: roadmap-slide -->
 ## Roadmap — what this case hands to Part 2
 
-- **Phase 2:** more credentials, proximity (BLE / NFC), **private Wallet Providers** at the **same national registrar**.
+- **Phase 2:** more credentials, **private Wallet Providers** at the **same national registrar**.
 - **Phase 3:** notify the public IT-Wallet as an **EUDI Wallet** — Federation remains the **national** plane; EU lists are **additional** evidence, not a replacement.
-- **Standards we are pushing from practice:** [Federation Subordinate Events](https://openid.net/specs/openid-federation-subordinate-events-1_0.html), [Extended Subordinate Listing](https://openid.net/specs/openid-federation-extended-listing-1_0-01.html), [ACME + OpenID Federation](https://datatracker.ietf.org/doc/draft-ietf-acme-openid-federation/), and a possible **federation-scoped registration** analogue to OpenID Connect Dynamic Client Registration.
+- **Standards we are pushing from practice:** [Federation Subordinate Events](https://openid.net/specs/openid-federation-subordinate-events-1_0.html), [Extended Subordinate Listing](https://openid.net/specs/openid-federation-extended-listing-1_0-01.html), [ACME + OpenID Federation](https://datatracker.ietf.org/doc/draft-ietf-acme-openid-federation/)
 - **Open questions for Part 2:** due-diligence artefacts, Wallet Architecture draft maturity, how national federations **interwork** without a trust-proxy single point of failure.
 
 Specs: [italia.github.io/eid-wallet-it-docs](https://italia.github.io/eid-wallet-it-docs/versione-corrente/en/) · Trust chapter implements **OpenID Federation 1.0**.
